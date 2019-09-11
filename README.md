@@ -5,7 +5,7 @@ guide to learning ros
 
 # Table of Contents
 * [installtion]()  
-    * [px4环境配置](https://github.com/FamiliennameistChow/ROS_beginner/blob/master/node/px4_install.md)
+    * [px4环境配置](./node/px4_install.md)
 
     
 * [ROS基础教程]()
