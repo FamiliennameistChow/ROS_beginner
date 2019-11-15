@@ -5,7 +5,7 @@ guide to learning ros
 
 # Table of Contents
 * [installtion]()  
-    * [如何正确安装ros_px4_gazebo仿真环境](./note/installtion)
+    * [如何正确安装ros_px4_gazebo仿真环境](https://github.com/FamiliennameistChow/ROS_beginner/blob/master/note/installtion/PX4_install.md)
 
     
 * [ROS基础教程]()
