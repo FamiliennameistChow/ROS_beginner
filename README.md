@@ -5,7 +5,7 @@ guide to learning ros
 
 # Table of Contents
 * [installtion]()  
-    * [如何正确安装ros_px4_gazebo仿真环境](./note/installtion)
+    * [如何正确安装ros_px4_gazebo仿真环境](https://github.com/FamiliennameistChow/ROS_beginner/blob/master/note/installtion/PX4_install.md)
 
     
 * [ROS基础教程]()
@@ -16,6 +16,8 @@ guide to learning ros
     * [PX4 offboard Control with MAVROS(TO DO)]()
 
 * [gazebo环境配置](./note/installtion)
+
+* [ROS功能包(可复用)](./packages)
 	
 * [AirSim环境配置(TO DO)]()
 
