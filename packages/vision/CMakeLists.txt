@@ -8,6 +8,7 @@ add_compile_options(-std=c++11)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  message_generation
   roscpp
   rospy
   std_msgs
@@ -55,11 +56,9 @@ find_package(OpenCV 3 REQUIRED)
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(FILES
+  detResult.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -76,10 +75,9 @@ find_package(OpenCV 3 REQUIRED)
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+generate_messages(DEPENDENCIES
+  std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -111,6 +109,8 @@ find_package(OpenCV 3 REQUIRED)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
+  CATKIN_DEPENDS
+  message_runtime
 #  INCLUDE_DIRS include
 #  LIBRARIES vision
 #  CATKIN_DEPENDS roscpp rospy std_msgs
@@ -213,7 +213,11 @@ include_directories(
 add_executable(auto_landing
   src/auto_landing.cpp
 )
-add_dependencies(auto_landing ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(auto_landing 
+  ${${PROJECT_NAME}_EXPORTED_TARGETS} 
+  ${catkin_EXPORTED_TARGETS}
+  ${PROJECT_NAME}_generate_messages_cpp
+  )
 target_link_libraries(auto_landing
   ${catkin_LIBRARIES}
 )
