@@ -19,6 +19,8 @@ guide to learning ros
 	* [gazebo中给无人机添加单目相机(TO DO)]
 	* [gazebo中给无人机添加双目相机(TO DO)]
     * [gazebo_添加降落地标](https://github.com/FamiliennameistChow/ROS_beginner/blob/master/note/simulation/gazebo_add_landmark.md)
+
+* [ROS功能包(可复用)](./packages)
 	
 * [AirSim环境配置(TO DO)]()
 
