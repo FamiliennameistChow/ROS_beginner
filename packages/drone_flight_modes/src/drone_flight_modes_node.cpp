@@ -76,11 +76,13 @@ int main(int argc, char** argv)
 
   // Fly a circle
   ROS_INFO("Body: Fly a circle");
-  aero.setVelocityBody(5.0f, 0.0f, 0.0f, -30.0f, 400);
-  ROS_INFO("body: Wait for a bit");
-  aero.setVelocityBody(0.0f, 0.0f, 0.0f, 0.0f, 4);
+  aero.setVelocityBody(5.0f, 0.0f, 0.0f, -30.0f);
   
-  sleep(5);
+  sleep(6);
+  ROS_INFO("body: Wait for a bit");
+  aero.setVelocityBody(0.0f, 0.0f, 0.0f, 0.0f);
+  
+  sleep(10);
   ROS_INFO("Battery remaining: %g%%",aero.batteryState().percentage * 100.f);
 
   // move based on body coordinate

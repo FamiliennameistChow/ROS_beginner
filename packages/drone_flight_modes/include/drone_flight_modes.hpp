@@ -66,8 +66,8 @@ public:
   mavros_msgs::WaypointList waypoints(); // 获取机内航点任务
   int waypointReached(); // 获取已到达的航点数量（takeoff点和return点不计入）
 
-  void moveBody(float x, float y, float z); // 按照机体坐标系移动
-  void moveENU(float x, float y, float z); // 按照ENU坐标系移动（在当前位置坐标的基础上）
+  void moveBody(float x, float y, float z); // 按照机体坐标系移动，机头为ｘ正方向，机身左方向为ｙ正方向
+  void moveENU(float x, float y, float z); // 按照ENU坐标系移动（在当前位置坐标的基础上）,东方向为ｘ正方向，北方向为ｙ正方向
   void moveENUto(float x, float y, float z); // 将无人机移动到ENU坐标系下指定位置
   void rotateAngle(double degree); //让无人机偏航指定的角度（在当前偏航角的基础上）
   void rotateAngleto(double degree); //设定无人机偏航角为指定角度
@@ -75,8 +75,8 @@ public:
 
   const sensor_msgs::BatteryState& batteryState(); // 获取电池状态
 
-  void setVelocityNED(float vx, float vy, float vz, float yaw, std::size_t count = 1); // 设定无人机速度和角度（NED坐标系）
-  void setVelocityBody(float vx, float vy, float vz, float yaw_rate, std::size_t count = 1); // 设定无人机速度和角速度（机体坐标系）
+  void setVelocityNED(float vx, float vy, float vz, float yaw); // 设定无人机速度和角度（NED坐标系），北方向为ｘ正方向，东方向为ｙ正方向
+  void setVelocityBody(float vx, float vy, float vz, float yaw_rate); // 设定无人机速度和角速度（机体坐标系），机头为y正方向，机身右方向为x正方向
 
 
 private:
@@ -91,15 +91,15 @@ private:
   ros::Rate rate_ = ros::Rate(30.0);
   mavros_msgs::HomePosition home_{};
   ros::ServiceClient arming_client = nh_.serviceClient<mavros_msgs::CommandBool>("/mavros/cmd/arming");
-  ros::Publisher set_vel_pub_ = nh_.advertise<mavros_msgs::PositionTarget>("mavros/setpoint_raw/local", 10);;
+  ros::Publisher set_vel_pub_ = nh_.advertise<mavros_msgs::PositionTarget>("mavros/setpoint_raw/local", 10);
   ros::ServiceClient takeoff_client_ = nh_.serviceClient<mavros_msgs::CommandTOL>("/mavros/cmd/takeoff");
   ros::ServiceClient set_mode_client_ = nh_.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
-  ros::ServiceClient land_client_ = nh_.serviceClient<mavros_msgs::CommandTOL>("/mavros/cmd/land");;
+  ros::ServiceClient land_client_ = nh_.serviceClient<mavros_msgs::CommandTOL>("/mavros/cmd/land");
   ros::Publisher local_pos_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("mavros/setpoint_position/local", 10);
   ros::ServiceClient wp_client = nh_.serviceClient<mavros_msgs::WaypointPush>("mavros/mission/push");
   ros::ServiceClient wp_clear_client = nh_.serviceClient<mavros_msgs::WaypointClear>("mavros/mission/clear");
   bool home_set_ = false;
-  bool pub_flag_ = true;
+  bool pub_vel_flag_ = false;
   boost::thread* thread_watch_flight_mode_ = nullptr;  // for watching drone's flight state
   boost::thread* thread_publish_setpoint_ = nullptr;  // for publishing drone's setpoint_position/local
 
@@ -111,13 +111,14 @@ private:
   geometry_msgs::PoseStamped local_position;
   geometry_msgs::PoseStamped setpoint;
   sensor_msgs::BatteryState battery_state_{};
+  mavros_msgs::PositionTarget pos{};
 
   void getlocalPositionCB(const geometry_msgs::PoseStamped::ConstPtr &msg);
   void getWaypointsFromQGCPlan(const std::string& qgc_plan_file);
   void waypointsCB(const mavros_msgs::WaypointList::ConstPtr &msg);
   void waypointReachedCB(const mavros_msgs::WaypointReached::ConstPtr &msg);
   void setBatteryStateCB(const sensor_msgs::BatteryStateConstPtr& battery_state);
-  void publishSetpointThread();
+  void publishThread();
 };
 
 
@@ -127,16 +128,10 @@ AeroDrone::AeroDrone()
   resetHome();
   getHomeGeoPoint();
 
-  // set_vel_pub_ = nh_.advertise<mavros_msgs::PositionTarget>("mavros/setpoint_raw/local", 10);
-  // ros::Publisher local_pos_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("mavros/setpoint_position/local", 10);
-  // takeoff_client_ = nh_.serviceClient<mavros_msgs::CommandTOL>("/mavros/cmd/takeoff");
-  // set_mode_client_ = nh_.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
-  // land_client_ = nh_.serviceClient<mavros_msgs::CommandTOL>("/mavros/cmd/land");
-
   // Thread that watch for change in Aero flight mode changes.
   thread_watch_flight_mode_ = new boost::thread(boost::bind(&AeroDrone::watchFlightModeThread, this));
   // Thread that publish the setpoint.
-  thread_publish_setpoint_ = new boost::thread(boost::bind(&AeroDrone::publishSetpointThread, this));
+  thread_publish_setpoint_ = new boost::thread(boost::bind(&AeroDrone::publishThread, this));
 }
 
 AeroDrone::~AeroDrone()
@@ -307,11 +302,17 @@ void AeroDrone::watchFlightModeThread()
   }
 }
 
-void AeroDrone::publishSetpointThread()
+void AeroDrone::publishThread()
 {
   while(ros::ok())
   {
-    if(pub_flag_)
+    if(pub_vel_flag_)
+    {
+      set_vel_pub_.publish(pos);
+      ros::spinOnce();
+      rate_.sleep();
+    }
+    else
     {
       local_pos_pub_.publish(setpoint);
       ros::spinOnce();
@@ -343,7 +344,7 @@ bool AeroDrone::setMode(string modeName)
   {
     // Thread that publish setpoint.
     setpoint = local_position;
-    // thread_publish_setpoint_ = new boost::thread(boost::bind(&AeroDrone::publishSetpointThread, this));
+    // thread_publish_setpoint_ = new boost::thread(boost::bind(&AeroDrone::publishThread, this));
     for (int i = 100; ros::ok() && i > 0; --i) 
     {
       local_pos_pub_.publish(setpoint);
@@ -538,15 +539,19 @@ void AeroDrone::moveENUto(float x, float y, float z)
 void AeroDrone::rotateAngle(double degree)
 {
   double setyaw = yaw_degree + degree;
-  setpoint.pose.orientation.w = cos(setyaw * M_PI / 360);
+  setpoint.pose.orientation.x = 0;
+  setpoint.pose.orientation.y = 0;
   setpoint.pose.orientation.z = sin(setyaw * M_PI / 360);
+  setpoint.pose.orientation.w = cos(setyaw * M_PI / 360);
 }
 
 void AeroDrone::rotateAngleto(double degree)
 {
   double setyaw = degree;
-  setpoint.pose.orientation.w = cos(setyaw * M_PI / 360);
+  setpoint.pose.orientation.x = 0;
+  setpoint.pose.orientation.y = 0;
   setpoint.pose.orientation.z = sin(setyaw * M_PI / 360);
+  setpoint.pose.orientation.w = cos(setyaw * M_PI / 360);
 }
 
 float AeroDrone::toRadFromDeg(float deg)
@@ -554,52 +559,48 @@ float AeroDrone::toRadFromDeg(float deg)
   return static_cast<float>(deg / 180.0f * M_PI);
 }
 
-void AeroDrone::setVelocityBody(float vx, float vy, float vz, float yaw_rate, std::size_t count)
+void AeroDrone::setVelocityBody(float vx, float vy, float vz, float yaw_rate)
 {
-  pub_flag_ = false;
-  mavros_msgs::PositionTarget pos{};
-
-  pos.coordinate_frame = mavros_msgs::PositionTarget::FRAME_BODY_NED;
-  pos.type_mask = mavros_msgs::PositionTarget::IGNORE_PX | mavros_msgs::PositionTarget::IGNORE_PY |
-                  mavros_msgs::PositionTarget::IGNORE_PZ | mavros_msgs::PositionTarget::IGNORE_AFX |
-                  mavros_msgs::PositionTarget::IGNORE_AFY | mavros_msgs::PositionTarget::IGNORE_AFZ |
-                  mavros_msgs::PositionTarget::FORCE | mavros_msgs::PositionTarget::IGNORE_YAW;
-  pos.velocity.x = vx;
-  pos.velocity.y = vy;
-  pos.velocity.z = vz;
-  pos.yaw_rate = toRadFromDeg(yaw_rate);
-
-  for (; count > 0; count--)
+  if(vx == 0 && vy == 0 && vz == 0 && yaw_rate == 0)
   {
-    set_vel_pub_.publish(pos);
-    ros::spinOnce();
-    rate_.sleep();
+    setpoint = local_position;
+    pub_vel_flag_ = false;
   }
-  setpoint = local_position;
-  pub_flag_ = true;
+  else
+  {
+    pos.coordinate_frame = mavros_msgs::PositionTarget::FRAME_BODY_NED;
+    pos.type_mask = mavros_msgs::PositionTarget::IGNORE_PX | mavros_msgs::PositionTarget::IGNORE_PY |
+                    mavros_msgs::PositionTarget::IGNORE_PZ | mavros_msgs::PositionTarget::IGNORE_AFX |
+                    mavros_msgs::PositionTarget::IGNORE_AFY | mavros_msgs::PositionTarget::IGNORE_AFZ |
+                    mavros_msgs::PositionTarget::FORCE | mavros_msgs::PositionTarget::IGNORE_YAW;
+    pos.velocity.x = vx;
+    pos.velocity.y = vy;
+    pos.velocity.z = vz;
+    pos.yaw_rate = toRadFromDeg(yaw_rate);
+
+    pub_vel_flag_ = true;
+  }
 }
 
-void AeroDrone::setVelocityNED(float vx, float vy, float vz, float yaw, std::size_t count)
+void AeroDrone::setVelocityNED(float vx, float vy, float vz, float yaw)
 {
-  pub_flag_ = false;
-  mavros_msgs::PositionTarget pos{};
-
-  pos.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
-  pos.type_mask = mavros_msgs::PositionTarget::IGNORE_PX | mavros_msgs::PositionTarget::IGNORE_PY |
-                  mavros_msgs::PositionTarget::IGNORE_PZ | mavros_msgs::PositionTarget::IGNORE_AFX |
-                  mavros_msgs::PositionTarget::IGNORE_AFY | mavros_msgs::PositionTarget::IGNORE_AFZ |
-                  mavros_msgs::PositionTarget::FORCE | mavros_msgs::PositionTarget::IGNORE_YAW_RATE;
-  pos.velocity.x = vx;
-  pos.velocity.y = vy;
-  pos.velocity.z = vz;
-  pos.yaw = toRadFromDeg(yaw);
-
-  for (; count > 0; count--)
+  if(vx == 0 && vy == 0 && vz == 0 && yaw == 0)
   {
-    set_vel_pub_.publish(pos);
-    ros::spinOnce();
-    rate_.sleep();
+    setpoint = local_position;
+    pub_vel_flag_ = false;
   }
-  setpoint = local_position;
-  pub_flag_ = true;
+  else
+  {
+    pos.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
+    pos.type_mask = mavros_msgs::PositionTarget::IGNORE_PX | mavros_msgs::PositionTarget::IGNORE_PY |
+                    mavros_msgs::PositionTarget::IGNORE_PZ | mavros_msgs::PositionTarget::IGNORE_AFX |
+                    mavros_msgs::PositionTarget::IGNORE_AFY | mavros_msgs::PositionTarget::IGNORE_AFZ |
+                    mavros_msgs::PositionTarget::FORCE | mavros_msgs::PositionTarget::IGNORE_YAW_RATE;
+    pos.velocity.x = vx;
+    pos.velocity.y = vy;
+    pos.velocity.z = vz;
+    pos.yaw = toRadFromDeg(yaw);
+
+    pub_vel_flag_ = true;
+  }
 }
