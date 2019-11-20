@@ -17,9 +17,10 @@
 #include <cmath>
 #include <iostream>
 #include <time.h>
+#include <chrono>
 
 float kpx_land = 0.3,kpy_land = 0.3,kpz_land = 0.3; ////降落追踪控制算法的 速度 比例参数
-float Max_velx_land = 1.0, Max_vely_land = 1.0, Max_velz_land = 1.0; //降落追踪控制算法的最大速度
+float Max_velx_land = 1.0, Max_vely_land = 1.0, Max_velz_land = 0.5; //降落追踪控制算法的最大速度
 float Thres_velx_land, Thres_vely_land, Thres_velz_land;   
 float distance_pad = 100; //无人机与降落板中心的距离
 float Thres_distance_land = 0.2; //允许降落最大距离阈值
@@ -30,16 +31,18 @@ bool Flag_reach_pad_center = false; //是否到达目标点中心的标志位
 bool Flag_z_below_20cm = false; //高度是否达到允许降落的标志位
 float land_max_z = 0.2; //允许降落最大高度阈值
 int num_count_lost = 0;  //视觉丢失计数
+int num_count_z = 0; //降落过程中更改高度的计数阈值
 int Thres_vision_lost = 30; //视觉丢失计数阈值
 float vx, vy, vz;
-time_t last_result_time;
+chrono::steady_clock::time_point last_result_time;
+bool Flag_first_result = true;
+float x_begin, y_begin, z_begin, distance_pad_begin;
 
 vision::detResult det_result;
 void detResultCB(const vision::detResult::ConstPtr &msg)
 {
-    last_result_time = time(0);
+    last_result_time = chrono::steady_clock::now();
     det_result = *msg;
-
     //计算与降落板之间的距离
     distance_pad = sqrt(det_result.x_err * det_result.x_err + det_result.y_err * det_result.y_err);
 }
@@ -76,12 +79,11 @@ int main(int argc, char **argv)
     // publish a setpoint 
     myDrone.pubLocalPos(setpoint);
     sleep(7);
-    myDrone.moveBody(3,3,1);
-    sleep(7);
 
     while(ros::ok())
     {
-        if(time(0) - last_result_time >= 1)
+        // (chrono::duration_cast<chrono::duration<double>>(chrono::steady_clock::now() - last_result_time)).count();
+        if((chrono::duration_cast<chrono::duration<double>>(chrono::steady_clock::now() - last_result_time)).count() >= 1)
         {
             cout << "超过一秒钟未接收到识别结果，无人机将会悬停在当前位置" << endl;
             myDrone.setVelocityBody(0, 0, 0, 0);
@@ -89,11 +91,54 @@ int main(int argc, char **argv)
         }
         if(det_result.success)
         {
+            if(Flag_first_result)
+            {
+                x_begin = det_result.x_err;
+                y_begin = det_result.y_err;
+                distance_pad_begin = distance_pad;
+                z_begin = myDrone.localPosition().pose.position.z;
+                Flag_first_result = false;
+            }
+
             num_count_lost = 0;
 
             vx = abs(kpx_land * det_result.x_err) > Max_velx_land ?  (det_result.x_err > 0 ? Max_velx_land : -Max_velx_land) : (kpx_land * det_result.x_err);
             vy = abs(kpy_land * det_result.y_err) > Max_vely_land ?  (det_result.y_err > 0 ? Max_vely_land : -Max_vely_land) : (kpy_land * det_result.y_err);
-            vz = abs(kpz_land * (myDrone.localPosition().pose.position.z - fly_min_z)) > Max_velz_land ?  -Max_velz_land : -(kpz_land * (myDrone.localPosition().pose.position.z  - fly_min_z));
+
+            // 高度直接下降降落的方法
+            // vz = abs(kpz_land * (myDrone.localPosition().pose.position.z - fly_min_z)) > Max_velz_land ?  -Max_velz_land : -(kpz_land * (myDrone.localPosition().pose.position.z  - fly_min_z));
+            
+            // 高度自适应降落的方法
+            if(distance_pad > Thres_distance_land)
+            {
+                if(abs(distance_pad / distance_pad_begin - (myDrone.localPosition().pose.position.z - fly_min_z) / (z_begin - fly_min_z)) > 0.1)
+                {
+                    num_count_z++;
+                    if(num_count_z > 30)
+                    {
+                        if(distance_pad / distance_pad_begin > (myDrone.localPosition().pose.position.z - fly_min_z) / z_begin){
+                            cout << "无人机上升" << endl;
+                            vz = abs(kpz_land * (myDrone.localPosition().pose.position.z - fly_min_z)) > Max_velz_land ?  Max_velz_land : (kpz_land * (myDrone.localPosition().pose.position.z  - fly_min_z));
+
+                        }else{
+                            cout << "无人机下降" << endl;
+                            vz = abs(kpz_land * (myDrone.localPosition().pose.position.z - fly_min_z)) > Max_velz_land ?  -Max_velz_land : -(kpz_land * (myDrone.localPosition().pose.position.z  - fly_min_z));
+                        }
+                    }else{  
+                        cout << "无人机保持高度" << endl;         
+                        vz = 0;                
+                    }
+                }else{
+                    cout << "无人机保持高度" << endl;
+                    num_count_z = 0;
+                    vz = 0;
+                }
+            }else{
+                cout << "到达地标位置，无人机下降" << endl;
+                vz = -0.1;
+            }  
+            //高度自适应降落的方法
+
             myDrone.setVelocityBody(vx, vy, vz, 0);
         }
         else
@@ -115,14 +160,14 @@ int main(int argc, char **argv)
         if(distance_pad < Thres_distance_land && det_result.success)
         {
             num_count++;
-            cout<< "Distance_pad: " << distance_pad <<endl;
-            cout<< "Distance_land_count: " << num_count <<endl;
+            // cout<< "Distance_pad: " << distance_pad <<endl;
+            // cout<< "Distance_land_count: " << num_count <<endl;
         }
         else
         {
             num_count = 0;
-            cout<< "Distance_pad: " << distance_pad <<endl;
-            cout<< "Distance_land_count: " << num_count <<endl;
+            // cout<< "Distance_pad: " << distance_pad <<endl;
+            // cout<< "Distance_land_count: " << num_count <<endl;
         }
 
         //如果计数增加超过阈值，则满足降落的第一个条件（水平距离）
