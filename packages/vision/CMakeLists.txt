@@ -241,3 +241,11 @@ target_link_libraries(img_sub
   ${OpenCV_LIBS}
   ${Boost_LIBRARIES}
 )
+
+add_executable(detect_mark src/detect_mark.cpp)
+add_dependencies(detect_mark ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(detect_mark
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBS}
+  ${Boost_LIBRARIES}
+)
