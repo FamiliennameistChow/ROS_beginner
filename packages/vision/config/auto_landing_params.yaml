@@ -6,9 +6,9 @@ kpy_land: 0.3
 kpz_land: 0.3
 
 ##降落追踪控制算法的最大速度
-Max_velx_land: 0.5
-Max_vely_land: 0.5
-Max_velz_land: 0.3
+Max_velx_land: 0.3
+Max_vely_land: 0.3
+Max_velz_land: 0.2
 
 ##降落追踪控制算法的速度死区
 Thres_velx_land: 0.0
@@ -16,19 +16,33 @@ Thres_vely_land: 0.0
 Thres_velz_land: 0.0
 
 ##允许降落最大距离阈值
-Thres_distance_land: 0.2
+Thres_distance_land: 0.25
+#Thres_distance_land: 10.0(像素)
 
 ##允许降落计数阈值
 Thres_count_land: 20
 
 ##允许降落最大高度阈值
-land_max_z: 0.40
+land_max_z: 0.9
 
 ##视觉丢失计数阈值
-Thres_vision_lost: 30
+Thres_vision_lost: 20
 
 ##允许飞行最低高度[这个高度是指降落板上方的相对高度]
-fly_min_z: 0.3
+fly_min_z: 0.7
 
 ##起飞高度
 takeoff_hgt: 4
+
+##相机参数
+fx: 400.0
+fy: 277.191356
+cx: 640.0
+cy: 360.0
+
+##畸变参数
+k1: 0.0007689952035434544
+k2: 0.030314499512314796
+p1: -0.028857899829745293
+p2: 0.0037220960948616266
+k3: 0.0

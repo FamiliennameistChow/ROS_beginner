@@ -129,6 +129,8 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIR}
   /usr/include
+  # 添加Eigen头文件
+  /usr/include/eigen3
 )
 
 ## Declare a C++ library
