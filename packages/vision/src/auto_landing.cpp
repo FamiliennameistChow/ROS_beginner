@@ -19,24 +19,27 @@
 #include <time.h>
 #include <chrono>
 
-float kpx_land = 0.3,kpy_land = 0.3,kpz_land = 0.3; ////降落追踪控制算法的 速度 比例参数
-float Max_velx_land = 1.0, Max_vely_land = 1.0, Max_velz_land = 0.5; //降落追踪控制算法的最大速度
+float kpx_land, kpy_land, kpz_land; ////降落追踪控制算法的 速度 比例参数
+float Max_velx_land, Max_vely_land, Max_velz_land; //降落追踪控制算法的最大速度
 float Thres_velx_land, Thres_vely_land, Thres_velz_land;   
-float distance_pad = 100; //无人机与降落板中心的距离
-float Thres_distance_land = 0.2; //允许降落最大距离阈值
-int Thres_count_land = 30; //允许降落计数阈值
-int num_count = 0; //允许降落计数
-float fly_min_z = 0.2; //允许飞行最低高度[这个高度是指降落板上方的相对高度]
+float fly_min_z; //允许飞行最低高度[这个高度是指降落板上方的相对高度]
 bool Flag_reach_pad_center = false; //是否到达目标点中心的标志位
 bool Flag_z_below_20cm = false; //高度是否达到允许降落的标志位
-float land_max_z = 0.2; //允许降落最大高度阈值
+float Thres_distance_land; //允许降落最大距离阈值
+float Thres_count_land; //允许降落计数阈值
+float land_max_z; //允许降落最大高度阈值
+float Thres_vision_lost; //视觉丢失计数阈值
+
+int num_count = 0; //允许降落计数
 int num_count_lost = 0;  //视觉丢失计数
-int num_count_z = 0; //降落过程中更改高度的计数阈值
-int Thres_vision_lost = 30; //视觉丢失计数阈值
+int num_count_z = 0; //降落过程中偏离理想高度的计数
+float distance_pad = 100; //无人机与降落板中心的距离
 float vx, vy, vz;
 chrono::steady_clock::time_point last_result_time;
 bool Flag_first_result = true;
 float x_begin, y_begin, z_begin, distance_pad_begin;
+float takeoff_hgt;
+
 
 vision::detResult det_result;
 void detResultCB(const vision::detResult::ConstPtr &msg)
@@ -54,18 +57,53 @@ int main(int argc, char **argv)
     ros::NodeHandle nh;
     ros::Rate loop_rate(30);
     AeroDrone myDrone;
+
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>参数读取<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    //降落追踪控制算法 的比例参数
+    nh.param<float>("kpx_land", kpx_land, 0.3);
+    nh.param<float>("kpy_land", kpy_land, 0.3);
+    nh.param<float>("kpz_land", kpz_land, 0.3);
+
+    //降落追踪控制算法的最大速度
+    nh.param<float>("Max_velx_land", Max_velx_land, 0.6);
+    nh.param<float>("Max_vely_land", Max_vely_land, 0.6);
+    nh.param<float>("Max_velz_land", Max_velz_land, 0.5);
+
+    //降落追踪控制算法的速度死区
+    nh.param<float>("Thres_velx_land", Thres_velx_land, 0.02);
+    nh.param<float>("Thres_vely_land", Thres_vely_land, 0.02);
+    nh.param<float>("Thres_velz_land", Thres_velz_land, 0.02);
+
+    //允许降落最大距离阈值
+    nh.param<float>("Thres_distance_land", Thres_distance_land, 0.2);
+
+    //允许降落计数阈值
+    nh.param<float>("Thres_count_land", Thres_count_land, 20);
+
+    //允许降落最大高度阈值
+    nh.param<float>("land_max_z", land_max_z, 0.4);
+
+    //允许飞行最低高度[这个高度是指降落板上方的相对高度]
+    nh.param<float>("fly_min_z", fly_min_z, 0.3);
+
+    //视觉丢失计数阈值
+    nh.param<float>("Thres_vision_lost", Thres_vision_lost, 30);
+
+    //降落板高度
+    nh.param<float>("takeoff_hgt", takeoff_hgt, 5);
+
+
     
     ros::Subscriber detResult_sub = nh.subscribe("auto_landing/detResult", 100, detResultCB);
 
     geometry_msgs::PoseStamped setpoint;
     setpoint.pose.position.x = 0;
     setpoint.pose.position.y = 0;
-    setpoint.pose.position.z = 5;
+    setpoint.pose.position.z = takeoff_hgt;
 
     myDrone.arm();
     sleep(3);
-    // myDrone.takeoff();
-    // sleep(5);
+
     // set to offboard mode 
     if (!myDrone.setMode("OFFBOARD"))
     {
@@ -135,6 +173,8 @@ int main(int argc, char **argv)
                 }
             }else{
                 cout << "到达地标位置，无人机下降" << endl;
+                vx = 0;
+                vy = 0;
                 vz = -0.1;
             }  
             //高度自适应降落的方法

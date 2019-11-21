@@ -226,7 +226,7 @@ int main(int argc, char** argv)
 
     //image_transport 负责图像发布与订阅
     image_transport::ImageTransport it(nh);
-    image_transport::Subscriber sub = it.subscribe("/iris/usb_cam_down/image_raw", 1, imageCallback);
+    image_transport::Subscriber sub = it.subscribe("/iris/usb_cam2/image_raw", 1, imageCallback);
     image_transport::Publisher pub = it.advertise("auto_landing/image/detect_result", 1);
 
     while(img_sub.empty())
