@@ -160,24 +160,29 @@ static void drawSquares( Mat& image, const vector<vector<Point> >& squares, Mat&
         {
             fillPoly(mask, &p, &n, 1, Scalar(255, 255, 255), 8, 0);
             p_last = p;
+            // cout<<"+++"<< endl;
         }
         // cout << "point: " << "x:" << p-> x << "y:" << p->y << endl;
         //dont detect the border
         if ((p-> x > 3 && p->y > 3) && (abs(p_last-> x - p-> x) > 3) && (i!= 0))
         {
-            // polylines(image, &p, &n, 1, true, Scalar(0,255,0), 3, LINE_AA);
+            polylines(image, &p, &n, 1, true, Scalar(0,255,0), 3, LINE_AA);
             fillPoly(mask, &p, &n, 1, Scalar(255, 255, 255), 8, 0);
             p_last = p;
+            // cout << "----"<< endl;
         }
+        // cout << "====end====" << endl;
 
     }
 
-//    imshow(wndname, image);
+    // imshow(wndname, image);
+    // imshow("image_Squares", image);
 }
 
 void detectLandmark(Mat& image, Mat& mask, Point& center)
 {
     det_result.success = false;
+    // imshow("mask", mask);
     Point img_center(image.cols/2, image.rows/2);
     Mat image_masked, image_gray, image_blur, image_thres;
     bitwise_and(image, image, image_masked, mask);
@@ -234,15 +239,16 @@ int main(int argc, char** argv)
 
     Mat image;
     vector<vector<Point> > squares;
-    Mat mask = Mat::zeros(image.size(), CV_8UC1);
     Mat img;
     Point center;
+    Mat mask = Mat::zeros(image.size(), CV_8UC1);
     
     while(ros::ok())
     {    
         chrono::steady_clock::time_point t1 = chrono::steady_clock::now();
         img_sub.copyTo(image);
         image.copyTo(img);
+        Mat mask = Mat::zeros(image.size(), CV_8UC1);
         findSquares(image, squares);
         chrono::steady_clock::time_point t2 = chrono::steady_clock::now();
         drawSquares(image, squares, mask);
@@ -264,9 +270,9 @@ int main(int argc, char** argv)
 
         detResult_pub.publish(det_result);
         //imwrite( "out", image );
-        // int c = waitKey();
-        // if( (char)c == 27 )
-        //     break;
+        int c = waitKey(1);
+        if( (char)c == 27 )
+            break;
         ros::spinOnce();
         rate_.sleep();
     }
