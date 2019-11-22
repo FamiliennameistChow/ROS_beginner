@@ -42,7 +42,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
     }
     //  img_sub = cv_ptr->image;
     cv_ptr->image.copyTo(img_sub);
-    // cout << "in the callback" << endl;
+    cout << "in the callback" << endl;
 }
 
 
@@ -75,6 +75,7 @@ static void findSquares( const Mat& image, vector<vector<Point> >& squares )
     Mat timg(image);
     medianBlur(image, timg, 9);
     Mat gray0(timg.size(), CV_8U), gray;
+    int img_area = image.cols * image.rows;
 
     vector<vector<Point> > contours;
 
@@ -125,6 +126,7 @@ static void findSquares( const Mat& image, vector<vector<Point> >& squares )
                 // contour orientation
                 if( approx.size() == 4 &&
                     fabs(contourArea(Mat(approx))) > 1000 &&
+                    (fabs(contourArea(Mat(approx))) < (img_area/2))  &&
                     isContourConvex(Mat(approx)) )
                 {
                     double maxCosine = 0;
@@ -182,11 +184,11 @@ static void drawSquares( Mat& image, const vector<vector<Point> >& squares, Mat&
 void detectLandmark(Mat& image, Mat& mask, Point& center)
 {
     det_result.success = false;
-    // imshow("mask", mask);
+    imshow("mask", mask);
     Point img_center(image.cols/2, image.rows/2);
     Mat image_masked, image_gray, image_blur, image_thres;
     bitwise_and(image, image, image_masked, mask);
-    // imshow("image_masked", image_masked);
+    imshow("image_masked", image_masked);
     cvtColor(image_masked, image_gray, CV_BGR2GRAY);
     threshold(image_gray, image_thres, 0, 255, THRESH_BINARY);
     // imshow("image_thres", image_thres);
@@ -203,7 +205,7 @@ void detectLandmark(Mat& image, Mat& mask, Point& center)
         circle(image, center, radius, Scalar(155, 50, 255), 3, 8, 0);
         // int error_x = center.x - img_center.x;
         // int error_y = img_center.y - center.y;
-        cout << "x: "<< center.x << "  y: " << center.y << endl;
+        // cout << "x: "<< error_x << "  y: " << error_y << endl;
         det_result.x_err = center.x;
         det_result.y_err = center.y;
         det_result.success = true;
@@ -226,7 +228,7 @@ int main(int argc, char** argv)
 
     //image_transport 负责图像发布与订阅
     image_transport::ImageTransport it(nh);
-    image_transport::Subscriber sub = it.subscribe("/iris/usb_cam2/image_raw", 1, imageCallback);
+    image_transport::Subscriber sub = it.subscribe("/iris/usb_cam_down/image_raw", 1, imageCallback);
     image_transport::Publisher pub = it.advertise("auto_landing/image/detect_result", 1);
 
     while(img_sub.empty())
@@ -241,7 +243,6 @@ int main(int argc, char** argv)
     vector<vector<Point> > squares;
     Mat img;
     Point center;
-    Mat mask = Mat::zeros(image.size(), CV_8UC1);
     
     while(ros::ok())
     {    
@@ -255,11 +256,11 @@ int main(int argc, char** argv)
         chrono::steady_clock::time_point t3 = chrono::steady_clock::now();
         detectLandmark(img, mask, center);
         // imshow("detected", img);
-        // chrono::steady_clock::time_point t4 = chrono::steady_clock::now();
-        // chrono::duration<double> time_findSquares    = chrono::duration_cast<chrono::duration<double>>( t2-t1 );
-        // chrono::duration<double> time_drawSquares    = chrono::duration_cast<chrono::duration<double>>( t3-t2 );
-        // chrono::duration<double> time_detectLandmark = chrono::duration_cast<chrono::duration<double>>( t4-t3 );
-        // chrono::duration<double> time_used_total     = chrono::duration_cast<chrono::duration<double>>( t4-t1 );
+        chrono::steady_clock::time_point t4 = chrono::steady_clock::now();
+        chrono::duration<double> time_findSquares    = chrono::duration_cast<chrono::duration<double>>( t2-t1 );
+        chrono::duration<double> time_drawSquares    = chrono::duration_cast<chrono::duration<double>>( t3-t2 );
+        chrono::duration<double> time_detectLandmark = chrono::duration_cast<chrono::duration<double>>( t4-t3 );
+        chrono::duration<double> time_used_total     = chrono::duration_cast<chrono::duration<double>>( t4-t1 );
         // cout << "findSquares time cost:    " << time_findSquares.count()   << endl;
         // cout << "drawSquares time cost:    " << time_drawSquares.count()    << endl;
         // cout << "detectLandmark time cost: " << time_detectLandmark.count() << endl;
@@ -270,9 +271,9 @@ int main(int argc, char** argv)
 
         detResult_pub.publish(det_result);
         //imwrite( "out", image );
-        // int c = waitKey(1);
-        // if( (char)c == 27 )
-        //     break;
+        int c = waitKey(1);
+        if( (char)c == 27 )
+            break;
         ros::spinOnce();
         rate_.sleep();
     }
