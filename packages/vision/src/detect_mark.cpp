@@ -203,11 +203,9 @@ void detectLandmark(Mat& image, Mat& mask, Point& center)
         circle(image, center, radius, Scalar(155, 50, 255), 3, 8, 0);
         // int error_x = center.x - img_center.x;
         // int error_y = img_center.y - center.y;
-        int error_x = center.x;
-        int error_y = center.y;
-        cout << "x: "<< error_x << "  y: " << error_y << endl;
-        det_result.x_err = error_x;
-        det_result.y_err = error_y;
+        cout << "x: "<< center.x << "  y: " << center.y << endl;
+        det_result.x_err = center.x;
+        det_result.y_err = center.y;
         det_result.success = true;
     }
 }
@@ -257,11 +255,11 @@ int main(int argc, char** argv)
         chrono::steady_clock::time_point t3 = chrono::steady_clock::now();
         detectLandmark(img, mask, center);
         // imshow("detected", img);
-        chrono::steady_clock::time_point t4 = chrono::steady_clock::now();
-        chrono::duration<double> time_findSquares    = chrono::duration_cast<chrono::duration<double>>( t2-t1 );
-        chrono::duration<double> time_drawSquares    = chrono::duration_cast<chrono::duration<double>>( t3-t2 );
-        chrono::duration<double> time_detectLandmark = chrono::duration_cast<chrono::duration<double>>( t4-t3 );
-        chrono::duration<double> time_used_total     = chrono::duration_cast<chrono::duration<double>>( t4-t1 );
+        // chrono::steady_clock::time_point t4 = chrono::steady_clock::now();
+        // chrono::duration<double> time_findSquares    = chrono::duration_cast<chrono::duration<double>>( t2-t1 );
+        // chrono::duration<double> time_drawSquares    = chrono::duration_cast<chrono::duration<double>>( t3-t2 );
+        // chrono::duration<double> time_detectLandmark = chrono::duration_cast<chrono::duration<double>>( t4-t3 );
+        // chrono::duration<double> time_used_total     = chrono::duration_cast<chrono::duration<double>>( t4-t1 );
         // cout << "findSquares time cost:    " << time_findSquares.count()   << endl;
         // cout << "drawSquares time cost:    " << time_drawSquares.count()    << endl;
         // cout << "detectLandmark time cost: " << time_detectLandmark.count() << endl;
@@ -272,9 +270,9 @@ int main(int argc, char** argv)
 
         detResult_pub.publish(det_result);
         //imwrite( "out", image );
-        int c = waitKey(1);
-        if( (char)c == 27 )
-            break;
+        // int c = waitKey(1);
+        // if( (char)c == 27 )
+        //     break;
         ros::spinOnce();
         rate_.sleep();
     }
