@@ -1,3 +1,15 @@
+/***************************************************************************************************************************
+ * detect_mark.cpp
+ *
+ * Author: Chow
+ *
+ * Update Time: 2019.11.19
+ *
+ * 说明: 地标识别程序
+ *      1. 【订阅】下置摄像头图像数据
+ *      2. 【发布】识别结果 <vision::detResult> 
+ *      2. 【发布】识别后的图像 "auto_landing/image/detect_result" 
+***************************************************************************************************************************/
 #include <ros/ros.h>
 #include <cv_bridge/cv_bridge.h>
 #include <image_transport/image_transport.h>
@@ -58,6 +70,50 @@ static double angle( Point pt1, Point pt2, Point pt0 )
     return (dx1*dx2 + dy1*dy2)/sqrt((dx1*dx1 + dy1*dy1)*(dx2*dx2 + dy2*dy2) + 1e-10);
 }
 
+
+static void approxRectangle (const Mat& image, const Mat& img_process, vector<vector<Point> >& squares)
+{
+// *************针对矩形标靶，拟合矩形框****************
+// input image: raw image
+// input img_process: 单通道图像
+// input squares: 矩形四个角点点集
+//
+//***************************************************
+    int img_area = image.cols * image.rows;
+    vector<vector<Point> > contours;
+    vector<Vec4i> hierarchy;
+    vector<Point> approx;
+    findContours(img_process, contours, hierarchy, RETR_LIST, CHAIN_APPROX_SIMPLE);
+    // cout << "contours num: " << contours.size() << endl;
+    for (size_t i = 0; i < contours.size(); i++)
+    {
+        int area = contourArea(contours[i]);
+        if (area < 500) continue;  // contours whos area less than 1000 pixel will be passed!!
+        // Scalar color(rand() & 255, rand() & 255, rand()&255);
+        // cout << "area" <<  area << endl;
+        // drawContours(image, contours, i, color, FILLED, 8, hierarchy);
+        approxPolyDP(Mat(contours[i]), approx, arcLength(Mat(contours[i]), true)*0.02, true);
+        if (approx.size() == 4 &&
+            isContourConvex(Mat(approx)))
+        {
+            double maxCosine = 0;
+
+            for( int j = 2; j < 5; j++ )
+            {
+                // find the maximum cosine of the angle between joint edges
+                double cosine = fabs(angle(approx[j%4], approx[j-2], approx[j-1]));
+                maxCosine = MAX(maxCosine, cosine);
+            }
+
+            // if cosines of all angles are small
+            // (all angles are ~90 degree) then write quandrange
+            // vertices to resultant sequence
+            if( maxCosine < 0.3 )
+                squares.push_back(approx);
+        }
+    }
+}
+
 // returns sequence of squares detected on the image.
 // the sequence is stored in the specified memory storage
 static void findSquares( const Mat& image, vector<vector<Point> >& squares )
@@ -76,6 +132,7 @@ static void findSquares( const Mat& image, vector<vector<Point> >& squares )
     medianBlur(image, timg, 9);
     Mat gray0(timg.size(), CV_8U), gray;
     int img_area = image.cols * image.rows;
+    cvtColor(timg, timg, COLOR_BGR2HSV);
 
     vector<vector<Point> > contours;
 
@@ -149,6 +206,56 @@ static void findSquares( const Mat& image, vector<vector<Point> >& squares )
     }
 }
 
+static void findSquaresHSV( const Mat& image, vector<vector<Point> >& squares )
+{
+    squares.clear();
+    int img_area = image.cols * image.rows;
+    Mat img_hsv;
+    cvtColor(image, img_hsv, COLOR_BGR2HSV);
+    vector<Mat> hsv;
+    Mat canny, gray;
+    split(img_hsv, hsv);
+    for (int c=0; c < 3; c++)
+    {
+        string str_c = to_string(c);
+        // imshow("hsv_" + str_c, hsv[c]);
+        if (c == 2)  // process v Channel
+        {
+            for (int l=0; l < N; l++)
+            {
+                string str_l = to_string(l);
+                if(l==0)
+                {
+                    Canny(hsv[c], canny, 5, thresh, 5);
+                    dilate(canny, gray, Mat(), Point(-1,-1));
+                    threshold(gray, gray, 0, 255, THRESH_BINARY_INV);
+                    // imshow("img"+ str_c+"_"+ str_l, gray);
+                }
+                else
+                {
+                    gray = hsv[c] >= (l+1)*255/N;
+                    // imshow("img"+ str_c+"_"+ str_l, gray);
+                }
+                approxRectangle(image, gray, squares);
+            }
+        }
+        else  //process h, s channel
+        {
+            Canny(hsv[c], canny, 5, thresh, 5);
+            dilate(canny, gray, Mat(), Point(-1,-1));
+            threshold(gray, gray, 0, 255, THRESH_BINARY_INV);
+            approxRectangle(image, gray, squares);
+            // imshow("img_"+ str_c , gray);
+        }
+
+    }
+
+//    imshow("image_contours", image);
+//    for(auto it=squares.begin();it!=squares.end();it++)
+//    cout<< "point:" <<*it<<endl;
+
+}
+
 
 // the function draws all the squares in the image
 static void drawSquares( Mat& image, const vector<vector<Point> >& squares, Mat& mask)
@@ -168,7 +275,7 @@ static void drawSquares( Mat& image, const vector<vector<Point> >& squares, Mat&
         //dont detect the border
         if ((p-> x > 3 && p->y > 3) && (abs(p_last-> x - p-> x) > 3) && (i!= 0))
         {
-            polylines(image, &p, &n, 1, true, Scalar(0,255,0), 3, LINE_AA);
+            // polylines(image, &p, &n, 1, true, Scalar(0,255,0), 3, LINE_AA);
             fillPoly(mask, &p, &n, 1, Scalar(255, 255, 255), 8, 0);
             p_last = p;
             // cout << "----"<< endl;
@@ -177,7 +284,6 @@ static void drawSquares( Mat& image, const vector<vector<Point> >& squares, Mat&
 
     }
 
-    // imshow(wndname, image);
     // imshow("image_Squares", image);
 }
 
@@ -205,7 +311,7 @@ void detectLandmark(Mat& image, Mat& mask, Point& center)
         circle(image, center, radius, Scalar(155, 50, 255), 3, 8, 0);
         // int error_x = center.x - img_center.x;
         // int error_y = img_center.y - center.y;
-        // cout << "x: "<< error_x << "  y: " << error_y << endl;
+        cout << "x: "<< center.x << "  y: " << center.y << endl;
         det_result.x_err = center.x;
         det_result.y_err = center.y;
         det_result.success = true;
@@ -223,7 +329,7 @@ int main(int argc, char** argv)
     ros::NodeHandle nh;
     ros::Rate rate_ = ros::Rate(20.0);
 
-    //发布处理结果
+    //【发布】处理结果
     ros::Publisher detResult_pub = nh.advertise<vision::detResult>("auto_landing/detResult", 100);
 
     //image_transport 负责图像发布与订阅
@@ -250,11 +356,13 @@ int main(int argc, char** argv)
         img_sub.copyTo(image);
         image.copyTo(img);
         Mat mask = Mat::zeros(image.size(), CV_8UC1);
-        findSquares(image, squares);
+        // findSquares(image, squares);
+        findSquaresHSV(image, squares);
         chrono::steady_clock::time_point t2 = chrono::steady_clock::now();
         drawSquares(image, squares, mask);
         chrono::steady_clock::time_point t3 = chrono::steady_clock::now();
         detectLandmark(img, mask, center);
+        mask.release();
         // imshow("detected", img);
         chrono::steady_clock::time_point t4 = chrono::steady_clock::now();
         chrono::duration<double> time_findSquares    = chrono::duration_cast<chrono::duration<double>>( t2-t1 );
@@ -264,7 +372,7 @@ int main(int argc, char** argv)
         // cout << "findSquares time cost:    " << time_findSquares.count()   << endl;
         // cout << "drawSquares time cost:    " << time_drawSquares.count()    << endl;
         // cout << "detectLandmark time cost: " << time_detectLandmark.count() << endl;
-        // cout << "detect time cost:         " << time_used_total.count()     << endl;
+        cout << "detect time cost:         " << time_used_total.count()     << endl;
 
         sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", img).toImageMsg();
         pub.publish(msg);
