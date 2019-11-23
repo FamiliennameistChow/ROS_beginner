@@ -290,11 +290,11 @@ static void drawSquares( Mat& image, const vector<vector<Point> >& squares, Mat&
 void detectLandmark(Mat& image, Mat& mask, Point& center)
 {
     det_result.success = false;
-    imshow("mask", mask);
+    // imshow("mask", mask);
     Point img_center(image.cols/2, image.rows/2);
     Mat image_masked, image_gray, image_blur, image_thres;
     bitwise_and(image, image, image_masked, mask);
-    imshow("image_masked", image_masked);
+    // imshow("image_masked", image_masked);
     cvtColor(image_masked, image_gray, CV_BGR2GRAY);
     threshold(image_gray, image_thres, 0, 255, THRESH_BINARY);
     // imshow("image_thres", image_thres);
@@ -302,7 +302,7 @@ void detectLandmark(Mat& image, Mat& mask, Point& center)
     // imshow("image_blur", image_blur);
     vector<Vec3f> circles;
     HoughCircles(image_gray, circles, CV_HOUGH_GRADIENT, 1, image.rows/20, 100, 100, 0, 0);
-    cout <<"detected:" <<  circles.size() << endl;
+    cout <<"detected :                " <<  circles.size() << endl;
     for(size_t i=0; i<circles.size(); i++)
     {
         Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
@@ -311,7 +311,7 @@ void detectLandmark(Mat& image, Mat& mask, Point& center)
         circle(image, center, radius, Scalar(155, 50, 255), 3, 8, 0);
         // int error_x = center.x - img_center.x;
         // int error_y = img_center.y - center.y;
-        cout << "x: "<< center.x << "  y: " << center.y << endl;
+        // cout << "x: "<< center.x << "  y: " << center.y << endl;
         det_result.x_err = center.x;
         det_result.y_err = center.y;
         det_result.success = true;
