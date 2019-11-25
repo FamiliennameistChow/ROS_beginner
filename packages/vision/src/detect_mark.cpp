@@ -17,6 +17,8 @@
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
+#include <opencv2/ml/ml.hpp>
+#include <opencv2/ml.hpp>
 
 #include <drone_flight_modes.hpp>
 #include <vision/detResult.h>
@@ -25,20 +27,43 @@
 #include <math.h>
 #include <string.h>
 #include <chrono>
+#include <unistd.h>
 
 using namespace cv;
 using namespace std;
+using namespace cv::ml;
 
-static void version()
-{
-    cout << "Using OpenCV version\n" << CV_VERSION << "\n" << endl;
-}
 
 // 全局变量
 vision::detResult det_result;
 Mat img_sub;
 int thresh = 50, N = 5;
-// const char* wndname = "Square Detection Demo";
+int Mark_type;
+
+char szPath[128];
+void getPath()
+{
+    memset( szPath, 0x00, sizeof(szPath));
+    // getcwd(szBuf, sizeof(szBuf)-1);
+    int ret =  readlink("/proc/self/exe", szPath, sizeof(szPath)-1 );
+    printf("path:%s\n", szPath);
+    int len = strlen(szPath) - 1;
+    int count_=0;
+    for (int j=len; j>0; j--)
+    {
+        if (szPath[j] == '/')
+        {
+            count_++;
+        }
+        if (count_ == 4)
+        {
+            szPath[j+1] = 0;
+            cout << "dir:" << szPath << endl;
+            break;
+        }
+    }
+}
+
 
 void imageCallback(const sensor_msgs::ImageConstPtr& msg)
 {
@@ -287,47 +312,117 @@ static void drawSquares( Mat& image, const vector<vector<Point> >& squares, Mat&
     // imshow("image_Squares", image);
 }
 
+// 20191124 modify
 void detectLandmark(Mat& image, Mat& mask, Point& center)
 {
     det_result.success = false;
-    // imshow("mask", mask);
-    Point img_center(image.cols/2, image.rows/2);
-    Mat image_masked, image_gray, image_blur, image_thres;
+//    imshow("mask", mask);
+    cout << "the detect Mark_type is :" << Mark_type << endl;
+    Mat image_masked, image_gray, image_thres;
     bitwise_and(image, image, image_masked, mask);
     // imshow("image_masked", image_masked);
     cvtColor(image_masked, image_gray, CV_BGR2GRAY);
-    threshold(image_gray, image_thres, 0, 255, THRESH_BINARY);
-    // imshow("image_thres", image_thres);
-    GaussianBlur(image_thres, image_blur, Size(3, 3), 2, 2);
-    // imshow("image_blur", image_blur);
-    vector<Vec3f> circles;
-    HoughCircles(image_gray, circles, CV_HOUGH_GRADIENT, 1, image.rows/20, 100, 100, 0, 0);
-    cout <<"detected :                " <<  circles.size() << endl;
-    for(size_t i=0; i<circles.size(); i++)
+//    GaussianBlur(image_gray, image_blur, Size(3, 3), 2, 2);
+//    imshow("image_blur", image_blur);
+    // detect Num mark Type
+    if (Mark_type == 0)
     {
-        Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
-        int radius = cvRound(circles[i][2]);
-        circle(image, center, 3, Scalar(0, 255, 0), -1, 8, 0);
-        circle(image, center, radius, Scalar(155, 50, 255), 3, 8, 0);
-        // int error_x = center.x - img_center.x;
-        // int error_y = img_center.y - center.y;
-        // cout << "x: "<< center.x << "  y: " << center.y << endl;
-        det_result.x_err = center.x;
-        det_result.y_err = center.y;
-        det_result.success = true;
+        vector<Vec3f> circles;
+        HoughCircles(image_gray, circles, CV_HOUGH_GRADIENT, 1, image.rows/20, 100, 100, 0, 0);
+        cout <<"detected:" <<  circles.size() << endl;
+        for(size_t i=0; i<circles.size(); i++)
+        {
+            Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+            int radius = cvRound(circles[i][2]);
+            circle(image, center, 3, Scalar(0, 255, 0), -1, 8, 0);
+            circle(image, center, radius, Scalar(155, 50, 255), 3, 8, 0);
+            det_result.x_err = center.x;
+            det_result.y_err = center.y;
+            det_result.success = true;
+        }
     }
-}
+    // detect Num mark Type
+    if (Mark_type == 3)
+    {
+        Ptr<KNearest> knn(ml::KNearest::create());
+        try
+        {
+            // cout<<"there is " << strcat(szPath, "src/vision/config/models.yml") << endl;
+            // auto dir = strcat(szPath, "src/vision/config/models.yml");
+            knn = Algorithm::load<KNearest>("/home/bornchow/ROS_WS/landing_ws/src/vision/config/models.yml");
+        }  
+        catch(Exception)
+        {
+            cout << "=======" << endl;
+            cout << "MODEL LOAD ERROR: there is no models.yml file in config folder" << endl;
+        }
+        Mat image_erode;
+        Rect rect;
+        bool detectNum = false;
+        // imshow("image_gray", image_gray);
+        erode(image_gray, image_erode, Mat(), Point(-1,-1));
+        // imshow("erode", image_erode);
+        vector<Vec4i> hierarchy;
+        vector<vector<Point> > contours;
+        findContours(image_erode, contours, hierarchy, CV_RETR_TREE, CHAIN_APPROX_SIMPLE);
+        cout << "detected: " << contours.size() << endl;
 
+//        for(auto it=hierarchy.begin();it!=hierarchy.end();it++)
+//        cout<< "hierarchy   :" <<*it<<endl;
+//        drawContours(image, contours, 0, Scalar(255, 255, 0), 1, 8, hierarchy);
+//        cout << "hierarchy" << hierarchy[0] <<endl;
+
+        for (size_t i=0; i<contours.size(); i++)
+        {
+            int area = contourArea(contours[i]);
+            // cout << "area " << area << endl;
+            if (area < 200) continue;
+
+            if (hierarchy[i][3] != -1) //有父轮廓
+            {
+                rect = boundingRect(contours[i]);
+                detectNum = true;
+            }
+
+//            Scalar color(rand() & 255, rand() & 255, rand()&255);
+//            drawContours(image, contours, i, color, 1, 8, hierarchy);
+//            cout << "hierarchy" << hierarchy[i] <<endl;
+        }
+        if (detectNum)
+        {
+            // idetify num
+            Mat ROI = image_gray(rect);
+            threshold(ROI, ROI, 0, 255, THRESH_BINARY_INV);
+            // imshow("ROI", ROI);
+//            cout << "W: " << ROI.cols << " H: " << ROI.rows << endl;
+            Mat temp, temp2;
+            resize(ROI, temp, Size(56, 56), 0, 0, INTER_LINEAR);
+            temp.convertTo(temp2, CV_32FC1);
+            Mat response;
+            int p = knn->findNearest(temp2.reshape(1, 1), 1, response);
+            cout << "detected num:      " << p << endl;
+            det_result.x_err = (rect.tl().x + rect.br().x) / 2;
+            det_result.y_err = (rect.tl().y + rect.br().y) / 2;
+            det_result.success = true;
+            det_result.num = p;
+            // draw result
+            rectangle(image, rect.tl(), rect.br(), Scalar(155, 50, 255), 2);
+            circle(image, Point(det_result.x_err, det_result.y_err), 3, Scalar(0, 255, 0), -1, 8, 0);
+        }
+    }
+    cout << "x: "<< det_result.x_err << "  y: " << det_result.y_err << endl;
+    // imshow("image", image);
+}
 
 int main(int argc, char** argv)
 {
-    // static const char* names[] = { "../11.png", 0 };
-    version();
-    // namedWindow( wndname, 1 );
-
+    cout << "Using OpenCV version\n" << CV_VERSION << "\n" << endl;
+    // getPath();
     ros::init(argc, argv, "landmark_detect");
     ros::NodeHandle nh;
     ros::Rate rate_ = ros::Rate(20.0);
+
+    nh.param<int>("Mark_type", Mark_type, 3);
 
     //【发布】处理结果
     ros::Publisher detResult_pub = nh.advertise<vision::detResult>("auto_landing/detResult", 100);
@@ -362,7 +457,6 @@ int main(int argc, char** argv)
         drawSquares(image, squares, mask);
         chrono::steady_clock::time_point t3 = chrono::steady_clock::now();
         detectLandmark(img, mask, center);
-        mask.release();
         // imshow("detected", img);
         chrono::steady_clock::time_point t4 = chrono::steady_clock::now();
         chrono::duration<double> time_findSquares    = chrono::duration_cast<chrono::duration<double>>( t2-t1 );

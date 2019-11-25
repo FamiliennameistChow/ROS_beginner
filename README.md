@@ -40,6 +40,10 @@ guide to learning ros
 20191124 zb
 * 添加`配置turtlebot_gazebo仿真环境`
 
+20191124 zb
+* 添加gazebo/mark_label_1 - h
+* knn数字识别 添加 `models.yml` 
+
 
 
 
