@@ -41,8 +41,10 @@ guide to learning ros
 * 添加`配置turtlebot_gazebo仿真环境`
 
 20191124 zb
-* 添加gazebo/mark_label_1 - h
-* knn数字识别 添加 `models.yml` 
+* 添加`gazebo/mark_label_1, mark_label_h, mark_label_x`
+* knn数字识别 添加 `vision/config/models.yml`
+* 添加数字识别值　修改 `/vision/msg/detResult.msg`
+* 添加标靶类型　修改`packages/vision/config/auto_landing_params.yaml`
 
 
 
