@@ -1,0 +1,6 @@
+<launch>
+    <node pkg="vision" type="mark_tracking" name="mark_tracking" output="screen" />
+    <node pkg="vision" type="detect_mark" name="detect_mark" output="screen" />
+
+    <rosparam file="$(find vision)/config/mark_tracking_params.yaml" command="load" />
+</launch>
