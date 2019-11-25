@@ -46,6 +46,33 @@ guide to learning ros
 * 添加数字识别值　修改 `/vision/msg/detResult.msg`
 * 添加标靶类型　修改`packages/vision/config/auto_landing_params.yaml`
 
+20191125 zb
+
+* 添加新的功能包`gazebo_test`用于控制gazebo模型状态
+
+---
+
+`gazebo_test`功能包python 环境安装
+
+* 创建虚拟环境
+
+```
+conda create -n DRL27 python=2.7
+```
+* 安装tensorflow等
+```
+pip install tensorflow==1.12.0
+pip install opencv-python
+pip install pillow
+pip install pyyaml
+```
+
+* ImportError: No module named rospkg
+
+```
+pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
+```
+---
 
 
 
