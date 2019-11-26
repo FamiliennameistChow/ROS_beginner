@@ -1,14 +1,14 @@
 # Parameter for auto_landing.cpp
 
 ##降落追踪 的比例参数
-kpx_land: 0.3
-kpy_land: 0.3
-kpz_land: 0.3
+kpx_land: 0.4
+kpy_land: 0.4
+kpz_land: 0.4
 
 ##降落追踪控制算法的最大速度
-Max_velx_land: 0.5
-Max_vely_land: 0.5
-Max_velz_land: 0.3
+Max_velx_land: 0.6
+Max_vely_land: 0.6
+Max_velz_land: 0.6
 
 ##降落追踪控制算法的速度死区
 Thres_velx_land: 0.0
@@ -16,30 +16,32 @@ Thres_vely_land: 0.0
 Thres_velz_land: 0.0
 
 ##允许降落最大距离阈值
-Thres_distance_land: 0.25
-#Thres_distance_land: 10.0(像素)
+Thres_distance_land: 0.17
 
 ##允许降落计数阈值
 Thres_count_land: 30
 
+##调整高度计数阈值
+Thres_count_z: 20
+
 ##允许降落最大高度阈值
-land_max_z: 0.9
+land_max_z: 0.5
 
 ##视觉丢失计数阈值
 Thres_vision_lost: 30
 
 ##允许飞行最低高度[这个高度是指降落板上方的相对高度]
-fly_min_z: 0.7
+fly_min_z: 0.3
 
 ##允许飞行最大高度[这个高度是指降落板上方的相对高度]
-fly_max_z: 5
+fly_max_z: 6
 
 ##起飞高度
-takeoff_hgt: 6
+takeoff_hgt: 4
 
-##相机参数
-fx: 400.0
-fy: 277.191356
+##相机参数(视角为90°，1280*720)
+fx: 277.0
+fy: 277.0
 cx: 640.0
 cy: 360.0
 
@@ -51,6 +53,5 @@ p2: 0.0037220960948616266
 k3: 0.0
 
 #**************************地标识别有关***************************
-
 # 地标类型 0-H型地标 1-X型地标 2-字母地标 3-数字地标 9-未指定
 Mark_type: 3

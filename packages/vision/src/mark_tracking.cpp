@@ -41,8 +41,8 @@ float Thres_vision_lost; //视觉丢失计数阈值
 float takeoff_hgt;
 float mark_hight;
 float error_sum_x = 0, error_sum_y = 0; //降落追踪控制算法的速度积分项
-float derror_x, derror_y; //降落追踪控制算法的速度微分项
-float x_err, y_err; // 无人机与降落板之间的位置偏差（单位：米）
+float derror_x = 0, derror_y = 0; //降落追踪控制算法的速度微分项
+float x_err = 0, y_err = 0; // 无人机与降落板之间的位置偏差（单位：米）
 float hight, hight_prev;
 float dt;
 
@@ -156,7 +156,7 @@ int main(int argc, char **argv)
     setpoint.pose.position.z = takeoff_hgt;
 
     myDrone.arm();
-    sleep(3);
+    sleep(1);
 
     // set to offboard mode 
     if (!myDrone.setMode("OFFBOARD"))
@@ -170,7 +170,7 @@ int main(int argc, char **argv)
 
     // publish a setpoint 
     myDrone.pubLocalPos(setpoint);
-    sleep(7);
+    sleep(5);
 
     last_loop_time = chrono::steady_clock::now();
 
@@ -216,73 +216,33 @@ int main(int argc, char **argv)
 
             num_count_lost = 0;
 
-            // 高度直接下降降落的方法
-            // vz = abs(kpz_land * (myDrone.localPosition().pose.position.z - fly_min_z)) > Max_velz_land ?  -Max_velz_land : -(kpz_land * (myDrone.localPosition().pose.position.z  - fly_min_z));
-            
-            // 高度自适应降落的方法
-            // 如果　距离地标的距离　大于　允许降落最大距离阈值
-            if(distance_pad > Thres_distance_land)
+            vz = -0.25;
+            // 如果相对距离小于阈值，计数增加
+            if(distance_pad < Thres_distance_land)
             {
-                num_count = 0;
-
-                vx = kpx_land * x_err + kix_land * error_sum_x + kdx_land * derror_x;
-                vy = kpy_land * y_err + kiy_land * error_sum_y + kdy_land * derror_y;
-                
-                vx = (abs(vx) > Max_velx_land ?  (x_err > 0 ? Max_velx_land : -Max_velx_land) : vx);
-                vy = (abs(vy) > Max_vely_land ?  (y_err > 0 ? Max_vely_land : -Max_vely_land) : vy);
-
-                // 如果　当前高度与第一次识别到地标时高度的比例　和　当前距离与第一次识别到地标时距离的比例　相差较大，认为高度需要调整
-                if(abs(distance_pad / distance_pad_begin - (hight - fly_min_z) / (z_begin - fly_min_z)) > 0.05)
-                {
-                    //　对高度是否需要调整计数
-                    num_count_z++;
-
-                    // 如果满足调整高度的计数阈值
-                    if(num_count_z > Thres_count_z)
-                    {
-                        //　如果　距离的比例　大于　高度的比例，则认为高度太低，需要让无人机上升
-                        if(distance_pad / distance_pad_begin > (hight - fly_min_z) / z_begin){
-                            // cout << "无人机上升" << endl;
-                            vz = (abs(kpz_land * (hight - fly_min_z)) > Max_velz_land ?  Max_velz_land : (kpz_land * (hight  - fly_min_z)));
-                        }
-                        //　如果　距离的比例　小于　高度的比例，则认为高度太低，需要让无人机下降
-                        else{
-                            // cout << "无人机下降" << endl;
-                            vz = (abs(kpz_land * (hight - fly_min_z)) > Max_velz_land ?  -Max_velz_land : -(kpz_land * (hight  - fly_min_z)));
-                        }
-                    }
-                    // 如果未达到调整高度的计数阈值
-                    // else{  
-                    //     // cout << "无人机保持高度" << endl;         
-                    //     vz = 0;                
-                    // }
-                }
-                // 如果高度合适，则不需要调整高度
-                else{
-                    // cout << "无人机保持高度" << endl;
-                    num_count_z = 0;
-                    vz = 0;
-                }
-            }
-            // 如果　距离地标的距离　小于等于　允许降落最大距离阈值，则认为到达地标，直接下降。
-            // 且同时满足（distance_pad < Thres_distance_land && det_result.success）,允许降落计数累加
-            else{
                 num_count++;
                 cout << "到达地标位置，无人机下降" << endl;
                 if(hight < 0.5)
                 {
-                    vx = 0;
-                    vy = 0;
-                    vz = -2.0;
+                    vz = -1.0;
                 }
                 else
                 {
-                    vx = 0;
-                    vy = 0;
-                    vz = -1.0;
-                }    
-            }  
-            //高度自适应降落的方法
+                    vz = -0.7;
+                } 
+            }
+            else
+            {
+                num_count = 0;
+            }
+            // if(hight <= fly_min_z)
+            //     vz = 0;
+
+            vx = kpx_land * x_err + kix_land * error_sum_x + kdx_land * derror_x;
+            vy = kpy_land * y_err + kiy_land * error_sum_y + kdy_land * derror_y;
+
+            vx = (abs(vx) > Max_velx_land ?  (vx > 0 ? Max_velx_land : -Max_velx_land) : (vx));
+            vy = (abs(vy) > Max_vely_land ?  (vy > 0 ? Max_vely_land : -Max_vely_land) : (vy));
 
             myDrone.setVelocityBody(vx, vy, vz, 0);
         }
@@ -294,11 +254,11 @@ int main(int argc, char **argv)
             //如果丢失计数超过阈值，则在不超过最大高度的前提下，无人机上升以获得更大的视野
             if(num_count_lost > Thres_vision_lost)
             {
-                // cout << "lost the target, hold at current position!" << endl;
                 if(hight <= fly_max_z)
-                    myDrone.setVelocityBody(0, 0, 0.2, 0);
+                    vz = 1;
                 else
-                    myDrone.setVelocityBody(0, 0, 0, 0);
+                    vz = 0;
+                myDrone.setVelocityBody(0, 0, vz, 0);
             }
         }
 
@@ -306,10 +266,11 @@ int main(int argc, char **argv)
         //1：水平距离小于阈值，即无人机抵达降落板中心位置附近
         //2：相对高度小于阈值，
 
-        // // 如果相对距离小于阈值，计数增加
+        // 如果相对距离小于阈值，计数增加
         // if(distance_pad < Thres_distance_land && det_result.success)
         // {
         //     num_count++;
+        //     cout << "到达地标位置，无人机下降" << endl;
         //     // cout<< "Distance_pad: " << distance_pad <<endl;
         //     // cout<< "Distance_land_count: " << num_count <<endl;
         // }
@@ -348,8 +309,8 @@ int main(int argc, char **argv)
         if(Flag_reach_pad_center && Flag_z_below_20cm)
         {
             // land and disarm!
-            myDrone.land();
-            sleep(3);
+            // myDrone.land();
+            // sleep(3);
 
             if (!myDrone.disarm())
             {
