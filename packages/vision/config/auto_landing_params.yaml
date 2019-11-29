@@ -1,9 +1,9 @@
 # Parameter for auto_landing.cpp
 
 ##降落追踪 的比例参数
-kpx_land: 0.4
-kpy_land: 0.4
-kpz_land: 0.4
+kpx_land: 0.5
+kpy_land: 0.5
+kpz_land: 0.5
 
 ##降落追踪控制算法的最大速度
 Max_velx_land: 0.6
@@ -16,7 +16,7 @@ Thres_vely_land: 0.0
 Thres_velz_land: 0.0
 
 ##允许降落最大距离阈值
-Thres_distance_land: 0.17
+Thres_distance_land: 0.15
 
 ##允许降落计数阈值
 Thres_count_land: 30
@@ -40,8 +40,8 @@ fly_max_z: 6
 takeoff_hgt: 4
 
 ##相机参数(视角为90°，1280*720)
-fx: 277.0
-fy: 277.0
+fx: 240.0
+fy: 240.0
 cx: 640.0
 cy: 360.0
 

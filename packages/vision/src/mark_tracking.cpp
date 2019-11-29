@@ -27,6 +27,9 @@ using namespace std;
 float kpx_land, kpy_land, kpz_land; //降落追踪控制算法的 速度 比例项参数
 float kix_land, kiy_land, kiz_land; //降落追踪控制算法的 速度 积分项参数
 float kdx_land, kdy_land, kdz_land; //降落追踪控制算法的 速度 微分项参数
+float kpx_land2, kpy_land2, kpz_land2; //低高度时降落追踪控制算法的 速度 比例项参数
+float kix_land2, kiy_land2, kiz_land2; //低高度时降落追踪控制算法的 速度 积分项参数
+float kdx_land2, kdy_land2, kdz_land2; //低高度时降落追踪控制算法的 速度 微分项参数
 float Max_velx_land, Max_vely_land, Max_velz_land; //降落追踪控制算法的最大速度
 float Thres_velx_land, Thres_vely_land, Thres_velz_land;   
 float fly_min_z; //允许飞行最低高度[这个高度是指降落板上方的相对高度]
@@ -102,6 +105,21 @@ int main(int argc, char **argv)
     nh.param<float>("kdx_land", kdx_land, 0.3);
     nh.param<float>("kdy_land", kdy_land, 0.3);
     nh.param<float>("kdz_land", kdz_land, 0.3);
+
+    //低高度时降落追踪控制算法 的比例参数
+    nh.param<float>("kpx_land2", kpx_land2, 0.3);
+    nh.param<float>("kpy_land2", kpy_land2, 0.3);
+    nh.param<float>("kpz_land2", kpz_land2, 0.3);
+
+    //低高度时降落追踪控制算法 的比例参数
+    nh.param<float>("kix_land2", kix_land2, 0.3);
+    nh.param<float>("kiy_land2", kiy_land2, 0.3);
+    nh.param<float>("kiz_land2", kiz_land2, 0.3);
+
+    //低高度时降落追踪控制算法 的比例参数
+    nh.param<float>("kdx_land2", kdx_land2, 0.3);
+    nh.param<float>("kdy_land2", kdy_land2, 0.3);
+    nh.param<float>("kdz_land2", kdz_land2, 0.3);
 
     //降落追踪控制算法的最大速度
     nh.param<float>("Max_velx_land", Max_velx_land, 0.3);
@@ -217,11 +235,25 @@ int main(int argc, char **argv)
             num_count_lost = 0;
 
             vz = -0.25;
+            if(hight >= 1)
+            {
+                vx = kpx_land * x_err + kix_land * error_sum_x + kdx_land * derror_x;
+                vy = kpy_land * y_err + kiy_land * error_sum_y + kdy_land * derror_y;
+            }
+            else
+            {
+                vx = kpx_land2 * x_err + kix_land2 * error_sum_x + kdx_land2 * derror_x;
+                vy = kpy_land2 * y_err + kiy_land2 * error_sum_y + kdy_land2 * derror_y;              
+            }
+            vx = (abs(vx) > Max_velx_land ?  (vx > 0 ? Max_velx_land : -Max_velx_land) : (vx));
+            vy = (abs(vy) > Max_vely_land ?  (vy > 0 ? Max_vely_land : -Max_vely_land) : (vy));
             // 如果相对距离小于阈值，计数增加
             if(distance_pad < Thres_distance_land)
             {
                 num_count++;
                 cout << "到达地标位置，无人机下降" << endl;
+                // vx *= 1.2;
+                // vy *= 1.2;
                 if(hight < 0.5)
                 {
                     vz = -1.0;
@@ -235,25 +267,17 @@ int main(int argc, char **argv)
             {
                 num_count = 0;
             }
-            // if(hight <= fly_min_z)
-            //     vz = 0;
-
-            vx = kpx_land * x_err + kix_land * error_sum_x + kdx_land * derror_x;
-            vy = kpy_land * y_err + kiy_land * error_sum_y + kdy_land * derror_y;
-
-            vx = (abs(vx) > Max_velx_land ?  (vx > 0 ? Max_velx_land : -Max_velx_land) : (vx));
-            vy = (abs(vy) > Max_vely_land ?  (vy > 0 ? Max_vely_land : -Max_vely_land) : (vy));
 
             myDrone.setVelocityBody(vx, vy, vz, 0);
         }
         else
         {
             num_count_lost++;
-            num_count = 0;
 
             //如果丢失计数超过阈值，则在不超过最大高度的前提下，无人机上升以获得更大的视野
             if(num_count_lost > Thres_vision_lost)
             {
+                num_count = 0;
                 if(hight <= fly_max_z)
                     vz = 1;
                 else
@@ -306,7 +330,7 @@ int main(int argc, char **argv)
         }
 
         //如果降落的两个条件都满足，则降落并上锁
-        if(Flag_reach_pad_center && Flag_z_below_20cm)
+        if(Flag_reach_pad_center && (Flag_z_below_20cm || hight < 0.1))
         {
             // land and disarm!
             // myDrone.land();
