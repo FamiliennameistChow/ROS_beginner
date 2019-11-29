@@ -26,7 +26,7 @@
 * 安装px4 toolchain
 
 [tool chain](https://dev.px4.io/v1.9.0/en/setup/dev_env_linux_ubuntu.html)
-![toolchain](_v_images/20191022093216064_342500731.png)
+![toolchain](../../img/px4.png)
 
 请使用`ubuntu_sim_common_deps.sh`脚本, 该脚本不会安装`gazebo`,不然会将ros-kinetic中安装的gazebo7覆盖
 
