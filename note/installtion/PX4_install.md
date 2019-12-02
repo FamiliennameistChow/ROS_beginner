@@ -26,10 +26,13 @@
 * 安装px4 toolchain
 
 [tool chain](https://dev.px4.io/v1.9.0/en/setup/dev_env_linux_ubuntu.html)
-![toolchain](_v_images/20191022093216064_342500731.png)
+![toolchain](../../img/px4.png)
 
 请使用`ubuntu_sim_common_deps.sh`脚本, 该脚本不会安装`gazebo`,不然会将ros-kinetic中安装的gazebo7覆盖
 
+* step1:
+
+新建脚本一个空的文件ubuntu_sim_common_deps.sh，写入如下代码：
 
 ```sh
 #!/bin/bash
@@ -100,12 +103,38 @@ else
     git clone https://github.com/PX4/Firmware.git
 fi
 ```
+为脚本添加权限：
+```
+sudo chmod +x ubuntu_sim_common_deps.sh
+```
 
+* step2:
+
+打开一个新的terminal，执行
+```
+sudo usermod -a -G dialout $USER
+```
+执行完之后重启一下, 官方说的是Logout and login again 使得操作生效
+
+* step3:
+
+在刚刚建立ubuntu_sim_common_deps.sh的目录下，执行
+```
+source ubuntu_sim_common_deps.sh
+```
+
+等待安装......
+
+`terminal`中出现`done`
+
+表示安装完成
+
+## 编译px4 /Firmware
 
 * 编译px4 /Firmware, **这里安装1.8.2版本**
 
 ```
-mkdir -p PX4
+mkdir PX4
 cd PX4
 git clone https://github.com/PX4/Firmware.git
 cd Firmware
@@ -120,6 +149,11 @@ make posix_sitl_default
 **如果要安装1.9.2**
 
 ```
+mkdir PX4
+cd PX4
+git clone https://github.com/PX4/Firmware.git
+cd Firmware
+
 git checkout v1.9.2
 
 git submodule update --init --recursive
@@ -135,7 +169,22 @@ make px4_sitl_default
 
 [mavros安装](https://dev.px4.io/v1.9.0/en/ros/mavros_installation.html)
 
+* 二进制安装
 
+在terminal中执行
+```
+sudo apt-get install ros-kinetic-mavros ros-kinetic-mavros-extras
+```
+
+* 安装完成后，执行
+```
+wget https://raw.githubusercontent.com/mavlink/mavros/master/mavros/scripts/install_geographiclib_datasets.sh
+./install_geographiclib_datasets.sh
+```
+完毕后，执行
+```
+roslaunch mavros px4.launch fcu_url:="udp://:14540@127.0.0.1:14557"
+```
 ## 在ros中使用python3[未测试]
 
 ```

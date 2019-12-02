@@ -17,7 +17,7 @@ guide to learning ros
     * [PX4 offboard Control with MAVROS(TO DO)]()
 
 * [gazebo环境配置](https://github.com/FamiliennameistChow/ROS_beginner/blob/master/note/installtion/gazebo_simulation.md)
-	* [gazebo中给无人机添加单目相机(TO DO)]
+	* [gazebo中给无人机添加单目相机](https://zhuanlan.zhihu.com/p/91692124)
 	* [gazebo中给无人机添加双目相机(TO DO)]
     * [gazebo_添加降落地标](https://github.com/FamiliennameistChow/ROS_beginner/blob/master/note/simulation/gazebo_add_landmark.md)
 
