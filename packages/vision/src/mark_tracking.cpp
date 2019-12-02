@@ -18,11 +18,12 @@
 #include <iostream>
 #include <time.h>
 #include <chrono>
-// #include <Eigen/Core>
-// #include <Eigen/Geometry>
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+#include <boost/bind.hpp>
 
 using namespace std;
-// using namespace Eigen;
+using namespace Eigen;
 
 float kpx_land, kpy_land, kpz_land; //降落追踪控制算法的 速度 比例项参数
 float kix_land, kiy_land, kiz_land; //降落追踪控制算法的 速度 积分项参数
@@ -48,6 +49,7 @@ float derror_x = 0, derror_y = 0; //降落追踪控制算法的速度微分项
 float x_err = 0, y_err = 0; // 无人机与降落板之间的位置偏差（单位：米）
 float hight, hight_prev;
 float dt;
+bool hgt_sw = true;
 
 int num_count = 0; //允许降落计数
 int num_count_lost = 0;  //视觉丢失计数
@@ -62,24 +64,22 @@ vision::detResult det_result;
 vision::detResult det_result_prev;
 
 // 获得　地标中心点　的归一化坐标
-void pixelToCamera(float u, float v, vision::detResult &det_result)
+void pixelToNED(vision::detResult &det_result, Quaterniond &q)
 {
-    // Vector3d pixel(u, v, 1);
-    // Matrix3d K;
-    // K << fx, 0.0, cx, 0.0, fy, cy, 0.0, 0.0, 1.0;
-    // Vector3d camera = K.inverse() * pixel;
-    det_result.x_err = (u - cx) / fx;
-    det_result.y_err = -(v - cy) / fy;
+    Vector3d body_rotated(cy - det_result.y_err, cx - det_result.x_err, 1);
+    // ENU坐标系下的矫正坐标(单位四元数取共轭即为逆)
+    Vector3d body = q.conjugate() * body_rotated;
+    // 再转换成NED坐标
+    det_result.x_err = -body(1) / fx;
+    det_result.y_err = body(0) / fy;
     // cout << "x:" << det_result.x_err << ", y:" << det_result.y_err << endl;
 }
 
-void detResultCB(const vision::detResult::ConstPtr &msg)
+void detResultCB(const vision::detResult::ConstPtr &msg, Quaterniond &q)
 {
     last_result_time = chrono::steady_clock::now();
-
-    det_result.success = msg -> success;
-    pixelToCamera(msg -> x_err, msg -> y_err, det_result);
-    // det_result = *msg;
+    det_result = *msg;
+    pixelToNED(det_result, q);
 }
 
 
@@ -89,6 +89,9 @@ int main(int argc, char **argv)
     ros::NodeHandle nh;
     ros::Rate loop_rate(30);
     AeroDrone myDrone;
+
+    Quaterniond q(myDrone.localPosition().pose.orientation.w, myDrone.localPosition().pose.orientation.x, 
+                  myDrone.localPosition().pose.orientation.y, myDrone.localPosition().pose.orientation.z);
 
     //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>参数读取<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     //降落追踪控制算法 的比例参数
@@ -166,7 +169,7 @@ int main(int argc, char **argv)
 
 
     
-    ros::Subscriber detResult_sub = nh.subscribe("auto_landing/detResult", 100, detResultCB);
+    ros::Subscriber detResult_sub = nh.subscribe<vision::detResult>("auto_landing/detResult", 10, boost::bind(&detResultCB, _1, q));
 
     geometry_msgs::PoseStamped setpoint;
     setpoint.pose.position.x = 0;
@@ -194,6 +197,11 @@ int main(int argc, char **argv)
 
     while(ros::ok())
     {
+        q.x() = myDrone.localPosition().pose.orientation.x;
+        q.y() = myDrone.localPosition().pose.orientation.y;
+        q.z() = myDrone.localPosition().pose.orientation.z;
+        q.w() = myDrone.localPosition().pose.orientation.w;
+
         dt = (chrono::duration_cast<chrono::duration<double>>(chrono::steady_clock::now() - last_loop_time)).count();
         last_loop_time = chrono::steady_clock::now();
 
@@ -234,16 +242,23 @@ int main(int argc, char **argv)
 
             num_count_lost = 0;
 
-            vz = -0.25;
-            if(hight >= 1)
+            vz = -0.3;
+            if(hight >= 1.3)
             {
                 vx = kpx_land * x_err + kix_land * error_sum_x + kdx_land * derror_x;
                 vy = kpy_land * y_err + kiy_land * error_sum_y + kdy_land * derror_y;
+                hgt_sw = true;
             }
             else
             {
+                if(hgt_sw)
+                {
+                    error_sum_x = 0;
+                    error_sum_y = 0;
+                }
                 vx = kpx_land2 * x_err + kix_land2 * error_sum_x + kdx_land2 * derror_x;
-                vy = kpy_land2 * y_err + kiy_land2 * error_sum_y + kdy_land2 * derror_y;              
+                vy = kpy_land2 * y_err + kiy_land2 * error_sum_y + kdy_land2 * derror_y; 
+                hgt_sw = false;             
             }
             vx = (abs(vx) > Max_velx_land ?  (vx > 0 ? Max_velx_land : -Max_velx_land) : (vx));
             vy = (abs(vy) > Max_vely_land ?  (vy > 0 ? Max_vely_land : -Max_vely_land) : (vy));
@@ -255,24 +270,20 @@ int main(int argc, char **argv)
                 // vx *= 1.2;
                 // vy *= 1.2;
                 if(hight < 0.5)
-                {
-                    vz = -1.0;
-                }
+                    vz = -0.8;
                 else
-                {
-                    vz = -0.7;
-                } 
+                    vz = -0.5;
             }
             else
-            {
                 num_count = 0;
-            }
 
             myDrone.setVelocityBody(vx, vy, vz, 0);
         }
         else
         {
             num_count_lost++;
+            error_sum_x = 0;
+            error_sum_y = 0;
 
             //如果丢失计数超过阈值，则在不超过最大高度的前提下，无人机上升以获得更大的视野
             if(num_count_lost > Thres_vision_lost)
@@ -306,7 +317,7 @@ int main(int argc, char **argv)
         // }
 
         //如果计数增加超过阈值，则满足降落的第一个条件（水平距离）
-        if(distance_pad <= Thres_distance_land && num_count > Thres_count_land)
+        if(distance_pad <= Thres_distance_land && num_count >= Thres_count_land)
         {
             cout<< "Flag_reach_pad_center: " << "true" <<endl;
             Flag_reach_pad_center = true;
@@ -330,7 +341,7 @@ int main(int argc, char **argv)
         }
 
         //如果降落的两个条件都满足，则降落并上锁
-        if(Flag_reach_pad_center && (Flag_z_below_20cm || hight < 0.1))
+        if(Flag_z_below_20cm)
         {
             // land and disarm!
             // myDrone.land();

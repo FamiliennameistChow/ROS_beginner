@@ -4,41 +4,43 @@
 kpx_land: 0.75
 kpy_land: 0.75
 kpz_land: 0.75
-# kpx_land: 0.7
-# kpy_land: 0.7
-# kpz_land: 0.7
 
 ##降落追踪 的积分参数
 kix_land: 0.085
 kiy_land: 0.085
 kiz_land: 0.085
-# kix_land: 0.12
-# kiy_land: 0.12
-# kiz_land: 0.12
 
 ##降落追踪 的微分参数
 kdx_land: 0.0
 kdy_land: 0.0
 kdz_land: 0.0
-# kdx_land: 0.12
-# kdy_land: 0.12
-# kdz_land: 0.12
 
 
 ##低高度时降落追踪 的比例参数
-kpx_land2: 0.694
-kpy_land2: 0.694
-kpz_land2: 0.694
+kpx_land2: 0.7
+kpy_land2: 0.7
+kpz_land2: 0.7
 
 ##低高度时降落追踪 的积分参数
-kix_land2: 0.17
-kiy_land2: 0.17
-kiz_land2: 0.17
+#位姿转换前使用的参数
+# kix_land2: 0.17
+# kiy_land2: 0.17
+# kiz_land2: 0.17
+
+#位姿转换后使用的参数
+kix_land2: 0.09
+kiy_land2: 0.09
+kiz_land2: 0.09
 
 ##低高度时降落追踪 的微分参数
-kdx_land2: 0.15
-kdy_land2: 0.15
-kdz_land2: 0.15
+# kdx_land2: 0.15
+# kdy_land2: 0.15
+# kdz_land2: 0.15
+
+#位姿转换后使用的参数
+kdx_land2: 0.09
+kdy_land2: 0.09
+kdz_land2: 0.09
 
 ##降落追踪控制算法的最大速度
 Max_velx_land: 1
@@ -51,10 +53,10 @@ Thres_vely_land: 0.0
 Thres_velz_land: 0.0
 
 ##允许降落最大距离阈值
-Thres_distance_land: 0.15
+Thres_distance_land: 0.1
 
 ##允许降落计数阈值
-Thres_count_land: 5
+Thres_count_land: 2
 
 ##视觉丢失计数阈值
 Thres_vision_lost: 15
@@ -63,16 +65,16 @@ Thres_vision_lost: 15
 Thres_count_z: 20
 
 ##降落板的高度
-mark_hight: 0.2
+mark_hight: 0
 
 ##允许降落最大高度阈值
-land_max_z: 0.5
+land_max_z: 0.25
 
 ##允许飞行最低高度[这个高度是指降落板上方的相对高度]
-fly_min_z: 0.3
+fly_min_z: 0.2
 
 ##允许飞行最大高度[这个高度是指降落板上方的相对高度]
-fly_max_z: 5
+fly_max_z: 4
 
 ##起飞高度
 takeoff_hgt: 4
