@@ -74,6 +74,12 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 ```
 ---
 
+20191210 zb
+
+* 增加着陆比赛图像检测代码`/vision/src/red_detect.cpp`
+* 新增着陆比赛msg`/vision/msg/redResult.msg`
+
+
 
 
 

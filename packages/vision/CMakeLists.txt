@@ -58,6 +58,7 @@ find_package(OpenCV 3 REQUIRED)
 ## Generate messages in the 'msg' folder
 add_message_files(FILES
   detResult.msg
+  redResult.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -77,6 +78,7 @@ add_message_files(FILES
 ## Generate added messages and services with any dependencies listed here
 generate_messages(DEPENDENCIES
   std_msgs
+  geometry_msgs
 )
 
 ################################################
@@ -260,4 +262,12 @@ add_executable(mark_tracking
 add_dependencies(mark_tracking ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(mark_tracking
   ${catkin_LIBRARIES}
+)
+
+add_executable(red_detect src/red_detect.cpp)
+add_dependencies(red_detect ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(red_detect
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBS}
+  ${Boost_LIBRARIES}
 )
