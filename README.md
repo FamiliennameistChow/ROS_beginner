@@ -50,6 +50,9 @@ guide to learning ros
 
 * 添加新的功能包`gazebo_test`用于控制gazebo模型状态
 
+20191202 zwl
+* 追踪降落代码增加位姿解算相关代码
+
 ---
 
 `gazebo_test`功能包python 环境安装
