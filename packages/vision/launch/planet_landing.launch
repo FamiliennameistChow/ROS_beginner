@@ -1,0 +1,6 @@
+<launch>
+    <node pkg="vision" type="planet_landing" name="planet_landing" output="screen" />
+    <node pkg="vision" type="red_detect" name="red_detect" output="screen" />
+
+    <rosparam file="$(find vision)/config/planet_landing_params.yaml" command="load" />
+</launch>
