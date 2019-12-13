@@ -52,6 +52,7 @@ struct Geofence
 };
 
 bool flag_get_red = false, flag_get_landing = false;
+std_msgs::Bool flag_target_right;
 float mark_hight, first_hight, second_hight, third_hight;
 geometry_msgs::Point mark_center, target_pos;
 Status current_status = Status_n::WAITING;
@@ -114,7 +115,8 @@ int main(int argc, char **argv)
 
     ros::Subscriber red_result_sub = nh.subscribe<vision::redResult>("planet_landing/redResult", 1000, redResultCB);
     ros::Subscriber landing_result_sub = nh.subscribe<vision::redResult>("planet_landing/landingResult", 1000, landingResultCB);
-    ros::Publisher det_signal_pub = nh.advertise<vision::redResult>("planet_landing/det_signal", 1000);
+    ros::Publisher det_signal_pub = nh.advertise<vision::redResult>("planet_landing/det_start", 1000);
+    ros::Publisher targrt_right_pub = nh.advertise<std_msgs::Bool>("planet_landing/target_right", 1000);
     
 
     while(ros::ok())
@@ -210,7 +212,7 @@ int main(int argc, char **argv)
                     }
                 }
                 
-
+                flag_get_red = false;
                 cout << "识别到了四个标靶，坐标转换中..." << endl;
                 pixelToENU(marks_pixel, marks_ENU, myDrone.localPosition().pose);
                 geofence.x_max = max(max(max(marks_ENU.mark_ori[0].x, marks_ENU.mark_ori[1].x), marks_ENU.mark_ori[2].x), marks_ENU.mark_ori[3].x);
@@ -253,23 +255,38 @@ int main(int argc, char **argv)
                     {
                         cout << "识别到了初步的着陆区，坐标转换中..." << endl;
                         pixelToENU(landing_target_pixel, landing_target_ENU, myDrone.localPosition().pose);
-                        mark_center.x = landing_target_ENU.mark_ori[0].x > myDrone.localPosition().pose.position.x ? ((geofence.x_max + myDrone.localPosition().pose.position.x)/2) : ((geofence.x_min + myDrone.localPosition().pose.position.x)/2);
-                        mark_center.y = landing_target_ENU.mark_ori[0].y > myDrone.localPosition().pose.position.y ? ((geofence.y_max + myDrone.localPosition().pose.position.y)/2) : ((geofence.y_min + myDrone.localPosition().pose.position.y)/2);
-                        target_pos = mark_center;
+                        // mark_center.x = landing_target_ENU.mark_ori[0].x > myDrone.localPosition().pose.position.x ? ((geofence.x_max + myDrone.localPosition().pose.position.x)/2) : ((geofence.x_min + myDrone.localPosition().pose.position.x)/2);
+                        // mark_center.y = landing_target_ENU.mark_ori[0].y > myDrone.localPosition().pose.position.y ? ((geofence.y_max + myDrone.localPosition().pose.position.y)/2) : ((geofence.y_min + myDrone.localPosition().pose.position.y)/2);
+                        // target_pos = mark_center;
+                        target_pos = landing_target_ENU.mark_ori[0];
                         target_pos.z = second_hight;
                         cout << "坐标转换完成，无人机飞往备降区中心点..." << endl;
                         landing_target_ENU.mark_ori.clear();
                         flag_get_landing = false;
                     }
-                    if(detect_times == 2)
+                    if(detect_times > 1)
                     {
                         cout << "识别到了最终的着陆点，坐标转换中..." << endl;
                         pixelToENU(landing_target_pixel, landing_target_ENU, myDrone.localPosition().pose);
-                        target_pos = landing_target_ENU.mark_ori[0];
-                        target_pos.z = third_hight;
-                        cout << "坐标转换完成，无人机飞往着陆点上方..." << endl;
-                        landing_target_ENU.mark_ori.clear();
-                        flag_get_landing = false;
+                        if((landing_target_ENU.mark_ori[0].x > geofence.x_min) && (landing_target_ENU.mark_ori[0].x < geofence.x_max) && (landing_target_ENU.mark_ori[0].y > geofence.y_min) && (landing_target_ENU.mark_ori[0].y < geofence.y_max))
+                        {
+                            cout << "坐标转换完成，着陆点在沙盘内，无人机飞往着陆点上方..." << endl;
+                            flag_target_right.data = true;
+                            targrt_right_pub.publish(flag_target_right);
+                            target_pos = landing_target_ENU.mark_ori[0];
+                            target_pos.z = third_hight;
+                            landing_target_ENU.mark_ori.clear();
+                            flag_get_landing = false;
+                        }
+                        else
+                        {
+                            cout << "坐标转换完成，着陆点在沙盘外，重新识别..." << endl;
+                            flag_target_right.data = false;
+                            targrt_right_pub.publish(flag_target_right);
+                            landing_target_ENU.mark_ori.clear();
+                            flag_get_landing = false;
+                            break;
+                        }
                     }
 
                     current_status = Status_n::MOVING;

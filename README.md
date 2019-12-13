@@ -53,9 +53,6 @@ guide to learning ros
 20191202 zwl
 * 追踪降落增加位姿解算相关代码
 
-20191211 zwl
-* 增加行星降落比赛策略代码
-
 ---
 
 `gazebo_test`功能包python 环境安装
@@ -85,7 +82,11 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 * 增加着陆比赛图像检测代码`/vision/src/red_detect.cpp`
 * 新增着陆比赛msg`/vision/msg/redResult.msg`
 
+20191211 zwl
+* 增加行星着陆比赛策略代码`/vision/src/planet_landing.cpp`
 
+20191213 zwl
+* 增加gazebo场景文件`/vision/world`，优化着陆策略。
 
 
 
