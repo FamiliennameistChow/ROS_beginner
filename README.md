@@ -88,6 +88,9 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 20191213 zwl
 * 增加gazebo场景文件`/vision/world`，优化着陆策略。
 
+20191224 zwl
+* 增加库文件drone_flight_modes.hpp的功能，现在支持非控制模式和多机仿真。
+
 
 
 

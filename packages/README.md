@@ -18,7 +18,7 @@
     此功能包为基础学习包。包括基本的offboard模式控制无人机以及扩展而来的键盘控制无人机（共两个版本）。
 
 * [vision包](./vision)
-　　此功能包为无人机视觉相关包。img_pub.cpp为打开USB相机并发布ROS图像消息；img_sub为接收ROS图像消息并显示；auto_landing为自主降落相关代码。
+　　此功能包为无人机视觉相关包。img_pub.cpp为打开USB相机并发布ROS图像消息；img_sub为接收ROS图像消息并显示；auto_landing为自主降落相关代码；mark_tracking为追踪降落相关代码；detect_mark为地标识别相关代码；red_detect为红色标靶识别代码，与planet_landing一起组成着陆比赛的功能代码。
 
 
 

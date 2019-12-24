@@ -48,7 +48,7 @@ namespace bpt = boost::property_tree;
 class AeroDrone
 {
 public:
-  AeroDrone();
+  AeroDrone(int uav_num, const string ctrl_mode);
   ~AeroDrone();
 
   // Actions
@@ -87,17 +87,19 @@ private:
   void getFlightModeCB(const mavros_msgs::StateConstPtr& state);
   float toRadFromDeg(float deg);
 
+  int uav_num_;
+  string topic_head_;
   ros::NodeHandle nh_;
   ros::Rate rate_ = ros::Rate(30.0);
   mavros_msgs::HomePosition home_{};
-  ros::ServiceClient arming_client = nh_.serviceClient<mavros_msgs::CommandBool>("/mavros/cmd/arming");
-  ros::Publisher set_vel_pub_ = nh_.advertise<mavros_msgs::PositionTarget>("mavros/setpoint_raw/local", 10);
-  ros::ServiceClient takeoff_client_ = nh_.serviceClient<mavros_msgs::CommandTOL>("/mavros/cmd/takeoff");
-  ros::ServiceClient set_mode_client_ = nh_.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
-  ros::ServiceClient land_client_ = nh_.serviceClient<mavros_msgs::CommandTOL>("/mavros/cmd/land");
-  ros::Publisher local_pos_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("mavros/setpoint_position/local", 10);
-  ros::ServiceClient wp_client = nh_.serviceClient<mavros_msgs::WaypointPush>("mavros/mission/push");
-  ros::ServiceClient wp_clear_client = nh_.serviceClient<mavros_msgs::WaypointClear>("mavros/mission/clear");
+  ros::ServiceClient arming_client;
+  ros::Publisher set_vel_pub_;
+  ros::ServiceClient takeoff_client_;
+  ros::ServiceClient set_mode_client_;
+  ros::ServiceClient land_client_;
+  ros::Publisher local_pos_pub_;
+  ros::ServiceClient wp_client;
+  ros::ServiceClient wp_clear_client;
   bool home_set_ = false;
   bool pub_vel_flag_ = false;
   boost::thread* thread_watch_flight_mode_ = nullptr;  // for watching drone's flight state
@@ -122,16 +124,33 @@ private:
 };
 
 
-
-AeroDrone::AeroDrone()
+AeroDrone::AeroDrone(int uav_num = 0, const string ctrl_mode = "WITHCTRL")
+  :uav_num_(uav_num)
 {
+  if(uav_num_ == 0)
+    topic_head_ = "";
+  else
+    topic_head_ = "/uav" + to_string(uav_num_);
+
   resetHome();
   getHomeGeoPoint();
 
+  arming_client = nh_.serviceClient<mavros_msgs::CommandBool>(topic_head_ + "/mavros/cmd/arming");
+  set_vel_pub_ = nh_.advertise<mavros_msgs::PositionTarget>(topic_head_ + "/mavros/setpoint_raw/local", 10);
+  takeoff_client_ = nh_.serviceClient<mavros_msgs::CommandTOL>(topic_head_ + "/mavros/cmd/takeoff");
+  set_mode_client_ = nh_.serviceClient<mavros_msgs::SetMode>(topic_head_ + "/mavros/set_mode");
+  land_client_ = nh_.serviceClient<mavros_msgs::CommandTOL>(topic_head_ + "/mavros/cmd/land");
+  local_pos_pub_ = nh_.advertise<geometry_msgs::PoseStamped>(topic_head_ + "/mavros/setpoint_position/local", 10);
+  wp_client = nh_.serviceClient<mavros_msgs::WaypointPush>(topic_head_ + "/mavros/mission/push");
+  wp_clear_client = nh_.serviceClient<mavros_msgs::WaypointClear>(topic_head_ + "/mavros/mission/clear");
+
   // Thread that watch for change in Aero flight mode changes.
   thread_watch_flight_mode_ = new boost::thread(boost::bind(&AeroDrone::watchFlightModeThread, this));
-  // Thread that publish the setpoint.
-  thread_publish_setpoint_ = new boost::thread(boost::bind(&AeroDrone::publishThread, this));
+  if(ctrl_mode == "WITHCTRL")
+    // Thread that publish the setpoint.
+    thread_publish_setpoint_ = new boost::thread(boost::bind(&AeroDrone::publishThread, this));
+  else if(ctrl_mode == "NOCTRL")
+    ROS_INFO("uav%d can not set to offboard mode", uav_num_);
 }
 
 AeroDrone::~AeroDrone()
@@ -164,7 +183,7 @@ bool AeroDrone::disarm()
     return false;
   }
 
-  auto disarm_client = nh_.serviceClient<mavros_msgs::CommandBool>("/mavros/cmd/arming");
+  auto disarm_client = nh_.serviceClient<mavros_msgs::CommandBool>(topic_head_ + "/mavros/cmd/arming");
   mavros_msgs::CommandBool srv_disarm;
   srv_disarm.request.value = false;
   if (disarm_client.call(srv_disarm) && srv_disarm.response.success)
@@ -217,7 +236,7 @@ void AeroDrone::resetHome()
 void AeroDrone::getHomeGeoPoint()
 {
   // FCU Home position: See http://docs.ros.org/api/sensor_msgs/html/msg/NavSatFix.html
-  auto home_sub = nh_.subscribe<mavros_msgs::HomePosition>("mavros/home_position/home", 1,
+  auto home_sub = nh_.subscribe<mavros_msgs::HomePosition>(topic_head_ + "/mavros/home_position/home", 1,
                                                            boost::bind(&AeroDrone::setHomeGeoPointCB, this, _1));
 
   ROS_INFO("Waiting for Aero FC Home to be set...");
@@ -277,23 +296,23 @@ void AeroDrone::watchFlightModeThread()
 {
   // drone state
   ros::Subscriber state_sub = nh_.subscribe<mavros_msgs::State>(
-    "mavros/state", 5, boost::bind(&AeroDrone::getFlightModeCB, this, _1));
+    topic_head_ + "/mavros/state", 5, boost::bind(&AeroDrone::getFlightModeCB, this, _1));
 
   // local position
   ros::Subscriber local_position_sub = nh_.subscribe<geometry_msgs::PoseStamped>(
-    "mavros/local_position/pose", 5, boost::bind(&AeroDrone::getlocalPositionCB, this, _1));
+    topic_head_ + "/mavros/local_position/pose", 5, boost::bind(&AeroDrone::getlocalPositionCB, this, _1));
 
   // waypoints in mission
   ros::Subscriber waypoints_sub = nh_.subscribe<mavros_msgs::WaypointList>(
-    "/mavros/mission/waypoints", 5, boost::bind(&AeroDrone::waypointsCB, this, _1));
+    topic_head_ + "/mavros/mission/waypoints", 5, boost::bind(&AeroDrone::waypointsCB, this, _1));
 
   // number of waypoints have reached
   ros::Subscriber waypoint_reached_sub = nh_.subscribe<mavros_msgs::WaypointReached>(
-    "/mavros/mission/reached", 5, boost::bind(&AeroDrone::waypointReachedCB, this, _1));
+    topic_head_ + "/mavros/mission/reached", 5, boost::bind(&AeroDrone::waypointReachedCB, this, _1));
 
   // Battery state
   ros::Subscriber battery_state_sub = nh_.subscribe<sensor_msgs::BatteryState>(
-      "mavros/battery", 1, boost::bind(&AeroDrone::setBatteryStateCB, this, _1));
+      topic_head_ + "/mavros/battery", 1, boost::bind(&AeroDrone::setBatteryStateCB, this, _1));
 
   while (ros::ok())
   {
