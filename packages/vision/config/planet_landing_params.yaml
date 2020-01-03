@@ -7,12 +7,12 @@ mark_hight: 0.2
 first_hight: 5.5
 
 #在1/4沙盘区域时的高度
-second_hight: 4
+second_hight: 3
 
 #飞到着陆点上方时的高度
 third_hight: 1
 
-##相机参数(视角为90°，1280*720)
+##相机参数
 fx: 523.2
 fy: 523.2
 cx: 640.0
@@ -26,3 +26,52 @@ p2: 0.0037220960948616266
 k3: 0.0
 
 
+# Parameter for red_detect.cpp
+## 是否显示图像
+imgshow: True
+
+### >>>>>>>>>>>>>>>detectRedMark()查找四个标靶点<<<<<<<<<<<<<<<<
+## 颜色查找阈值
+# const Scalar hsvRedLo(156, 43, 46);
+# const Scalar hsvRedHi(180, 255, 255);
+RedLo0: 156 # 蓝色100 紫色125 70
+RedLo1: 43 # 43 100
+RedLo2: 46 # 46 100
+RedHi0: 180 # 蓝色112/124 紫色155  90
+RedHi1: 255
+RedHi2: 255
+## 显示红色查找结果
+show_red_thres_image: True
+
+## ********颜色调试**************
+## 显示调试图像
+test_color_image: True 
+
+## s阈值二值化参数　s_threshlod-255
+s_threshlod : 20  # 蓝色靶标为150 紫色标靶为100
+
+## ｓ阈和最后图像中值滤波参数
+median_kernel: 3
+
+## 查找红色的开闭运算核
+kernel_red_thres: 5 # 如果有颜色干扰请加大该值 
+
+
+### >>>>>>>>>>>>>>>>detectLandAreaFirst()<<<<<<<<<<<<<<<
+## 显示区域划分前的处理结果，白色是轮廓
+thres_merge_first: True
+## 自适应二值化 区域大小(3,5,7,9)
+blockSize: 7  # 值越大 thres_merge_First图像中噪声越大
+## 显示区域划分后的识别结果(红色为目标点)
+region_result_fisrt: True
+
+
+### >>>>>>>>>>>>>>>>>>>detectLandAreaSecond()<<<<<<<<<<<<<<
+## 显示裁剪后的区域
+show_roi_img: False
+## 显示最后着陆点检测处理的图像，白色是轮廓
+thres_merge_second: True
+blockSize_second: 5　 # 值越大 thres_merge_second图像中噪声越大
+
+## 降落区域大小
+landing_size: 81

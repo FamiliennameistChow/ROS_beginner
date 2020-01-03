@@ -61,12 +61,13 @@ float fx, fy, cx, cy; // 相机内参
 int detect_times = 0;
 vision::redResult det_start;
 vision::redResult marks_pixel, marks_ENU, landing_target_pixel, landing_target_ENU;
+geometry_msgs::PoseStamped setpoint;
 
 void pixelToENU(vision::redResult &coordinate_pixels, vision::redResult &coordinate_ENUs, geometry_msgs::Pose localPosition)
 {
     Quaterniond q(localPosition.orientation.w, localPosition.orientation.x, 
                   localPosition.orientation.y, localPosition.orientation.z);
-    float hight = localPosition.position.z - mark_hight;
+    float hight = localPosition.position.z;
 
     for(geometry_msgs::Point coordinate_pixel : coordinate_pixels.mark_ori)
     {
@@ -108,13 +109,13 @@ int main(int argc, char **argv)
     nh.param<float>("third_hight", third_hight, 1);
 
     //相机内参
-    nh.param<float>("fx", fx, 240);
-    nh.param<float>("fy", fy, 240);
+    nh.param<float>("fx", fx, 536);
+    nh.param<float>("fy", fy, 536);
     nh.param<float>("cx", cx, 640);
     nh.param<float>("cy", cy, 360);
 
-    ros::Subscriber red_result_sub = nh.subscribe<vision::redResult>("planet_landing/redResult", 1000, redResultCB);
-    ros::Subscriber landing_result_sub = nh.subscribe<vision::redResult>("planet_landing/landingResult", 1000, landingResultCB);
+    ros::Subscriber red_result_sub = nh.subscribe<vision::redResult>("planet_landing/red_result", 1000, redResultCB);
+    ros::Subscriber landing_result_sub = nh.subscribe<vision::redResult>("planet_landing/det_result", 1000, landingResultCB);
     ros::Publisher det_signal_pub = nh.advertise<vision::redResult>("planet_landing/det_start", 1000);
     ros::Publisher targrt_right_pub = nh.advertise<std_msgs::Bool>("planet_landing/target_right", 1000);
     
@@ -163,13 +164,17 @@ int main(int argc, char **argv)
                 myDrone.moveENUto(0, 0, first_hight);
                 myDrone.rotateAngleto(0);
                 cout << "等待无人机到达高度：" << first_hight << "米..." << endl;
-                sleep(10);
+                sleep(6);
                 cout << "无人机到达高度：" << first_hight << "米" << endl;
                 
                 while(!flag_get_red)
                 {
                     cout << "还未识别到标靶，向前飞行..." << endl;
-                    myDrone.setVelocityBody(0, 0.3, 0, 0);
+                    setpoint.pose.position.x = myDrone.localPosition().pose.position.x + 0.2;
+                    setpoint.pose.position.y = 0;
+                    setpoint.pose.position.z = first_hight;
+                    myDrone.pubLocalPos(setpoint);
+                    // myDrone.setVelocityBody(0, 0.3, 0, 0);
                     ros::spinOnce();
                     loop_rate.sleep();
                 }
@@ -181,13 +186,17 @@ int main(int argc, char **argv)
                         if(myDrone.localPosition().pose.position.x < 8)
                         {
                             cout << "未同时识别到四个标靶，向前飞行..." << endl;
-                            myDrone.setVelocityBody(0, 0.3, 0, 0);
+                            // myDrone.setVelocityBody(0, 0.3, 0, 0);
+                            setpoint.pose.position.x = myDrone.localPosition().pose.position.x + 0.2;
+                            setpoint.pose.position.y = 0;
+                            setpoint.pose.position.z = first_hight;
+                            myDrone.pubLocalPos(setpoint);
                             ros::spinOnce();
                             loop_rate.sleep();
                         }
                         else break;
                     }
-                    myDrone.setVelocityBody(0, 0, 0, 0);
+                    // myDrone.setVelocityBody(0, 0, 0, 0);
                     myDrone.rotateAngleto(0);
                     sleep(2);
 
@@ -196,7 +205,11 @@ int main(int argc, char **argv)
                         if(myDrone.localPosition().pose.position.x > 0)
                         {
                             cout << "超过了合理的位置，往回飞行..." << endl;
-                            myDrone.setVelocityBody(0, -0.15, 0, 0);
+                            // myDrone.setVelocityBody(0, -0.15, 0, 0);
+                            setpoint.pose.position.x = myDrone.localPosition().pose.position.x - 0.15;
+                            setpoint.pose.position.y = 0;
+                            setpoint.pose.position.z = first_hight + 0.5;
+                            myDrone.pubLocalPos(setpoint);
                             ros::spinOnce();
                             loop_rate.sleep();
                             sleep(2);
@@ -204,7 +217,7 @@ int main(int argc, char **argv)
                         else
                         {
                             cout << "无法搜寻到四个标靶，准备降落..." << endl;
-                            myDrone.setVelocityBody(0, 0, 0, 0);
+                            // myDrone.setVelocityBody(0, 0, 0, 0);
                             sleep(2);
                             current_status = Status_n::LANDING;
                             goto next;
@@ -221,7 +234,7 @@ int main(int argc, char **argv)
                 geofence.y_min = min(min(min(marks_ENU.mark_ori[0].y, marks_ENU.mark_ori[1].y), marks_ENU.mark_ori[2].y), marks_ENU.mark_ori[3].y);
 
                 cout<< "x_max: " << geofence.x_max << " , x_min: " << geofence.x_min << " , y_max: " << geofence.y_max << ", y_min: " << geofence.y_min << endl;
-                mark_center = marks_ENU.mark_ori[4];
+                mark_center = marks_ENU.mark_ori[marks_ENU.mark_ori.size() - 1];
                 target_pos = mark_center;
                 target_pos.z = first_hight;
                 cout << "坐标转换完成，无人机飞往沙盘中心点..." << endl;
@@ -234,7 +247,7 @@ int main(int argc, char **argv)
             case Status_n::MOVING:
                 cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>moving<<<<<<<<<<<<<<<<<<<<<<<<<<< " << endl;
                 myDrone.moveENUto(target_pos.x, target_pos.y, target_pos.z);
-                sleep(20);
+                sleep(10);
                 cout << "无人机已到达目标点" << endl;
                 if(target_pos.z < 1.5)
                 {
@@ -258,7 +271,7 @@ int main(int argc, char **argv)
                         // mark_center.x = landing_target_ENU.mark_ori[0].x > myDrone.localPosition().pose.position.x ? ((geofence.x_max + myDrone.localPosition().pose.position.x)/2) : ((geofence.x_min + myDrone.localPosition().pose.position.x)/2);
                         // mark_center.y = landing_target_ENU.mark_ori[0].y > myDrone.localPosition().pose.position.y ? ((geofence.y_max + myDrone.localPosition().pose.position.y)/2) : ((geofence.y_min + myDrone.localPosition().pose.position.y)/2);
                         // target_pos = mark_center;
-                        target_pos = landing_target_ENU.mark_ori[0];
+                        target_pos = landing_target_ENU.mark_ori[landing_target_ENU.mark_ori.size() - 1];
                         target_pos.z = second_hight;
                         cout << "坐标转换完成，无人机飞往备降区中心点..." << endl;
                         landing_target_ENU.mark_ori.clear();
@@ -273,7 +286,7 @@ int main(int argc, char **argv)
                             cout << "坐标转换完成，着陆点在沙盘内，无人机飞往着陆点上方..." << endl;
                             flag_target_right.data = true;
                             targrt_right_pub.publish(flag_target_right);
-                            target_pos = landing_target_ENU.mark_ori[0];
+                            target_pos = landing_target_ENU.mark_ori[landing_target_ENU.mark_ori.size() - 1];
                             target_pos.z = third_hight;
                             landing_target_ENU.mark_ori.clear();
                             flag_get_landing = false;
@@ -283,6 +296,8 @@ int main(int argc, char **argv)
                             cout << "坐标转换完成，着陆点在沙盘外，重新识别..." << endl;
                             flag_target_right.data = false;
                             targrt_right_pub.publish(flag_target_right);
+                            target_pos = landing_target_ENU.mark_ori[landing_target_ENU.mark_ori.size() - 1];
+                            target_pos.z = third_hight;
                             landing_target_ENU.mark_ori.clear();
                             flag_get_landing = false;
                             break;
