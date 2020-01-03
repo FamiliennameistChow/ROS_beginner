@@ -170,7 +170,7 @@ int main(int argc, char **argv)
                 while(!flag_get_red)
                 {
                     cout << "还未识别到标靶，向前飞行..." << endl;
-                    setpoint.pose.position.x = myDrone.localPosition().pose.position.x + 0.2;
+                    setpoint.pose.position.x = myDrone.localPosition().pose.position.x + 0.3;
                     setpoint.pose.position.y = 0;
                     setpoint.pose.position.z = first_hight;
                     myDrone.pubLocalPos(setpoint);
@@ -187,7 +187,7 @@ int main(int argc, char **argv)
                         {
                             cout << "未同时识别到四个标靶，向前飞行..." << endl;
                             // myDrone.setVelocityBody(0, 0.3, 0, 0);
-                            setpoint.pose.position.x = myDrone.localPosition().pose.position.x + 0.2;
+                            setpoint.pose.position.x = myDrone.localPosition().pose.position.x + 0.3;
                             setpoint.pose.position.y = 0;
                             setpoint.pose.position.z = first_hight;
                             myDrone.pubLocalPos(setpoint);
@@ -281,7 +281,7 @@ int main(int argc, char **argv)
                     {
                         cout << "识别到了最终的着陆点，坐标转换中..." << endl;
                         pixelToENU(landing_target_pixel, landing_target_ENU, myDrone.localPosition().pose);
-                        if((landing_target_ENU.mark_ori[0].x > geofence.x_min) && (landing_target_ENU.mark_ori[0].x < geofence.x_max) && (landing_target_ENU.mark_ori[0].y > geofence.y_min) && (landing_target_ENU.mark_ori[0].y < geofence.y_max))
+                        if((landing_target_ENU.mark_ori[landing_target_ENU.mark_ori.size() - 1].x > geofence.x_min) && (landing_target_ENU.mark_ori[landing_target_ENU.mark_ori.size() - 1].x < geofence.x_max) && (landing_target_ENU.mark_ori[landing_target_ENU.mark_ori.size() - 1].y > geofence.y_min) && (landing_target_ENU.mark_ori[landing_target_ENU.mark_ori.size() - 1].y < geofence.y_max))
                         {
                             cout << "坐标转换完成，着陆点在沙盘内，无人机飞往着陆点上方..." << endl;
                             flag_target_right.data = true;
@@ -300,7 +300,6 @@ int main(int argc, char **argv)
                             target_pos.z = third_hight;
                             landing_target_ENU.mark_ori.clear();
                             flag_get_landing = false;
-                            break;
                         }
                     }
 

@@ -7,7 +7,7 @@ mark_hight: 0.2
 first_hight: 5.5
 
 #在1/4沙盘区域时的高度
-second_hight: 3
+second_hight: 2.6
 
 #飞到着陆点上方时的高度
 third_hight: 1
