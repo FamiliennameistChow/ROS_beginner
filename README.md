@@ -91,6 +91,9 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 20191224 zwl
 * 增加库文件drone_flight_modes.hpp的功能，现在支持非控制模式和多机仿真。
 
+20200312 zwl
+* 增加将无人机下视深度图转为grid_map的代码。
+
 
 
 

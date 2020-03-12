@@ -10,7 +10,6 @@
 * [drone_lora包](./drone_lora)
     此功能包为串口和socket使用包。src文件夹中为使用serial和socket的示例代码。
 
-
 * [grad_traj_optimization包]()
     此功能包为香港科技大学git上的轨迹生成和优化包。[github地址](http://github.com/HKUST-Aerial-Robotics/grad_traj_optimization)
 
@@ -18,8 +17,10 @@
     此功能包为基础学习包。包括基本的offboard模式控制无人机以及扩展而来的键盘控制无人机（共两个版本）。
 
 * [vision包](./vision)
-　　此功能包为无人机视觉相关包。img_pub.cpp为打开USB相机并发布ROS图像消息；img_sub为接收ROS图像消息并显示；auto_landing为自主降落相关代码；mark_tracking为追踪降落相关代码；detect_mark为地标识别相关代码；red_detect为红色标靶识别代码，与planet_landing一起组成着陆比赛的功能代码。
+    此功能包为无人机视觉相关包。img_pub.cpp为打开USB相机并发布ROS图像消息；img_sub为接收ROS图像消息并显示；auto_landing为自主降落相关代码；mark_tracking为追踪降落相关代码；detect_mark为地标识别相关代码；red_detect为红色标靶识别代码，与planet_landing一起组成着陆比赛的功能代码。
 
+* [grid_map_uav包](./grid_map_uav)
+　　此功能包为grid_map在无人机上的应用。depth_to_gridmap.hpp为深度图转grid_map并做全局地图拼接的相关代码。
 
 
 

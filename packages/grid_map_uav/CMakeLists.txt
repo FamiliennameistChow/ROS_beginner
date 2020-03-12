@@ -65,7 +65,7 @@ include_directories(
 ## Declare a cpp executable
 add_executable(
   depth_to_gridmap
-  src/depthToGridmap.cpp
+  src/depth_to_gridmap.cpp
 )
 
 
