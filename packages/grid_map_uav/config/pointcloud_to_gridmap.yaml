@@ -1,0 +1,56 @@
+pcl_grid_map_extraction:
+  num_processing_threads: 4
+  cloud_transform:
+    translation:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    rotation: #intrinsic rotation X-Y-Z (r-p-y)sequence
+      r: 0.0
+      p: 0.0
+      y: 0.0
+  cluster_extraction:
+    cluster_tolerance: 0.05
+    min_num_points: 4
+    max_num_points: 1000000
+  outlier_removal:
+    is_remove_outliers: true
+    mean_K: 10
+    stddev_threshold: 1.0
+  downsampling:
+    is_downsample_cloud: true
+    voxel_size:
+      x: 0.02
+      y: 0.02
+      z: 0.02 
+  grid_map:
+    min_num_points_per_cell: 4
+    resolution: 0.3
+
+pointcloud_to_gridmap:
+  pointcloud_topic: "/kinect/depth/points"
+  resolution: 0.3
+  map_frame_id: "map"
+  min_height: 0.0
+  max_height: 10.0
+
+grid_map_visualization:
+  grid_map_topic: /pointcloud_to_gridmap/grid_map
+  grid_map_visualizations:
+    - name: elevation_points
+      type: point_cloud
+      params:
+        layer: elevation
+    - name: elevation_grid
+      type: occupancy_grid
+      params:
+        layer: elevation
+        data_min: -0.2
+        data_max: 0.2
+    - name: flat_grid
+      type: flat_point_cloud
+      params:
+        height: 0.0
+
+    
+       

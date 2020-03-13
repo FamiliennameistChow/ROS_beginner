@@ -91,8 +91,6 @@ class DepthToGridmap
   // 无人机当前位置坐标
   double uavX_;
   double uavY_;
-
-  // ros::Subscriber localPosSubscriber_;
 };
 
 
@@ -110,12 +108,9 @@ DepthToGridmap::DepthToGridmap(ros::NodeHandle& nodeHandle)
   globalMap_.setGeometry(grid_map::Length(1.0, 1.0), resolution_, grid_map::Position(0.0, 0.0)); // bufferSize(6, 6)
   globalMap_.setBasicLayers({"elevation"});
   globalMap_.setFrameId(mapFrameId_);
-  // map_.setBasicLayers({"elevation"});
-  // map_.setFrameId(mapFrameId_);
+
   imageSubscriber_ = nodeHandle_.subscribe(imageTopic_, 1, &DepthToGridmap::depthCallback, this);
   gridMapPublisher_ = nodeHandle_.advertise<grid_map_msgs::GridMap>("grid_map", 1, true);
-
-  // localPosSubscriber_ = nodeHandle_.subscribe<geometry_msgs::PoseStamped>("/mavros/local_position/pose", 10, &DepthToGridmap::uavLocalPosCB, this);
 }
 
 DepthToGridmap::~DepthToGridmap()
@@ -140,10 +135,10 @@ void DepthToGridmap::depthCallback(const sensor_msgs::Image& msg)
     uavY_ = myDrone_.localPosition().pose.position.y;
 
     double initResolution = uavHight_/122.0;
-    grid_map::GridMapRosConverter::initializeFromImage(msg, initResolution, map_, grid_map::Position(uavY_, -(uavX_)));
+    grid_map::GridMapRosConverter::initializeFromImage(msg, initResolution, map_, grid_map::Position(-(uavX_), -(uavY_)));
     map_.setTimestamp(ros::Time::now().toNSec());
-    ROS_INFO("Initialized map with size %f x %f m (%i x %i cells) with resolution %f.", map_.getLength().x(),
-             map_.getLength().y(), map_.getSize()(0), map_.getSize()(1), map_.getResolution());
+    // ROS_INFO("Initialized map with size %f x %f m (%i x %i cells) with resolution %f.", map_.getLength().x(),
+    //          map_.getLength().y(), map_.getSize()(0), map_.getSize()(1), map_.getResolution());
 
   cv_bridge::CvImageConstPtr cvImage;
   try {
@@ -161,14 +156,12 @@ void DepthToGridmap::depthCallback(const sensor_msgs::Image& msg)
   // grid_map::GridMapRosConverter::addLayerFromImage(msg, "elevation", map_, minHeight_, maxHeight_);
   // grid_map::GridMapRosConverter::addColorLayerFromImage(msg, "color", map_);
   grid_map::GridMapCvConverter::addLayerFromImage<unsigned short, 1>(image, "elevation", map_, minHeight_, maxHeight_);
-  // ROS_INFO("the resolution is %f",map_.getResolution());
   
   //!real-time Grid map data with unified resolution.
   grid_map::GridMap unifiedResMap_;
   grid_map::GridMapCvProcessing::changeResolution(map_, unifiedResMap_, resolution_);
-  ROS_INFO("unified map with size %f x %f m (%i x %i cells) with resolution %f.", unifiedResMap_.getLength().x(),
-             unifiedResMap_.getLength().y(), unifiedResMap_.getSize()(0), unifiedResMap_.getSize()(1), unifiedResMap_.getResolution());
-  // ROS_INFO("the resolution is %f",unifiedResMap_.getResolution()); 
+  // ROS_INFO("unified map with size %f x %f m (%i x %i cells) with resolution %f.", unifiedResMap_.getLength().x(),
+  //            unifiedResMap_.getLength().y(), unifiedResMap_.getSize()(0), unifiedResMap_.getSize()(1), unifiedResMap_.getResolution());
   
   // add real-time map data to global map
   // std::vector<std::string> stringVector;
@@ -181,11 +174,5 @@ void DepthToGridmap::depthCallback(const sensor_msgs::Image& msg)
   grid_map::GridMapRosConverter::toMessage(globalMap_, mapMessage);
   gridMapPublisher_.publish(mapMessage);
 }
-
-// void DepthToGridmap::uavLocalPosCB(const geometry_msgs::PoseStamped::ConstPtr &msg) {
-//   uavHight_ = (*msg).pose.position.z;
-//   uavX_ = (*msg).pose.position.x;
-//   uavY_ = (*msg).pose.position.y;
-// }
 
 } /* namespace */
