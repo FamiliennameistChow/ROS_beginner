@@ -10,7 +10,9 @@
   <arg name="prefix"                 default=""/>
   <arg name="set_verbosity_to_debug" default="false"/>
     
-  <node pkg="grid_map_uav" name="pointcloud_to_gridmap" type="pointcloud_to_gridmap" output="screen" >
+  <node pkg="grid_map_uav" name="pointcloud_to_gridmap" type="pointcloud_to_gridmap" 
+        output="screen"  launch-prefix="$(arg prefix)">
+    <rosparam file="$(find grid_map_uav)/config/pointcloud_to_gridmap.yaml" />
     <param name="pcd_filename"            type="string" value="$(arg pcd_filename)" />
     <param name="map_rosbag_topic"        type="string" value="$(arg map_rosbag_topic)" />
     <param name="output_grid_map"         type="string" value="$(arg output_grid_map)" />

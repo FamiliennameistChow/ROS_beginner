@@ -87,7 +87,7 @@ PointCloudToGridmap::PointCloudToGridmap(ros::NodeHandle& nodeHandle)
     : nodeHandle_(nodeHandle),
       map_(grid_map::GridMap({"elevation"})),
       globalMap_(grid_map::GridMap({"elevation"})),
-      myDrone_(AeroDrone(0, "NOCTRL"))
+      myDrone_(AeroDrone("NOCTRL"))
 {
   readParameters();
   gm::setVerbosityLevelToDebugIfFlagSet(nodeHandle_);
@@ -130,7 +130,7 @@ void PointCloudToGridmap::pointCloudCallback(const boost::shared_ptr<const senso
     gm::processPointcloud(&gridMapPclLoader_, nodeHandle_);
 
     map_ = gridMapPclLoader_.getGridMap();
-    map_.setPosition(grid_map::Position(-(uavY_), uavX_));
+    map_.setPosition(grid_map::Position(uavX_, -(uavY_)));
 
     grid_map::GridMap unifiedResMap_;
     grid_map::GridMapCvProcessing::changeResolution(map_, unifiedResMap_, resolution_);

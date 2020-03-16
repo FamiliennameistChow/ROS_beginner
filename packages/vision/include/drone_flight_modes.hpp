@@ -19,6 +19,7 @@
 #include <mavros_msgs/CommandCode.h>
 #include <mavros_msgs/SetMode.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/Twist.h>
 #include <mavros_msgs/PositionTarget.h>
 #include <mavros_msgs/Waypoint.h>
 #include <mavros_msgs/WaypointPush.h>
@@ -48,7 +49,11 @@ namespace bpt = boost::property_tree;
 class AeroDrone
 {
 public:
-  AeroDrone(int uav_num, const string ctrl_mode);
+  AeroDrone(); // 一架飞机，控制模式的构造函数
+  AeroDrone(const string ctrl_mode); // 一架飞机，非控制模式的构造函数
+  AeroDrone(int uav_num); // 多架飞机，某一架为控制模式的构造函数
+  AeroDrone(int uav_num, const string ctrl_mode); // 多架飞机，某一架为非控制模式的构造函数
+
   ~AeroDrone();
 
   // Actions
@@ -71,12 +76,18 @@ public:
   void moveENUto(float x, float y, float z); // 将无人机移动到ENU坐标系下指定位置
   void rotateAngle(double degree); //让无人机偏航指定的角度（在当前偏航角的基础上）
   void rotateAngleto(double degree); //设定无人机偏航角为指定角度
+  double rollAngle(); // 无人机当前的偏航角
+  double pitchAngle(); // 无人机当前的偏航角
   double yawAngle(); // 无人机当前的偏航角
 
   const sensor_msgs::BatteryState& batteryState(); // 获取电池状态
 
   void setVelocityNED(float vx, float vy, float vz, float yaw); // 设定无人机速度和角度（NED坐标系），北方向为ｘ正方向，东方向为ｙ正方向
-  void setVelocityBody(float vx, float vy, float vz, float yaw_rate); // 设定无人机速度和角速度（机体坐标系），机头为y正方向，机身右方向为x正方向
+  
+  void setVelocityBody(float vx, float vy, float vz, float yaw_rate); // 设定无人机速度和角速度（机体坐标系），机头为x正方向，机身左方向为y正方向
+  // 函数原型坐标系为BODY——NED，机头为y正方向，机身右方向为x正方向，函数内做了变换
+  
+  // void setVelocityENU(float vx, float vy, float vz, float yaw_rate); // 设定无人机速度和角速度（机体坐标系），东方向为x正方向，北方向为y正方向
 
 
 private:
@@ -90,7 +101,7 @@ private:
   int uav_num_;
   string topic_head_;
   ros::NodeHandle nh_;
-  ros::Rate rate_ = ros::Rate(30.0);
+  ros::Rate rate_ = ros::Rate(40.0);
   mavros_msgs::HomePosition home_{};
   ros::ServiceClient arming_client;
   ros::Publisher set_vel_pub_;
@@ -105,7 +116,7 @@ private:
   boost::thread* thread_watch_flight_mode_ = nullptr;  // for watching drone's flight state
   boost::thread* thread_publish_setpoint_ = nullptr;  // for publishing drone's setpoint_position/local
 
-  double yaw_degree;
+  double roll_degree, pitch_degree, yaw_degree;
   mavros_msgs::State current_state;
   mavros_msgs::WaypointPush wp_list{};
   mavros_msgs::WaypointList waypoints_;
@@ -113,6 +124,7 @@ private:
   geometry_msgs::PoseStamped local_position;
   geometry_msgs::PoseStamped setpoint;
   sensor_msgs::BatteryState battery_state_{};
+  // geometry_msgs::Twist cmd_vel;
   mavros_msgs::PositionTarget pos{};
 
   void getlocalPositionCB(const geometry_msgs::PoseStamped::ConstPtr &msg);
@@ -123,20 +135,60 @@ private:
   void publishThread();
 };
 
+AeroDrone::AeroDrone()
+{
+  resetHome();
+  getHomeGeoPoint();
 
-AeroDrone::AeroDrone(int uav_num = 0, const string ctrl_mode = "WITHCTRL")
+  arming_client = nh_.serviceClient<mavros_msgs::CommandBool>("/mavros/cmd/arming");
+  set_vel_pub_ = nh_.advertise<mavros_msgs::PositionTarget>("/mavros/setpoint_raw/local", 10);
+  // set_vel_pub_ = nh_.advertise<geometry_msgs::Twist>("/mavros/setpoint_velocity/cmd_vel_unstamped", 10);
+  takeoff_client_ = nh_.serviceClient<mavros_msgs::CommandTOL>("/mavros/cmd/takeoff");
+  set_mode_client_ = nh_.serviceClient<mavros_msgs::SetMode>("/mavros/set_mode");
+  land_client_ = nh_.serviceClient<mavros_msgs::CommandTOL>("/mavros/cmd/land");
+  local_pos_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/mavros/setpoint_position/local", 10);
+  wp_client = nh_.serviceClient<mavros_msgs::WaypointPush>("/mavros/mission/push");
+  wp_clear_client = nh_.serviceClient<mavros_msgs::WaypointClear>("/mavros/mission/clear");
+
+  // Thread that watch for change in Aero flight mode changes.
+  thread_watch_flight_mode_ = new boost::thread(boost::bind(&AeroDrone::watchFlightModeThread, this));
+  // Thread that publish the setpoint.
+  thread_publish_setpoint_ = new boost::thread(boost::bind(&AeroDrone::publishThread, this));
+}
+
+AeroDrone::AeroDrone(const string ctrl_mode)
+{
+  resetHome();
+  getHomeGeoPoint();
+
+  arming_client = nh_.serviceClient<mavros_msgs::CommandBool>("/mavros/cmd/arming");
+  set_vel_pub_ = nh_.advertise<mavros_msgs::PositionTarget>("/mavros/setpoint_raw/local", 10);
+  // set_vel_pub_ = nh_.advertise<geometry_msgs::Twist>("/mavros/setpoint_velocity/cmd_vel_unstamped", 10);
+  takeoff_client_ = nh_.serviceClient<mavros_msgs::CommandTOL>("/mavros/cmd/takeoff");
+  set_mode_client_ = nh_.serviceClient<mavros_msgs::SetMode>("/mavros/set_mode");
+  land_client_ = nh_.serviceClient<mavros_msgs::CommandTOL>("/mavros/cmd/land");
+  local_pos_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/mavros/setpoint_position/local", 10);
+  wp_client = nh_.serviceClient<mavros_msgs::WaypointPush>("/mavros/mission/push");
+  wp_clear_client = nh_.serviceClient<mavros_msgs::WaypointClear>("/mavros/mission/clear");
+
+  // Thread that watch for change in Aero flight mode changes.
+  thread_watch_flight_mode_ = new boost::thread(boost::bind(&AeroDrone::watchFlightModeThread, this));
+
+  ROS_INFO("UAV is in no_control mode, it can not be set to offboard mode");
+
+}
+
+AeroDrone::AeroDrone(int uav_num)
   :uav_num_(uav_num)
 {
-  if(uav_num_ == 0)
-    topic_head_ = "";
-  else
-    topic_head_ = "/uav" + to_string(uav_num_);
+  topic_head_ = "/uav" + to_string(uav_num_);
 
   resetHome();
   getHomeGeoPoint();
 
   arming_client = nh_.serviceClient<mavros_msgs::CommandBool>(topic_head_ + "/mavros/cmd/arming");
-  set_vel_pub_ = nh_.advertise<mavros_msgs::PositionTarget>(topic_head_ + "/mavros/setpoint_raw/local", 10);
+  set_vel_pub_ = nh_.advertise<mavros_msgs::PositionTarget>("/mavros/setpoint_raw/local", 10);
+  // set_vel_pub_ = nh_.advertise<geometry_msgs::Twist>(topic_head_ + "/mavros/setpoint_velocity/cmd_vel_unstamped", 10);
   takeoff_client_ = nh_.serviceClient<mavros_msgs::CommandTOL>(topic_head_ + "/mavros/cmd/takeoff");
   set_mode_client_ = nh_.serviceClient<mavros_msgs::SetMode>(topic_head_ + "/mavros/set_mode");
   land_client_ = nh_.serviceClient<mavros_msgs::CommandTOL>(topic_head_ + "/mavros/cmd/land");
@@ -146,11 +198,32 @@ AeroDrone::AeroDrone(int uav_num = 0, const string ctrl_mode = "WITHCTRL")
 
   // Thread that watch for change in Aero flight mode changes.
   thread_watch_flight_mode_ = new boost::thread(boost::bind(&AeroDrone::watchFlightModeThread, this));
-  if(ctrl_mode == "WITHCTRL")
-    // Thread that publish the setpoint.
-    thread_publish_setpoint_ = new boost::thread(boost::bind(&AeroDrone::publishThread, this));
-  else if(ctrl_mode == "NOCTRL")
-    ROS_INFO("uav%d can not set to offboard mode", uav_num_);
+  // Thread that publish the setpoint.
+  thread_publish_setpoint_ = new boost::thread(boost::bind(&AeroDrone::publishThread, this));
+}
+
+AeroDrone::AeroDrone(int uav_num, const string ctrl_mode)
+  :uav_num_(uav_num)
+{
+    topic_head_ = "/uav" + to_string(uav_num_);
+
+  resetHome();
+  getHomeGeoPoint();
+
+  arming_client = nh_.serviceClient<mavros_msgs::CommandBool>(topic_head_ + "/mavros/cmd/arming");
+  set_vel_pub_ = nh_.advertise<mavros_msgs::PositionTarget>("/mavros/setpoint_raw/local", 10);
+  // set_vel_pub_ = nh_.advertise<geometry_msgs::Twist>(topic_head_ + "/mavros/setpoint_velocity/cmd_vel_unstamped", 10);
+  takeoff_client_ = nh_.serviceClient<mavros_msgs::CommandTOL>(topic_head_ + "/mavros/cmd/takeoff");
+  set_mode_client_ = nh_.serviceClient<mavros_msgs::SetMode>(topic_head_ + "/mavros/set_mode");
+  land_client_ = nh_.serviceClient<mavros_msgs::CommandTOL>(topic_head_ + "/mavros/cmd/land");
+  local_pos_pub_ = nh_.advertise<geometry_msgs::PoseStamped>(topic_head_ + "/mavros/setpoint_position/local", 10);
+  wp_client = nh_.serviceClient<mavros_msgs::WaypointPush>(topic_head_ + "/mavros/mission/push");
+  wp_clear_client = nh_.serviceClient<mavros_msgs::WaypointClear>(topic_head_ + "/mavros/mission/clear");
+
+  // Thread that watch for change in Aero flight mode changes.
+  thread_watch_flight_mode_ = new boost::thread(boost::bind(&AeroDrone::watchFlightModeThread, this));
+  
+  ROS_INFO("UAV%d is in no_control mode, it can not be set to offboard mode", uav_num_);
 }
 
 AeroDrone::~AeroDrone()
@@ -265,16 +338,15 @@ void AeroDrone::getFlightModeCB(const mavros_msgs::StateConstPtr& msg)
 void AeroDrone::getlocalPositionCB(const geometry_msgs::PoseStamped::ConstPtr &msg)
 {
   local_position = *msg;
-  double yd;
-  if(local_position.pose.orientation.z >= 0)
-  yd = 360 * acos(local_position.pose.orientation.w) / M_PI;
-  else
-  yd = -360 * acos(local_position.pose.orientation.w) / M_PI;
 
-  if(yd >= 0)
-  yaw_degree = yd - 360;
-  else
-  yaw_degree = yd + 360;
+  float q0 = local_position.pose.orientation.w;
+  float q1 = local_position.pose.orientation.x;
+  float q2 = local_position.pose.orientation.y;
+  float q3 = local_position.pose.orientation.z;
+
+  roll_degree = atan2(2.0 * (q3 * q2 + q0 * q1), 1.0 - 2.0 * (q1 * q1 + q2 * q2)) * 180 / M_PI;
+  pitch_degree = asin(2.0 * (q2 * q0 - q3 * q1)) * 180 / M_PI;
+  yaw_degree = atan2(2.0 * (q3 * q0 + q1 * q2), 1.0 - 2.0 * (q2 * q2 + q3 * q3)) * 180 / M_PI;
 }
 
 void AeroDrone::waypointsCB(const mavros_msgs::WaypointList::ConstPtr &msg)
@@ -523,6 +595,15 @@ int AeroDrone::waypointReached()
   return wp_reached.wp_seq;
 }
 
+double AeroDrone::rollAngle()
+{
+  return roll_degree;
+}
+
+double AeroDrone::pitchAngle()
+{
+  return pitch_degree;
+}
 
 double AeroDrone::yawAngle()
 {
@@ -575,7 +656,7 @@ void AeroDrone::rotateAngleto(double degree)
 
 float AeroDrone::toRadFromDeg(float deg)
 {
-  return static_cast<float>(deg / 180.0f * M_PI);
+  return static_cast<float>(deg * M_PI / 180.0f);
 }
 
 void AeroDrone::setVelocityBody(float vx, float vy, float vz, float yaw_rate)
@@ -592,8 +673,8 @@ void AeroDrone::setVelocityBody(float vx, float vy, float vz, float yaw_rate)
                     mavros_msgs::PositionTarget::IGNORE_PZ | mavros_msgs::PositionTarget::IGNORE_AFX |
                     mavros_msgs::PositionTarget::IGNORE_AFY | mavros_msgs::PositionTarget::IGNORE_AFZ |
                     mavros_msgs::PositionTarget::FORCE | mavros_msgs::PositionTarget::IGNORE_YAW;
-    pos.velocity.x = vx;
-    pos.velocity.y = vy;
+    pos.velocity.x = -(vy);
+    pos.velocity.y = vx;
     pos.velocity.z = vz;
     pos.yaw_rate = toRadFromDeg(yaw_rate);
 
@@ -601,9 +682,9 @@ void AeroDrone::setVelocityBody(float vx, float vy, float vz, float yaw_rate)
   }
 }
 
-void AeroDrone::setVelocityNED(float vx, float vy, float vz, float yaw)
+void AeroDrone::setVelocityNED(float vx, float vy, float vz, float yaw_rate)
 {
-  if(vx == 0 && vy == 0 && vz == 0 && yaw == 0)
+  if(vx == 0 && vy == 0 && vz == 0 && yaw_rate == 0)
   {
     setpoint = local_position;
     pub_vel_flag_ = false;
@@ -618,8 +699,28 @@ void AeroDrone::setVelocityNED(float vx, float vy, float vz, float yaw)
     pos.velocity.x = vx;
     pos.velocity.y = vy;
     pos.velocity.z = vz;
-    pos.yaw = toRadFromDeg(yaw);
+    pos.yaw_rate = toRadFromDeg(yaw_rate);
 
     pub_vel_flag_ = true;
   }
 }
+
+
+// void AeroDrone::setVelocityENU(float vx, float vy, float vz, float yaw_rate)
+// {
+//   if(vx == 0 && vy == 0 && vz == 0 && yaw_rate == 0)
+//   {
+//     setpoint = local_position;
+//     pub_vel_flag_ = false;
+//   }
+//   else
+//   {
+//     yaw_rate = yaw_rate * M_PI / 180;
+//     cmd_vel.linear.x = vx;
+//     cmd_vel.linear.y = vy;
+//     cmd_vel.linear.z = vz;
+//     cmd_vel.angular.z = yaw_rate;
+
+//     pub_vel_flag_ = true;
+//   }
+// }
