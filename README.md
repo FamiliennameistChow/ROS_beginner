@@ -95,5 +95,8 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 * 增加将无人机下视深度图转为grid_map的代码。
 
 
-
+20200321 zb
+* 添加octomap重建demo -> `packages/test_octomap`
+需要将`gazebo/worlds`下的`compeition.wold`添加到px4下的worlds下  
+将`gazebo/models`下的`group_A`添加到px4下的models下 
 
