@@ -22,6 +22,18 @@
 * [grid_map_uav包](./grid_map_uav)
 　　此功能包为grid_map在无人机上的应用。depth_to_gridmap.hpp为深度图转grid_map并做全局地图拼接的相关代码。
 
+* [test_octomap包](./test_octomap)  
+    测试点云数据转octomap，并进行拼接的算法
+
+* [navi_algorithm包](./navi_algorithm包)  
+    实现各类导航算法包  
+
+    * TO DO List:  
+        - [ ] 二维导航算法  
+        - [x] rrt  
+        - [ ] rrt_connet(testing)  
+
+
 
 
 

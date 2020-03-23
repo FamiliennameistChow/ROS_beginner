@@ -1,0 +1,11 @@
+<launch>
+
+    <node pkg="navi_algorithm" type="2d_map_creater" name="map_creater_node" />
+
+    <node pkg="navi_algorithm" type="rrt_connect" name="rrt_node" output="screen"/>
+    
+     <!-- RViz -->
+    <node pkg="rviz" type="rviz" name="$(anon rviz)" respawn="false" output="screen" args="-d $(find navi_algorithm)/rviz/2d_map.rviz"/>
+
+
+</launch>
