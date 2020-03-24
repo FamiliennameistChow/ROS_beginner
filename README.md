@@ -100,3 +100,6 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 需要将`gazebo/worlds`下的`compeition.wold`添加到px4下的worlds下  
 将`gazebo/models`下的`group_A`添加到px4下的models下 
 
+
+20200323 zb
+* 添加`navi_algorithm`导航算法包，目前二维rrt算法已实现
