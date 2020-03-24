@@ -46,10 +46,10 @@ void GridMapPclLoader::loadCloudFromPcdFile(const std::string& filename)
   setInputCloud(inputCloud);
 }
 
-void GridMapPclLoader::loadCloudFromROSMsg(const boost::shared_ptr<const sensor_msgs::PointCloud2>& msg)
+void GridMapPclLoader::loadCloudFromROSMsg(sensor_msgs::PointCloud2& msg)
 {
   pcl::PCLPointCloud2 pcl_pc2;
-  pcl_conversions::toPCL(*msg,pcl_pc2);
+  pcl_conversions::toPCL(msg,pcl_pc2);
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
   pcl::fromPCLPointCloud2(pcl_pc2,*cloud);
   setInputCloud(cloud);

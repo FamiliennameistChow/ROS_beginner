@@ -1,5 +1,5 @@
 pcl_grid_map_extraction:
-  num_processing_threads: 4
+  num_processing_threads: 5
   cloud_transform:
     translation:
       x: 0.0
@@ -25,11 +25,11 @@ pcl_grid_map_extraction:
       z: 0.02 
   grid_map:
     min_num_points_per_cell: 4
-    resolution: 0.3
+    resolution: 0.1
 
 pointcloud_to_gridmap:
   pointcloud_topic: "/kinect/depth/points"
-  resolution: 0.3
+  resolution: 0.1
   map_frame_id: "map"
   min_height: 0.0
   max_height: 10.0

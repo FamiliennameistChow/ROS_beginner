@@ -76,9 +76,12 @@ public:
   void moveENUto(float x, float y, float z); // 将无人机移动到ENU坐标系下指定位置
   void rotateAngle(double degree); //让无人机偏航指定的角度（在当前偏航角的基础上）
   void rotateAngleto(double degree); //设定无人机偏航角为指定角度
-  double rollAngle(); // 无人机当前的偏航角
-  double pitchAngle(); // 无人机当前的偏航角
-  double yawAngle(); // 无人机当前的偏航角
+  double rollAngle(); // 无人机当前的偏航角(角度制)
+  double pitchAngle(); // 无人机当前的偏航角(角度制)
+  double yawAngle(); // 无人机当前的偏航角(角度制)
+  double rollRad(); // 无人机当前的偏航角(弧度制)
+  double pitchRad(); // 无人机当前的偏航角(弧度制)
+  double yawRad(); // 无人机当前的偏航角(弧度制)
 
   const sensor_msgs::BatteryState& batteryState(); // 获取电池状态
 
@@ -116,7 +119,7 @@ private:
   boost::thread* thread_watch_flight_mode_ = nullptr;  // for watching drone's flight state
   boost::thread* thread_publish_setpoint_ = nullptr;  // for publishing drone's setpoint_position/local
 
-  double roll_degree, pitch_degree, yaw_degree;
+  double roll_degree, pitch_degree, yaw_degree, roll_rad, pitch_rad, yaw_rad;
   mavros_msgs::State current_state;
   mavros_msgs::WaypointPush wp_list{};
   mavros_msgs::WaypointList waypoints_;
@@ -344,9 +347,13 @@ void AeroDrone::getlocalPositionCB(const geometry_msgs::PoseStamped::ConstPtr &m
   float q2 = local_position.pose.orientation.y;
   float q3 = local_position.pose.orientation.z;
 
-  roll_degree = atan2(2.0 * (q3 * q2 + q0 * q1), 1.0 - 2.0 * (q1 * q1 + q2 * q2)) * 180 / M_PI;
-  pitch_degree = asin(2.0 * (q2 * q0 - q3 * q1)) * 180 / M_PI;
-  yaw_degree = atan2(2.0 * (q3 * q0 + q1 * q2), 1.0 - 2.0 * (q2 * q2 + q3 * q3)) * 180 / M_PI;
+  roll_rad = atan2(2.0 * (q3 * q2 + q0 * q1), 1.0 - 2.0 * (q1 * q1 + q2 * q2));
+  pitch_rad = asin(2.0 * (q2 * q0 - q3 * q1));
+  yaw_rad = atan2(2.0 * (q3 * q0 + q1 * q2), 1.0 - 2.0 * (q2 * q2 + q3 * q3));
+
+  roll_degree = roll_rad * 180 / M_PI;
+  pitch_degree = pitch_rad * 180 / M_PI;
+  yaw_degree = yaw_rad * 180 / M_PI;
 }
 
 void AeroDrone::waypointsCB(const mavros_msgs::WaypointList::ConstPtr &msg)
@@ -610,6 +617,21 @@ double AeroDrone::yawAngle()
   return yaw_degree;
 }
 
+double AeroDrone::rollRad()
+{
+  return roll_rad;
+}
+
+double AeroDrone::pitchRad()
+{
+  return pitch_rad;
+}
+
+double AeroDrone::yawRad()
+{
+  return yaw_rad;
+}
+
 const sensor_msgs::BatteryState& AeroDrone::batteryState()
 {
   return battery_state_;
@@ -617,8 +639,8 @@ const sensor_msgs::BatteryState& AeroDrone::batteryState()
 
 void AeroDrone::moveBody(float x, float y, float z)
 { 
-  setpoint.pose.position.x = local_position.pose.position.x + cos(yaw_degree * M_PI / 180) * x - sin(yaw_degree * M_PI / 180) * y;
-  setpoint.pose.position.y = local_position.pose.position.y + sin(yaw_degree * M_PI / 180) * x + cos(yaw_degree * M_PI / 180) * y;
+  setpoint.pose.position.x = local_position.pose.position.x + cos(yaw_rad) * x - sin(yaw_rad) * y;
+  setpoint.pose.position.y = local_position.pose.position.y + sin(yaw_rad) * x + cos(yaw_rad) * y;
   setpoint.pose.position.z = local_position.pose.position.z + z;
 }
 

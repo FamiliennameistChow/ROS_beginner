@@ -125,6 +125,8 @@ add_executable(pointcloud_to_gridmap
   src/pointcloud_to_gridmap.cpp
 )
 
+add_executable(tf_camera2map 
+  src/tf_camera_to_map.cpp)
 
 # add_executable(
 #   simple_demo
@@ -192,6 +194,9 @@ target_link_libraries(pointcloud_to_gridmap
   ${catkin_LIBRARIES}
   ${OpenMP_CXX_LIBRARIES}
 )
+
+target_link_libraries(tf_camera2map 
+  ${catkin_LIBRARIES})
 # target_link_libraries(
 #   simple_demo
 #   ${catkin_LIBRARIES}

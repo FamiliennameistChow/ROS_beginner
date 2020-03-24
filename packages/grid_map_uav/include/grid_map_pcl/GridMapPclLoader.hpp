@@ -59,7 +59,7 @@ class GridMapPclLoader
    * Loads the point cloud into memory
    * @param[in] ros message to the point cloud.
    */
-  void loadCloudFromROSMsg(const boost::shared_ptr<const sensor_msgs::PointCloud2>& msg);
+  void loadCloudFromROSMsg(sensor_msgs::PointCloud2& msg);
 
   /*!
    * Allows the user to set the input cloud

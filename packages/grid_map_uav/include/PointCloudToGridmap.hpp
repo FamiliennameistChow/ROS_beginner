@@ -4,9 +4,12 @@
 #include "grid_map_ros/GridMapRosConverter.hpp"
 #include "grid_map_pcl/GridMapPclLoader.hpp"
 #include "grid_map_pcl/helpers.hpp"
-#include "drone_flight_modes.hpp"
 #include <grid_map_ros/grid_map_ros.hpp>
 #include <grid_map_cv/grid_map_cv.hpp>
+#include <tf/transform_listener.h>
+#include <pcl_ros/transforms.h>
+#include <pcl_ros/impl/transforms.hpp>
+#include <pcl_conversions/pcl_conversions.h>
 
 namespace gm = ::grid_map::grid_map_pcl;
 
@@ -71,7 +74,8 @@ class PointCloudToGridmap
   //! Frame id of the grid map.
   std::string mapFrameId_;
 
-  AeroDrone myDrone_;
+  tf::TransformListener listener_;
+
   // 无人机当前高度
   double uavHight_;
   
@@ -86,8 +90,7 @@ class PointCloudToGridmap
 PointCloudToGridmap::PointCloudToGridmap(ros::NodeHandle& nodeHandle)
     : nodeHandle_(nodeHandle),
       map_(grid_map::GridMap({"elevation"})),
-      globalMap_(grid_map::GridMap({"elevation"})),
-      myDrone_(AeroDrone("NOCTRL"))
+      globalMap_(grid_map::GridMap({"elevation"}))
 {
   readParameters();
   gm::setVerbosityLevelToDebugIfFlagSet(nodeHandle_);
@@ -99,7 +102,7 @@ PointCloudToGridmap::PointCloudToGridmap(ros::NodeHandle& nodeHandle)
   globalMap_.setBasicLayers({"elevation"});
   globalMap_.setFrameId(mapFrameId_);
 
-  pointCloudSubscriber_ = nodeHandle_.subscribe(pointCloudTopic_, 1, &PointCloudToGridmap::pointCloudCallback, this);
+  pointCloudSubscriber_ = nodeHandle_.subscribe(pointCloudTopic_, 10, &PointCloudToGridmap::pointCloudCallback, this);
   gridMapPublisher_ = nodeHandle_.advertise<grid_map_msgs::GridMap>("grid_map", 1, true);
 }
 
@@ -120,22 +123,37 @@ bool PointCloudToGridmap::readParameters()
 
 void PointCloudToGridmap::pointCloudCallback(const boost::shared_ptr<const sensor_msgs::PointCloud2>& msg)
 {
-    gridMapPclLoader_.loadParameters(gm::getParameterPath());
-    gridMapPclLoader_.loadCloudFromROSMsg(msg);
+    sensor_msgs::PointCloud2 pointcloud_sub, pointcloud;
+    pointcloud_sub = *msg;
+    pointcloud_sub.header.frame_id = std::string("camera_link");
 
-    uavHight_ = myDrone_.localPosition().pose.position.z;
-    uavX_ = myDrone_.localPosition().pose.position.x;
-    uavY_ = myDrone_.localPosition().pose.position.y;
+    tf::StampedTransform transform;
+    try
+    {
+      listener_.waitForTransform("map", "camera_link", msg->header.stamp, ros::Duration(5.0));
+      listener_.lookupTransform("map", "camera_link", msg->header.stamp, transform);
+
+    }
+    catch (tf::TransformException &ex)
+    {
+      ROS_ERROR("fram transform error: %s", ex.what());
+      return;
+    }
+
+    pcl_ros::transformPointCloud("map", pointcloud_sub, pointcloud, listener_);
+
+    gridMapPclLoader_.loadParameters(gm::getParameterPath());
+    gridMapPclLoader_.loadCloudFromROSMsg(pointcloud);
 
     gm::processPointcloud(&gridMapPclLoader_, nodeHandle_);
 
     map_ = gridMapPclLoader_.getGridMap();
-    map_.setPosition(grid_map::Position(uavX_, -(uavY_)));
 
-    grid_map::GridMap unifiedResMap_;
-    grid_map::GridMapCvProcessing::changeResolution(map_, unifiedResMap_, resolution_);
+    // grid_map::GridMap unifiedResMap_;
+    // grid_map::GridMapCvProcessing::changeResolution(map_, unifiedResMap_, resolution_);
 
-    globalMap_.addDataFrom(unifiedResMap_, true, true, true);
+    // globalMap_.addDataFrom(unifiedResMap_, true, true, true);
+    globalMap_.addDataFrom(map_, true, true, true);
     globalMap_.setTimestamp(ros::Time::now().toNSec());
 
     // Publish as grid map.
