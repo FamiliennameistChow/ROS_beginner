@@ -25,6 +25,8 @@ guide to learning ros
 	
 * [AirSim环境配置(TO DO)]()
 
+* [gazebo模型与场景](./gazebo/readme.md)
+
 ----
 
 20191115 zb
@@ -103,3 +105,6 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 
 20200323 zb
 * 添加`navi_algorithm`导航算法包，目前二维rrt算法已实现
+
+20200326 zb
+* 添加`moon.world`月面场景，使用详见`gazebo/readme.md`
