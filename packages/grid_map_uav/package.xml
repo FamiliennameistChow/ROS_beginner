@@ -26,4 +26,5 @@
   <depend>octomap_msgs</depend>
   <depend>pcl_ros</depend>
   <depend>yaml-cpp</depend>
+  <depend>tf</depend>
 </package>
