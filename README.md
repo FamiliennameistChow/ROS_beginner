@@ -108,3 +108,11 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 
 20200326 zb
 * 添加`moon.world`月面场景，使用详见`gazebo/readme.md`
+
+20200409 zb
+* 更新`gazebo/models/Amy_terrain`模型
+* 更新`test_octomap`添加无人机导航/turtlebot导航配置  
+    * 查看`test_octomap`下的sh文件夹  
+     1. pointcloud_to_octomap.sh用于无人机地面重建
+     2. turtlebot_navi.sh用于turtlebot导航
+     3. uav_navi.sh用于无人机导航

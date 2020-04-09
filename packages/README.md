@@ -24,6 +24,11 @@
 
 * [test_octomap包](./test_octomap)  
     测试点云数据转octomap，并进行拼接的算法
+    * 更新`test_octomap`添加无人机导航/turtlebot导航配置  
+        * 查看`test_octomap`下的sh文件夹  
+        1. pointcloud_to_octomap.sh用于无人机地面重建
+        2. turtlebot_navi.sh用于turtlebot导航
+        3. uav_navi.sh用于无人机导航
 
 * [navi_algorithm包](./navi_algorithm包)  
     实现各类导航算法包  

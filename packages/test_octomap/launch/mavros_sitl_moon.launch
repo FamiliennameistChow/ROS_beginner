@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="vehicle" default="iris_rplidar"/>
+    <arg name="my_model" default="iris_down_kinect"/>
+    <include file="$(find px4)/launch/mavros_posix_sitl.launch">
+        <arg name="x" value="7.7"/>
+        <arg name="y" value="-4"/>
+        <arg name="z" value="0.2"/>
+        <arg name="R" value="0"/>
+        <arg name="P" value="0"/>
+        <arg name="Y" value="0"/>
+        <arg name="world" value="$(find test_octomap)/worlds/moon.world"/>
+        <!-- <arg name="sdf" value="$(find mavlink_sitl_gazebo)/models/$(arg vehicle)/$(arg vehicle).sdf"/>  -->
+        <arg name="sdf" default="$(find mavlink_sitl_gazebo)/models/$(arg my_model)/$(arg my_model).sdf"/>
+    </include>
+
+    <node pkg="test_octomap" type="tf_camera_to_map" name="tf_camera2map">
+        <!-- camera pose to the uav -->
+        <param name="x" value="0"/>
+        <param name="y" value="0"/>
+        <param name="z" value="0"/>
+        <param name="R" value="0"/>
+        <param name="P" value="3.14"/>
+        <param name="Y" value="1.57"/>
+    </node>
+
+
+</launch>

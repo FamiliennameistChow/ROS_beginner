@@ -14,6 +14,14 @@
         <arg name="sdf" default="$(find mavlink_sitl_gazebo)/models/$(arg my_model)/$(arg my_model).sdf"/>
     </include>
 
-    <node pkg="test_octomap" type="tf_camera_to_map" name="tf_camera2map"/>
+    <node pkg="test_octomap" type="tf_camera_to_map" name="tf_camera2map" output="screen">
+        <!-- camera pose to the uav 该欧拉角旋转是固定轴-->
+        <param name="x" value="0.0"/>
+        <param name="y" value="0.0"/>
+        <param name="z" value="0.0"/>
+        <param name="R" value="-1.57"/>
+        <param name="P" value="0.0"/>
+        <param name="Y" value="-1.57"/>
+    </node>
 
 </launch>

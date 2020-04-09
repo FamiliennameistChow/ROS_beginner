@@ -3,13 +3,16 @@
   <arg name="pointcloudTopic" default="/camera/depth/points_global"/>
   <arg name="pointcloudFrame" default="map"/>
 
-  <node pkg="test_octomap" type="tf_camera_to_map" name="tf_camera2map"/>
+  <!-- <node pkg="test_octomap" type="tf_camera_to_map" name="tf_camera2map"/> -->
 
-  <node pkg="test_octomap" type="pointcloud2map" name="pointcloud2map" output="screen"/>
+  <node pkg="test_octomap" type="pointcloud2map" name="pointcloud2map" output="screen">
+    <param name="pointcloud_trans_topic" value="$(arg pointcloudTopic)" />
+    <param name="pointcloud_in_topic" value="/camera/depth/points" />
+  </node>
 
   <node pkg="octomap_server" type="octomap_server_node" name="octomap_server">
     <!-- resolution in meters per pixel -->
-    <param name="resolution" value="0.05" />
+    <param name="resolution" value="0.1" />
 
     <!-- name of the fixed frame, needs to be "/map" for SLAM -->
     <param name="frame_id" type="string" value="$(arg pointcloudFrame)" />
@@ -20,7 +23,7 @@
 
     <!-- max/min height for occupancy map, should be in meters -->
     <param name="pointcloud_max_z" value="1000" />
-    <param name="pointcloud_min_z" value="0.5" />
+    <param name="pointcloud_min_z" value="-1000" />
 
     <!-- topic from where pointcloud2 messages are subscribed -->
     <remap from="/cloud_in" to="$(arg pointcloudTopic)" />

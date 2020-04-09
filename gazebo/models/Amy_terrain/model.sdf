@@ -6,7 +6,7 @@
       <collision name="collision">
         <geometry>
           <heightmap>
-            <uri>model://Amy_terrain/materials/textures/terrain_flat.png</uri>
+            <uri>model://Amy_terrain/materials/textures/terrain_flater.png</uri>
             <size>100 100 20</size>
             <pos>0 0 0</pos>
           </heightmap>
@@ -42,7 +42,7 @@
               <min_height>10</min_height>
               <fade_dist>5</fade_dist>
             </blend>
-            <uri>model://Amy_terrain/materials/textures/terrain_flat.png</uri>
+            <uri>model://Amy_terrain/materials/textures/terrain_flater.png</uri>
             <size>100 100 20</size>
             <pos>0 0 0</pos>
           </heightmap>

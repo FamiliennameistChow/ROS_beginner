@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   mavros
   pcl_ros
   pcl_conversions
+  costmap_2d
 )
 
 ## System dependencies are found with CMake's conventions
@@ -166,6 +167,12 @@ target_link_libraries(tf_camera_to_map
 add_executable(pointcloud2map src/pointcloud2map.cpp)
 
 target_link_libraries(pointcloud2map
+  ${catkin_LIBRARIES} ${PCL_LIBRARIES}
+)
+
+add_executable(turtlebot_navigation src/turtlebot_navigation.cpp)
+
+target_link_libraries(turtlebot_navigation
   ${catkin_LIBRARIES} ${PCL_LIBRARIES}
 )
 #############

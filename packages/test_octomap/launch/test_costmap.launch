@@ -1,0 +1,20 @@
+<launch>
+  <!-- <node pkg="test_costmap" type="test_costmap" name="test_costmap_node" output="screen"> -->
+  <node pkg="test_octomap" type="turtlebot_navigation" name="turtlebot_navigation_node" output="screen">
+    <rosparam file="$(find test_octomap)/param/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find test_octomap)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find test_octomap)/param/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find test_octomap)/param/global_costmap_params.yaml" command="load" />
+    <param name="global_costmap/global_frame" value="/odom"/>
+    <param name="global_costmap/robot_base_frame" value="/base_link"/>
+    <param name="global_costmap/point_cloud_sensor/sensor_frame" value="/camera_depth_frame"/>
+    <param name="global_costmap/point_cloud_sensor/topic" value="/camera/depth/points"/>    
+    <param name="local_costmap/global_frame" value="/odom"/>
+    <param name="local_costmap/robot_base_frame" value="/base_link"/>
+    <param name="local_costmap/point_cloud_sensor/sensor_frame" value="/camera_depth_frame"/>
+    <param name="local_costmap/point_cloud_sensor/topic" value="/camera/depth/points"/>
+    <param name="local_costmap/obstacle_layer/point_cloud_sensor/topic" value="/camera/depth/points"/>
+    <remap from="map" to="/projected_map"/>
+  </node>
+
+</launch>
