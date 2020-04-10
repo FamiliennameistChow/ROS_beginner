@@ -20,6 +20,7 @@
     <param name="map_layer_name"          type="string" value="$(arg map_layer_name)" />
     <param name="folder_path"             type="string" value="$(arg folder_path)" />
     <param name="set_verbosity_to_debug"  type="bool" value="$(arg set_verbosity_to_debug)" />
+    <rosparam command="load" file="$(find grid_map_uav)/config/filters_demo_filter_chain.yaml" />
   </node>
   
   <rosparam file="$(find grid_map_uav)/config/pointcloud_to_gridmap.yaml" command="load"/>
@@ -28,5 +29,5 @@
   <node pkg="grid_map_visualization" type="grid_map_visualization" name="grid_map_visualization" output="screen" />
 
   <!-- Launch RViz with the demo configuration -->
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find grid_map_uav)/rviz/grid_map_pcl.rviz" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find grid_map_uav)/rviz/filters_demo.rviz" />
 </launch>

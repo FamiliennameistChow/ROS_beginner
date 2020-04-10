@@ -6,6 +6,7 @@
 #include "grid_map_pcl/helpers.hpp"
 #include <grid_map_ros/grid_map_ros.hpp>
 #include <grid_map_cv/grid_map_cv.hpp>
+#include "filters/filter_chain.h"
 #include <tf/transform_listener.h>
 #include <pcl_ros/transforms.h>
 #include <pcl_ros/impl/transforms.hpp>
@@ -84,13 +85,20 @@ class PointCloudToGridmap
   double uavY_;
 
   grid_map::GridMapPclLoader gridMapPclLoader_;
+
+  //! Filter chain.
+  filters::FilterChain<grid_map::GridMap> filterChain_;
+
+  //! Filter chain parameters name.
+  std::string filterChainParametersName_;
 };
 
 
 PointCloudToGridmap::PointCloudToGridmap(ros::NodeHandle& nodeHandle)
     : nodeHandle_(nodeHandle),
       map_(grid_map::GridMap({"elevation"})),
-      globalMap_(grid_map::GridMap({"elevation"}))
+      globalMap_(grid_map::GridMap({"elevation"})),
+      filterChain_("grid_map::GridMap")
 {
   readParameters();
   gm::setVerbosityLevelToDebugIfFlagSet(nodeHandle_);
@@ -104,6 +112,12 @@ PointCloudToGridmap::PointCloudToGridmap(ros::NodeHandle& nodeHandle)
 
   pointCloudSubscriber_ = nodeHandle_.subscribe(pointCloudTopic_, 10, &PointCloudToGridmap::pointCloudCallback, this);
   gridMapPublisher_ = nodeHandle_.advertise<grid_map_msgs::GridMap>("grid_map", 1, true);
+
+  // Setup filter chain.
+  if (!filterChain_.configure(filterChainParametersName_, nodeHandle)) {
+    ROS_ERROR("Could not configure the filter chain!");
+    return;
+  }
 }
 
 PointCloudToGridmap::~PointCloudToGridmap()
@@ -117,6 +131,7 @@ bool PointCloudToGridmap::readParameters()
   nodeHandle_.param<double>("min_height", minHeight_, 0.0);
   nodeHandle_.param<double>("max_height", maxHeight_, 10.0);
   nodeHandle_.param<std::string>("map_frame_id", mapFrameId_, std::string("map"));
+  nodeHandle_.param("filter_chain_parameter_name", filterChainParametersName_, std::string("grid_map_filters"));
   heightRange_ = maxHeight_ - minHeight_;
   return true;
 }
@@ -149,11 +164,18 @@ void PointCloudToGridmap::pointCloudCallback(const boost::shared_ptr<const senso
 
     map_ = gridMapPclLoader_.getGridMap();
 
+    // Apply filter chain.
+    grid_map::GridMap outputMap;
+    if (!filterChain_.update(map_, outputMap)) {
+      ROS_ERROR("Could not update the grid map filter chain!");
+      return;
+    }
+
     // grid_map::GridMap unifiedResMap_;
     // grid_map::GridMapCvProcessing::changeResolution(map_, unifiedResMap_, resolution_);
 
     // globalMap_.addDataFrom(unifiedResMap_, true, true, true);
-    globalMap_.addDataFrom(map_, true, true, true);
+    globalMap_.addDataFrom(outputMap, true, true, true);
     globalMap_.setTimestamp(ros::Time::now().toNSec());
 
     // Publish as grid map.

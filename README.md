@@ -94,7 +94,7 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 * 增加库文件drone_flight_modes.hpp的功能，现在支持非控制模式和多机仿真。
 
 20200312 zwl
-* 增加将无人机下视深度图转为grid_map的代码。
+* 增加将无人机下视深度图转为grid_map的代码，运行文件为 `grid_map_uav/sh/depth_to_gridmap.sh`。
 
 
 20200321 zb
@@ -116,3 +116,10 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
      1. pointcloud_to_octomap.sh用于无人机地面重建
      2. turtlebot_navi.sh用于turtlebot导航
      3. uav_navi.sh用于无人机导航
+
+20200410 zwl
+* 更新了无人机的下视点云转grid_map的代码，运行文件为 `grid_map_uav/sh/pointcloud_to_gridmap.sh`
+* 现在支持：  
+     1. 实时的点云转gridmap
+     2. 全局地图拼接
+     3. 使用滤波器生成表面法向量、坡度、粗糙度等信息层判断可通行区域，并根据可通行区域生成occupymap
