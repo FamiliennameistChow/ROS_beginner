@@ -116,3 +116,18 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
      1. pointcloud_to_octomap.sh用于无人机地面重建
      2. turtlebot_navi.sh用于turtlebot导航
      3. uav_navi.sh用于无人机导航
+
+
+20200411 zb
+* 添加`packages/scout_ros`功能包  
+　安装参考https://github.com/westonrobot/scout_ros/tree/melodic  
+
+    ```sh
+    sudo apt-get install ros-kinetic-gazebo-ros-control
+    sudo apt install ros-kinetic-teleop-twist-keyboard
+    sudo apt-get install ros-kinetic-joint-state-publisher-gui
+    sudo apt install ros-kinetic-ros-controllers
+    ```
+
+* 使用请进入packages/scout_ros/navi_ros/sh
+    * scout_navi.sh　使用四驱小车导航

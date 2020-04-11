@@ -30,13 +30,35 @@
         2. turtlebot_navi.sh用于turtlebot导航
         3. uav_navi.sh用于无人机导航
 
-* [navi_algorithm包](./navi_algorithm包)  
+* [navi_algorithm包](./navi_algorithm)  
     实现各类导航算法包  
 
     * TO DO List:  
         - [ ] 二维导航算法  
         - [x] rrt  
         - [ ] rrt_connet(testing)  
+
+* [scout_ros包](./scout_ros)  
+  使用四驱小车进行导航gazebo仿真环境  
+  安装参考https://github.com/westonrobot/scout_ros/tree/melodic  
+
+
+    * 依赖:  
+
+    ```sh
+    sudo apt-get install ros-kinetic-gazebo-ros-control
+    sudo apt install ros-kinetic-teleop-twist-keyboard
+    sudo apt-get install ros-kinetic-joint-state-publisher-gui
+    sudo apt install ros-kinetic-ros-controllers
+    ```
+
+    * 使用请进入`/scout_ros/navi_ros/sh`
+        * scout_navi.sh　使用四驱小车导航
+
+    * TODO List
+        - [x] 四驱车模型  
+        - [x] 相机模型添加
+        - [ ] 多线激光雷达添加
 
 
 
