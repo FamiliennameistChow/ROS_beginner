@@ -1,0 +1,25 @@
+octomap_server:
+  # Resolution in meter for the map when starting with an empty map
+  resolution: 0.1
+    
+  # Maximum range in meter for inserting point cloud data when dynamically building a map
+  # 识别的最大距离
+  sensor_model/max_range: 20.0
+    
+  # Whether topics are published latched or only once per change，设为false可以提高性能
+  latch: false
+    
+  # Minimum and maximum height of points to consider for insertion in the callback
+  # 生成八叉树地图时点云的识别范围（Z方向）
+  pointcloud_min_z: -10.0
+  pointcloud_max_z: 30
+    
+  # Minimum and maximum height of occupied cells to be consider in the final map
+  # 生成occupancy地图时的识别范围（Z方向）
+  occupancy_min_z: -10.0
+  occupancy_max_z: 30
+    
+  #filter_ground: true
+  #ground_filter/distance: 0.1
+  #ground_filter/angle: 0.1
+  #ground_filter/plane_distance: 0.1

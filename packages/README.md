@@ -17,10 +17,22 @@
     此功能包为基础学习包。包括基本的offboard模式控制无人机以及扩展而来的键盘控制无人机（共两个版本）。
 
 * [vision包](./vision)
-    此功能包为无人机视觉相关包。img_pub.cpp为打开USB相机并发布ROS图像消息；img_sub为接收ROS图像消息并显示；auto_landing为自主降落相关代码；mark_tracking为追踪降落相关代码；detect_mark为地标识别相关代码；red_detect为红色标靶识别代码，与planet_landing一起组成着陆比赛的功能代码。
+    此功能包为无人机视觉相关包。img_pub.cpp为打开USB相机并发布ROS图像消息；img_sub为接收ROS图像消息并显示；auto_landing为自主降落相关代码；mark_tracking为追踪降落相关代码；detect_mark为地标识别相关代码；red_detect为红色标靶识别代码，与planet_landing一起组成着陆比赛的功能代码。运行程序请运行sh文件夹中相应的.sh文件.
 
 * [grid_map_uav包](./grid_map_uav)
-　　此功能包为grid_map在无人机上的应用。depth_to_gridmap.hpp为深度图转grid_map并做全局地图拼接的相关代码。
+　　此功能包为grid_map在无人机上的应用。depth_to_gridmap.hpp为深度图转grid_map并做全局地图拼接的相关代码。pointcloud_to_gridmap.hpp为kinect点云转grid_map并做全局地图拼接的相关代码。运行程序请运行sh文件夹中相应的.sh文件.
+
+    * 依赖:  
+
+    ```sh
+    安装官方grid_map包，详见grid_map的安装教程。
+    ```
+
+    * TODO List
+        - [x] 实时的点云转gridmap  
+        - [x] 全局地图拼接
+        - [x] 使用滤波器生成表面法向量、坡度、粗糙度等信息层判断可通行区域，并根据可通行区域生成occupymap
+        - [ ] 生成costmap
 
 * [test_octomap包](./test_octomap)  
     测试点云数据转octomap，并进行拼接的算法
@@ -59,6 +71,22 @@
         - [x] 四驱车模型  
         - [x] 相机模型添加
         - [ ] 多线激光雷达添加
+
+* [octomap_scout包](./octomap_scout)  
+  使用scout四驱小车在gazebo仿真环境进行导航的包，独立于scout_ros。好处在于不用修改官方scout_ros包的内容就可以使用自定义的scout小车。
+    
+    * 依赖:  
+
+    ```sh
+    安装官方scout_ros包的melodic分支，详见scout_ros的安装教程。
+    sudo apt-get install ros-kinetic-velodyne*
+    ```
+    
+    * TODO List
+        - [x] gazebo加载四驱车模型  
+        - [x] kinect相机模型添加
+        - [x] 多线激光雷达添加
+        - [ ] 生成costmap
 
 
 
