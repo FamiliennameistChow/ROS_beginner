@@ -48,29 +48,35 @@ class PointCloudToGridmap
   //! ROS nodehandle.
   ros::NodeHandle& nodeHandle_;
 
-  //! Grid map publisher.
-  ros::Publisher gridMapPublisher_;
+  //! Local grid map publisher.
+  ros::Publisher localMapPublisher_;
+
+  //! Global grid map publisher.
+  ros::Publisher globalMapPublisher_;
 
   //!real-time Grid map data.
   grid_map::GridMap map_;
 
+  //!global Grid map data.
+  grid_map::GridMap localMap_;
+  
   //!global Grid map data.
   grid_map::GridMap globalMap_;
 
   //! Image subscriber
   ros::Subscriber pointCloudSubscriber_;
 
-  //! Name of the grid map topic.
+  //! Name of the input point cloud topic.
   std::string pointCloudTopic_;
+  
+  //! Name of the output local grid_map topic.
+  std::string outputLocalMapTopic_;
+
+  //! Name of the output global grid_map topic.
+  std::string outputGlobalMapTopic_;
 
   //! Resolution of the grid map.
   double resolution_;
-
-  //! Range of the height values.
-  double minHeight_;
-  double maxHeight_;
-
-  double heightRange_;
 
   //! Frame id of the grid map.
   std::string mapFrameId_;
@@ -105,13 +111,16 @@ PointCloudToGridmap::PointCloudToGridmap(ros::NodeHandle& nodeHandle)
 
   map_.setBasicLayers({"elevation"});
   map_.setFrameId(mapFrameId_);
+  
+  localMap_.setFrameId(mapFrameId_);
 
   globalMap_.setGeometry(grid_map::Length(1.0, 1.0), resolution_, grid_map::Position(0.0, 0.0)); // bufferSize(6, 6)
   globalMap_.setBasicLayers({"elevation"});
   globalMap_.setFrameId(mapFrameId_);
 
   pointCloudSubscriber_ = nodeHandle_.subscribe(pointCloudTopic_, 10, &PointCloudToGridmap::pointCloudCallback, this);
-  gridMapPublisher_ = nodeHandle_.advertise<grid_map_msgs::GridMap>("grid_map", 1, true);
+  localMapPublisher_ = nodeHandle_.advertise<grid_map_msgs::GridMap>(outputLocalMapTopic_, 1, true);
+  globalMapPublisher_ = nodeHandle_.advertise<grid_map_msgs::GridMap>(outputGlobalMapTopic_, 1, true);
 
   // Setup filter chain.
   if (!filterChain_.configure(filterChainParametersName_, nodeHandle)) {
@@ -128,11 +137,10 @@ bool PointCloudToGridmap::readParameters()
 {
   nodeHandle_.param<std::string>("pointcloud_topic", pointCloudTopic_, std::string("/kinect/depth/points"));
   nodeHandle_.param<double>("resolution", resolution_, 0.3);
-  nodeHandle_.param<double>("min_height", minHeight_, 0.0);
-  nodeHandle_.param<double>("max_height", maxHeight_, 10.0);
-  nodeHandle_.param<std::string>("map_frame_id", mapFrameId_, std::string("map"));
+  nodeHandle_.param<std::string>("map_frame", mapFrameId_, std::string("map"));
+  nodeHandle_.param<std::string>("output_local_map_topic", outputLocalMapTopic_, std::string("/pointcloud_to_gridmap/local_grid_map"));
+  nodeHandle_.param<std::string>("output_global_map_topic", outputGlobalMapTopic_, std::string("/pointcloud_to_gridmap/global_grid_map"));
   nodeHandle_.param("filter_chain_parameter_name", filterChainParametersName_, std::string("grid_map_filters"));
-  heightRange_ = maxHeight_ - minHeight_;
   return true;
 }
 
@@ -141,6 +149,7 @@ void PointCloudToGridmap::pointCloudCallback(const boost::shared_ptr<const senso
     sensor_msgs::PointCloud2 pointcloud_sub, pointcloud;
     pointcloud_sub = *msg;
     pointcloud_sub.header.frame_id = std::string("camera_link");
+    pointcloud.header.frame_id = std::string("map");
 
     tf::StampedTransform transform;
     try
@@ -165,23 +174,28 @@ void PointCloudToGridmap::pointCloudCallback(const boost::shared_ptr<const senso
     map_ = gridMapPclLoader_.getGridMap();
 
     // Apply filter chain.
-    grid_map::GridMap outputMap;
-    if (!filterChain_.update(map_, outputMap)) {
+    if (!filterChain_.update(map_, localMap_)) {
       ROS_ERROR("Could not update the grid map filter chain!");
       return;
     }
+    localMap_.setFrameId(mapFrameId_);
 
     // grid_map::GridMap unifiedResMap_;
     // grid_map::GridMapCvProcessing::changeResolution(map_, unifiedResMap_, resolution_);
 
     // globalMap_.addDataFrom(unifiedResMap_, true, true, true);
-    globalMap_.addDataFrom(outputMap, true, true, true);
+    globalMap_.addDataFrom(localMap_, true, true, true);
     globalMap_.setTimestamp(ros::Time::now().toNSec());
 
-    // Publish as grid map.
-    grid_map_msgs::GridMap mapMessage;
-    grid_map::GridMapRosConverter::toMessage(globalMap_, mapMessage);
-    gridMapPublisher_.publish(mapMessage);
+    // Publish as local grid map.
+    grid_map_msgs::GridMap localMapMessage;
+    grid_map::GridMapRosConverter::toMessage(localMap_, localMapMessage);
+    localMapPublisher_.publish(localMapMessage);
+    
+    // Publish as global grid map.
+    grid_map_msgs::GridMap globalMapMessage;
+    grid_map::GridMapRosConverter::toMessage(globalMap_, globalMapMessage);
+    globalMapPublisher_.publish(globalMapMessage);
 }
 
 } /* namespace */

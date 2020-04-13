@@ -25,17 +25,28 @@ pcl_grid_map_extraction:
       z: 0.02 
   grid_map:
     min_num_points_per_cell: 4
-    resolution: 0.04
+    resolution: 0.04  # local_map的分辨率，两个需要同步
+
+
 
 pointcloud_to_gridmap:
   pointcloud_topic: "/kinect/depth/points"
-  resolution: 0.04
-  map_frame_id: "map"
-  min_height: 0.0
-  max_height: 10.0
+  resolution: 0.04    # global_map的分辨率，两个需要同步
+  map_frame: "map"
+  output_local_map_topic: /pointcloud_to_gridmap/local_grid_map
+  output_global_map_topic: /pointcloud_to_gridmap/global_grid_map
+
+  folder_path: "$(find grid_map_uav)/data"  # 要加载的pcd文件所在的目录
+  pcd_filename: "plane_noisy.pcd"  # 加载pcd文件的名字
+  map_rosbag_topic: grid_map  # 保存在rosbag内部的topic名称
+  output_grid_map: elevation_map.bag  # 保存的rosbag的名字
+  map_layer_name: elevation
+  set_verbosity_to_debug: false  # Debug的开关
+
+
 
 grid_map_visualization:
-  grid_map_topic: /pointcloud_to_gridmap/grid_map
+  grid_map_topic: /pointcloud_to_gridmap/global_grid_map
   grid_map_visualizations:
 
     # - name: elevation_points

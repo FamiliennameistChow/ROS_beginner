@@ -135,7 +135,7 @@ void DepthToGridmap::depthCallback(const sensor_msgs::Image& msg)
     uavY_ = myDrone_.localPosition().pose.position.y;
 
     double initResolution = uavHight_/122.0;
-    grid_map::GridMapRosConverter::initializeFromImage(msg, initResolution, map_, grid_map::Position(uavY_, uavX_));
+    grid_map::GridMapRosConverter::initializeFromImage(msg, initResolution, map_, grid_map::Position(uavX_, uavY_));
     map_.setTimestamp(ros::Time::now().toNSec());
     // ROS_INFO("Initialized map with size %f x %f m (%i x %i cells) with resolution %f.", map_.getLength().x(),
     //          map_.getLength().y(), map_.getSize()(0), map_.getSize()(1), map_.getResolution());
