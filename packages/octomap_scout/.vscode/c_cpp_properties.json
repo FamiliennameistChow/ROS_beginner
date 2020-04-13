@@ -1,0 +1,43 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/home/bornchow/AMOV_WORKSPACE/moon_ws/devel/include/**",
+                "/home/bornchow/turtlebot_ws/devel/include/**",
+                "/home/bornchow/carto_ws/install_isolated/include/**",
+                "/opt/ros/kinetic/include/**",
+                "/home/bornchow/AMOV_WORKSPACE/px4_ws/devel/include/**",
+                "/home/bornchow/turtlebot_ws/src/camera_image_get/include/**",
+                "/home/bornchow/AMOV_WORKSPACE/planning_ws/src/grid_path_searcher/include/**",
+                "/home/bornchow/turtlebot_ws/src/navi_algorithm/include/**",
+                "/home/bornchow/AMOV_WORKSPACE/moon_ws/src/scout_ros/navi_ros/include/**",
+                "/home/bornchow/AMOV_WORKSPACE/px4_ws/src/px4_command/include/**",
+                "/home/bornchow/AMOV_WORKSPACE/px4_ws/src/px4_simulation/include/**",
+                "/home/bornchow/turtlebot_ws/src/rrt_exploration/include/**",
+                "/home/bornchow/AMOV_WORKSPACE/moon_ws/src/scout_ros/scout_base/include/**",
+                "/home/bornchow/AMOV_WORKSPACE/moon_ws/src/scout_ros/scout_gazebo_sim/include/**",
+                "/home/bornchow/AMOV_WORKSPACE/moon_ws/src/scout_ros/scout_sdk/include/**",
+                "/home/bornchow/AMOV_WORKSPACE/moon_ws/src/scout_ros/scout_webots_sim/include/**",
+                "/home/bornchow/AMOV_WORKSPACE/px4_ws/src/rpg_svo/svo/include/**",
+                "/home/bornchow/AMOV_WORKSPACE/px4_ws/src/rpg_svo/svo_ros/include/**",
+                "/home/bornchow/turtlebot_ws/src/test_costmap/include/**",
+                "/home/bornchow/turtlebot_ws/src/test_octomap/include/**",
+                "/home/bornchow/turtlebot_ws/src/turtlebot_apps/turtlebot_actions/include/**",
+                "/home/bornchow/AMOV_WORKSPACE/px4_ws/src/rpg_vikit/vikit_common/include/**",
+                "/home/bornchow/AMOV_WORKSPACE/px4_ws/src/rpg_vikit/vikit_ros/include/**",
+                "/home/bornchow/AMOV_WORKSPACE/px4_ws/src/vision/include/**",
+                "/usr/include/**"
+            ],
+            "name": "ROS",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}

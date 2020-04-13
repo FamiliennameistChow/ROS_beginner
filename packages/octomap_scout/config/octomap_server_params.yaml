@@ -11,7 +11,7 @@ octomap_server:
     
   # Minimum and maximum height of points to consider for insertion in the callback
   # 生成八叉树地图时点云的识别范围（Z方向）
-  pointcloud_min_z: -10.0
+  pointcloud_min_z: -10
   pointcloud_max_z: 30
     
   # Minimum and maximum height of occupied cells to be consider in the final map
