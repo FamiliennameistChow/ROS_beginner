@@ -119,7 +119,7 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 
 20200410 zwl
 * 更新了无人机的下视点云转grid_map的代码，运行文件为 `grid_map_uav/sh/pointcloud_to_gridmap.sh`
-* 现在支持：  
+* 新增支持：  
      1. 实时的点云转gridmap
      2. 全局地图拼接
      3. 使用滤波器生成表面法向量、坡度、粗糙度等信息层判断可通行区域，并根据可通行区域生成occupymap
@@ -138,3 +138,10 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 
 * 使用请进入packages/scout_ros/navi_ros/sh
     * scout_navi.sh　使用四驱小车导航
+
+20200414 zwl
+* 更新了无人机的下视点云转grid_map的代码，运行文件为 `grid_map_uav/sh/pointcloud_to_gridmap.sh`
+* 新增支持：  
+     1. 自定义tf参数配置
+     2. localmap和globalmap同时输出
+     3. 实现整个过程的参数化配置

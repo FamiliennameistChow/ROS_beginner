@@ -32,7 +32,10 @@
         - [x] 实时的点云转gridmap  
         - [x] 全局地图拼接
         - [x] 使用滤波器生成表面法向量、坡度、粗糙度等信息层判断可通行区域，并根据可通行区域生成occupymap
+        - [x] 同时输出Localmap和Globalmap
+        - [x] 实现全过程参数化配置 
         - [ ] 生成costmap
+        - [ ] 运动规划与导航
 
 * [test_octomap包](./test_octomap)  
     测试点云数据转octomap，并进行拼接的算法
@@ -86,6 +89,7 @@
         - [x] gazebo加载四驱车模型  
         - [x] kinect相机模型添加
         - [x] 多线激光雷达添加
+        - [x] IMU传感器添加
         - [ ] 生成costmap
 
 
