@@ -22,6 +22,7 @@
 #include "grid_map_core/GridMapMath.hpp"
 #include "grid_map_pcl/GridMapPclLoader.hpp"
 #include "grid_map_pcl/helpers.hpp"
+#include <sensor_msgs/PointCloud2.h>
 
 namespace grid_map {
 

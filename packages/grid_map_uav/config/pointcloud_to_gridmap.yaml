@@ -31,8 +31,9 @@ pcl_grid_map_extraction:
 
 pointcloud_to_gridmap:
   pointcloud_topic: "/kinect/depth/points"
-  resolution: 0.04    # global_map的分辨率，两个需要同步
+  resolution: 0.06    # global_map的分辨率，两个需要同步
   map_frame: "map"
+  pointcloud_frame: "camera_link"
   output_local_map_topic: /pointcloud_to_gridmap/local_grid_map
   output_global_map_topic: /pointcloud_to_gridmap/global_grid_map
 

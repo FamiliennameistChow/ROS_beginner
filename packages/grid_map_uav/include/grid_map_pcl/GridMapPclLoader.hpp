@@ -16,6 +16,7 @@
 #include "grid_map_core/iterators/GridMapIterator.hpp"
 #include "grid_map_pcl/PclLoaderParameters.hpp"
 #include "grid_map_pcl/PointcloudProcessor.hpp"
+#include <sensor_msgs/PointCloud2.h>
 
 namespace grid_map {
 
