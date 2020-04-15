@@ -4,6 +4,7 @@
 -----
 
 # Table of Contents 
+
 ##　packages for UAV
 * [drone_lora包](./drone_lora)
 　此功能包为串口和socket使用包。src文件夹中为使用serial和socket的示例代码。
@@ -20,7 +21,7 @@
     * 依赖:  
 
     ```sh
-    安装官方grid_map包，详见grid_map的安装教程。
+    官方grid_map包，安装参考https://github.com/ANYbotics/grid_map
     ```
 
     * TODO List
@@ -34,6 +35,7 @@
 
 * [grad_traj_optimization包]()
 　此功能包为香港科技大学git上的轨迹生成和优化包。[github地址](http://github.com/HKUST-Aerial-Robotics/grad_traj_optimization)
+
 ##　packages for UGV
 * [test_octomap包](./test_octomap)  
     测试点云数据转octomap，并进行拼接的算法
@@ -79,8 +81,9 @@
     * 依赖:  
 
     ```sh
-    安装官方scout_ros包的melodic分支，详见scout_ros的安装教程。
+    官方scout_ros包的melodic分支，安装参考https://github.com/westonrobot/scout_ros/tree/melodic 
     sudo apt-get install ros-kinetic-velodyne*
+    LOAM_velodyne－安装参考https://github.com/laboshinl/loam_velodyne
     ```
     
     * TODO List
