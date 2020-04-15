@@ -4,7 +4,7 @@
 -----
 
 # Table of Contents 
-##packages for UAV
+##　packages for UAV
 * [drone_lora包](./drone_lora)
 　此功能包为串口和socket使用包。src文件夹中为使用serial和socket的示例代码。
 
@@ -34,7 +34,7 @@
 
 * [grad_traj_optimization包]()
 　此功能包为香港科技大学git上的轨迹生成和优化包。[github地址](http://github.com/HKUST-Aerial-Robotics/grad_traj_optimization)
-##packages for UGV
+##　packages for UGV
 * [test_octomap包](./test_octomap)  
     测试点云数据转octomap，并进行拼接的算法
     * 更新`test_octomap`添加无人机导航/turtlebot导航配置  
