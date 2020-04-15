@@ -5,23 +5,31 @@
 
 # Table of Contents 
 
-##　packages for UAV
-* [drone_lora包](./drone_lora)
-　此功能包为串口和socket使用包。src文件夹中为使用serial和socket的示例代码。
+## packages for UAV 
+* [drone_lora包](./drone_lora)  
+此功能包为串口和socket使用包。src文件夹中为使用serial和socket的示例代码。
 
-* [px4_mavros包](./px4_mavros)
-　此功能包为基础学习和无人机控制包。包括基本的offboard模式控制无人机以及扩展而来的键盘控制无人机（共三个版本）。include文件夹内包含一个库文件。将此库文件作为头文件，便可以使用类中的成员函数控制无人机或获取无人机参数。src文件夹内drone_flight_modes_node.cpp为库文件使用方法示例代码。
+* [px4_mavros包](./px4_mavros)  
+此功能包为基础学习和无人机控制包。包括基本的offboard模式控制无人机以及扩展而来的键盘控制无人机（共三个版本）。include文件夹内包含一个库文件。将此库文件作为头文件，便可以使用类中的成员函数控制无人机或获取无人机参数。src文件夹内drone_flight_modes_node.cpp为库文件使用方法示例代码。
 
-* [vision包](./vision)
-　此功能包为无人机视觉相关包。img_pub.cpp为打开USB相机并发布ROS图像消息；img_sub为接收ROS图像消息并显示；auto_landing为自主降落相关代码；mark_tracking为追踪降落相关代码；detect_mark为地标识别相关代码；red_detect为红色标靶识别代码，与planet_landing一起组成着陆比赛的功能代码。运行程序请运行sh文件夹中相应的.sh文件.
+* [vision包](./vision)  
+此功能包为无人机视觉相关包。 
+    ```
+    img_pub.cpp为打开USB相机并发布ROS图像消息；  
+    img_sub为接收ROS图像消息并显示；    
+    mark_tracking为追踪降落相关代码；  
+    detect_mark为地标识别相关代码； 
+    red_detect为红色标靶识别代码，与planet_landing一起组成自主着陆比赛的功能代码。
+    ```   
+    运行程序请运行sh文件夹中相应的.sh文件.
 
-* [grid_map_uav包](./grid_map_uav)
-　此功能包为grid_map在无人机上的应用。depth_to_gridmap.hpp为深度图转grid_map并做全局地图拼接的相关代码。pointcloud_to_gridmap.hpp为kinect点云转grid_map并做全局地图拼接的相关代码。运行程序请运行sh文件夹中相应的.sh文件.
+* [grid_map_uav包](./grid_map_uav)  
+此功能包为grid_map在无人机上的应用。depth_to_gridmap.hpp为深度图转grid_map并做全局地图拼接的相关代码。pointcloud_to_gridmap.hpp为kinect点云转grid_map并做全局地图拼接的相关代码。运行程序请运行sh文件夹中相应的.sh文件.
 
     * 依赖:  
 
     ```sh
-    官方grid_map包，安装参考https://github.com/ANYbotics/grid_map
+    官方grid_map包，安装参考<https://github.com/ANYbotics/grid_map>
     ```
 
     * TODO List
@@ -33,10 +41,10 @@
         - [ ] 生成costmap
         - [ ] 运动规划与导航
 
-* [grad_traj_optimization包]()
-　此功能包为香港科技大学git上的轨迹生成和优化包。[github地址](http://github.com/HKUST-Aerial-Robotics/grad_traj_optimization)
+* [grad_traj_optimization包]()  
+此功能包为香港科技大学git上的轨迹生成和优化包。[github地址](http://github.com/HKUST-Aerial-Robotics/grad_traj_optimization)
 
-##　packages for UGV
+## packages for UGV
 * [test_octomap包](./test_octomap)  
     测试点云数据转octomap，并进行拼接的算法
     * 更新`test_octomap`添加无人机导航/turtlebot导航配置  
@@ -81,9 +89,9 @@
     * 依赖:  
 
     ```sh
-    官方scout_ros包的melodic分支，安装参考https://github.com/westonrobot/scout_ros/tree/melodic 
-    sudo apt-get install ros-kinetic-velodyne*
-    LOAM_velodyne－安装参考https://github.com/laboshinl/loam_velodyne
+    官方scout_ros包的melodic分支，安装参考<https://github.com/westonrobot/scout_ros/tree/melodic>  
+    sudo apt-get install ros-kinetic-velodyne*   
+    LOAM_velodyne－安装参考<https://github.com/laboshinl/loam_velodyne>
     ```
     
     * TODO List
