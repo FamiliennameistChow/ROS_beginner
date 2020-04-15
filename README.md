@@ -145,3 +145,6 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
      1. 自定义tf参数配置
      2. localmap和globalmap同时输出
      3. 实现整个过程的参数化配置
+
+20200415 zwl
+* 更新了octomap_scout包，增加了LOAM_velodyne为小车估计位姿
