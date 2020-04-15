@@ -172,6 +172,7 @@ int main(int argc, char **argv)
         }
         if(det_result.success)
         {
+            cout << "识别到标靶" << endl;
             if(Flag_first_result)
             {
                 x_begin = x_err;
@@ -246,6 +247,7 @@ int main(int argc, char **argv)
         }
         else
         {
+            cout << "没有识别到标靶" << endl;
             num_count_lost++;
             num_count = 0;
 

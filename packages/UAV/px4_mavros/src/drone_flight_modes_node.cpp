@@ -49,6 +49,7 @@ int main(int argc, char** argv)
 
   sleep(5);
   ROS_INFO("Battery remaining: %g%%",aero.batteryState().percentage * 100.f);
+  ROS_INFO("yaw degree is %f", aero.yawAngle());
 
   // set to offboard mode 
   if (!aero.setMode("OFFBOARD"))
@@ -62,11 +63,13 @@ int main(int argc, char** argv)
     ROS_INFO("Set OFFBOARD mode sent");
   }
 
+  ROS_INFO("yaw degree is %f", aero.yawAngle());
   // publish a setpoint 
   aero.pubLocalPos(setpoint);
 
   sleep(10);
   ROS_INFO("Battery remaining: %g%%",aero.batteryState().percentage * 100.f);
+  ROS_INFO("yaw degree is %f", aero.yawAngle());
 
   // move based on body coordinate
   aero.moveBody(5, 5, -2);
@@ -74,9 +77,34 @@ int main(int argc, char** argv)
   sleep(5);
   ROS_INFO("Battery remaining: %g%%",aero.batteryState().percentage * 100.f);
 
+  // 顺时针偏航
+  aero.setVelocityBody(0,0,0,30);
+  sleep(2);
+
+  ROS_INFO("yaw degree is %f", aero.yawAngle());
+  // 朝机头正前方向飞
+  aero.setVelocityBody(1,0,0,0);
+  sleep(3);
+
+  // 朝机身左侧方向飞
+  aero.setVelocityBody(0,1,0,0);
+  sleep(3);
+
+  // 朝机身上方飞
+  aero.setVelocityBody(0,0,1,0);
+  sleep(3);
+
+  
+  ROS_INFO("yaw degree is %f", aero.yawAngle());
+  aero.setVelocityBody(-1,-1,-1,0);
+  sleep(3);
+
+  aero.setVelocityBody(0,0,0,0);
+  sleep(3);
+
   // Fly a circle
   ROS_INFO("Body: Fly a circle");
-  aero.setVelocityBody(5.0f, 0.0f, 0.0f, -30.0f);
+  aero.setVelocityBody(3.0f, 0.0f, 0.0f, -30.0f);
   
   sleep(6);
   ROS_INFO("body: Wait for a bit");

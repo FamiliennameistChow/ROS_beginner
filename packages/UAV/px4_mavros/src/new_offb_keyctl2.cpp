@@ -27,8 +27,8 @@ static bool set_home_flag = false; //每次起飞，都将起飞点设为home点
 pthread_mutex_t mutex;             //互斥量，用于线程锁保护数据
 
 // theta_step为偏航角变化步长，go_step为各方向变化步长
-const int theta_step = 10;
-const float go_step = 1;
+int theta_step = 10;
+float go_step = 0.7;
 
 mavros_msgs::State current_state;
 
@@ -140,24 +140,28 @@ int main(int argc, char **argv) {
     // forward
     case 'w': //机头的正方向
       myDrone.moveBody(go_step, 0, 0);
+      // myDrone.setVelocityBody(0, go_step, 0.0, 0.0);
       key = 0;
       break;
 
     // backward
     case 's': //机头的负方向
       myDrone.moveBody(-(go_step), 0, 0);
+      // myDrone.setVelocityBody(0, -(go_step), 0.0, 0.0);
       key = 0;
       break;
 
     // left
     case 'a': //机体的左侧
       myDrone.moveBody(0, go_step, 0);
+      // myDrone.setVelocityBody(-(go_step), 0, 0.0, 0.0);
       key = 0;
       break;
 
     // right
     case 'd': //机体的右侧
       myDrone.moveBody(0, -(go_step), 0);
+      // myDrone.setVelocityBody(go_step, 0, 0.0, 0.0);
       key = 0;
       break;
 

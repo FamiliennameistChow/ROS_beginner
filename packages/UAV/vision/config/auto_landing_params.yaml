@@ -37,7 +37,7 @@ fly_min_z: 0.3
 fly_max_z: 6
 
 ##起飞高度
-takeoff_hgt: 4
+takeoff_hgt: 3.5
 
 ##相机参数(视角为90°，1280*720)
 fx: 240.0

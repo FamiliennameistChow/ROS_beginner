@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(drone_flight_modes)
+project(vision)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
@@ -8,14 +8,23 @@ add_compile_options(-std=c++11)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  mavros_msgs
+  message_generation
   roscpp
   rospy
   std_msgs
+  mavros
+  mavros_msgs
+  geometry_msgs
+  sensor_msgs
+  image_transport
+  cv_bridge
+  gazebo_msgs
 )
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS thread)
+find_package(OpenCV 3 REQUIRED)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -41,18 +50,17 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add "message_generation" and every package in MSG_DEP_SET to
 ##     find_package(catkin REQUIRED COMPONENTS ...)
 ##   * add "message_runtime" and every package in MSG_DEP_SET to
-catkin_package(CATKIN_DEPENDS mavros_msgs roscpp)
+##     catkin_package(CATKIN_DEPENDS ...)
 ##   * uncomment the add_*_files sections below as needed
 ##     and list every .msg/.srv/.action file to be processed
 ##   * uncomment the generate_messages entry below
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(FILES
+  detResult.msg
+  redResult.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -69,10 +77,10 @@ catkin_package(CATKIN_DEPENDS mavros_msgs roscpp)
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   mavros_msgs#   std_msgs
-# )
+generate_messages(DEPENDENCIES
+  std_msgs
+  geometry_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -104,9 +112,11 @@ catkin_package(CATKIN_DEPENDS mavros_msgs roscpp)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
+  CATKIN_DEPENDS
+  message_runtime
 #  INCLUDE_DIRS include
-#  LIBRARIES drone_flight_modes
-#  CATKIN_DEPENDS mavros_msgs roscpp rospy std_msgs
+#  LIBRARIES vision
+#  CATKIN_DEPENDS roscpp rospy std_msgs
 #  DEPENDS system_lib
 )
 
@@ -119,12 +129,17 @@ catkin_package(
 include_directories(
   include ${catkin_INCLUDE_DIRS}
   include
+  ${Boost_INCLUDE_DIRS} 
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIR}
+  /usr/include
+  # 添加Eigen头文件
+  /usr/include/eigen3
 )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/drone_flight_modes.cpp
+#   src/${PROJECT_NAME}/vision.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -135,7 +150,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/drone_flight_modes_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/vision_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -192,26 +207,68 @@ include_directories(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_drone_flight_modes.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_vision.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
-add_executable(drone_flight_modes_node
-  src/drone_flight_modes_node.cpp
+
+
+add_executable(auto_landing
+  src/auto_landing.cpp
 )
-
-add_dependencies(drone_flight_modes_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-target_link_libraries(drone_flight_modes_node ${catkin_LIBRARIES})
-
-
-add_executable(new_offb_keyctl2
-  src/new_offb_keyctl2.cpp
-)
-add_dependencies(new_offb_keyctl2 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(new_offb_keyctl2
+add_dependencies(auto_landing 
+  ${${PROJECT_NAME}_EXPORTED_TARGETS} 
+  ${catkin_EXPORTED_TARGETS}
+  ${PROJECT_NAME}_generate_messages_cpp
+  )
+target_link_libraries(auto_landing
   ${catkin_LIBRARIES}
+)
+
+add_executable(img_pub
+  src/img_pub.cpp
+)
+add_dependencies(img_pub ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(img_pub
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBS}
+  ${Boost_LIBRARIES}
+)
+
+add_executable(img_sub
+  src/img_sub.cpp
+)
+add_dependencies(img_sub ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(img_sub
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBS}
+  ${Boost_LIBRARIES}
+)
+
+add_executable(detect_mark src/detect_mark.cpp)
+add_dependencies(detect_mark ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(detect_mark
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBS}
+  ${Boost_LIBRARIES}
+)
+
+
+add_executable(mark_tracking
+  src/mark_tracking.cpp
+)
+add_dependencies(mark_tracking ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(mark_tracking
+  ${catkin_LIBRARIES}
+)
+
+add_executable(red_detect src/red_detect.cpp)
+add_dependencies(red_detect ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(red_detect
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBS}
+  ${Boost_LIBRARIES}
 )

@@ -106,9 +106,9 @@ int main(int argc, char **argv) {
   ros::Subscriber state_sub =
       nh.subscribe<mavros_msgs::State>("mavros/state", 10, state_cb);
   ros::Subscriber local_position_sub = nh.subscribe<geometry_msgs::PoseStamped>(
-      "mavros/local_position/pose", 10, local_position_cb);
+      "/mavros/local_position/pose", 10, local_position_cb);
   ros::Publisher local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>(
-      "mavros/setpoint_position/local", 10);
+      "/mavros/setpoint_position/local", 10);
   // ros::ServiceClient set_home_client =
   //     nh.serviceClient<mavros_msgs::CommandHome>("mavros/cmd/set_home");
   ros::ServiceClient arming_client =

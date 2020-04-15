@@ -3,10 +3,7 @@
 
 -----
 
-# Table of Contents
-* [drone_flight_modes包](./drone_flight_modes)
-    此功能包为无人机控制包。include文件夹内包含一个库文件。将此库文件作为头文件，便可以使用类中的成员函数控制无人机或获取无人机参数。src文件夹内为库文件使用方法示例代码。
-    
+# Table of Contents 
 * [drone_lora包](./drone_lora)
     此功能包为串口和socket使用包。src文件夹中为使用serial和socket的示例代码。
 
@@ -14,7 +11,7 @@
     此功能包为香港科技大学git上的轨迹生成和优化包。[github地址](http://github.com/HKUST-Aerial-Robotics/grad_traj_optimization)
 
 * [px4_mavros包](./px4_mavros)
-    此功能包为基础学习包。包括基本的offboard模式控制无人机以及扩展而来的键盘控制无人机（共两个版本）。
+    此功能包为基础学习和无人机控制包。包括基本的offboard模式控制无人机以及扩展而来的键盘控制无人机（共三个版本）。include文件夹内包含一个库文件。将此库文件作为头文件，便可以使用类中的成员函数控制无人机或获取无人机参数。src文件夹内drone_flight_modes_node.cpp为库文件使用方法示例代码。
 
 * [vision包](./vision)
     此功能包为无人机视觉相关包。img_pub.cpp为打开USB相机并发布ROS图像消息；img_sub为接收ROS图像消息并显示；auto_landing为自主降落相关代码；mark_tracking为追踪降落相关代码；detect_mark为地标识别相关代码；red_detect为红色标靶识别代码，与planet_landing一起组成着陆比赛的功能代码。运行程序请运行sh文件夹中相应的.sh文件.
