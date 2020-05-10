@@ -148,3 +148,6 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 
 20200415 zwl
 * 更新了octomap_scout包，增加了LOAM_velodyne为小车估计位姿
+
+20200510 zb
+* 更新test_octomap包，增加64线雷达，与costmap

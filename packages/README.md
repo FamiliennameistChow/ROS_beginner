@@ -52,6 +52,8 @@
         1. pointcloud_to_octomap.sh用于无人机地面重建
         2. turtlebot_navi.sh用于turtlebot导航
         3. uav_navi.sh用于无人机导航
+    
+    *　更新turtlebot模型，添加６４线雷达
 
 * [navi_algorithm包](./navi_algorithm)  
     实现各类导航算法包  
