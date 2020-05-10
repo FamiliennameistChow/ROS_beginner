@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
-  <arg name="pointcloudTopic" default="/camera/depth/points"/>
+  <!-- <arg name="pointcloudTopic" default="/camera/depth/points"/> -->
+  
+  <arg name="pointcloudTopic" default="velodyne_points"/>
   <arg name="pointcloudFrame" default="odom"/>
 
   <!-- <node pkg="test_octomap" type="tf_camera_to_map" name="tf_camera2map"/> -->
@@ -24,14 +26,14 @@
 
     <!-- max/min height for occupancy map, should be in meters -->
     <param name="pointcloud_max_z" value="500" />
-    <param name="pointcloud_min_z" value="0.1" />
+    <param name="pointcloud_min_z" value="0.3" />
 
     <!-- topic from where pointcloud2 messages are subscribed -->
     <remap from="/cloud_in" to="$(arg pointcloudTopic)" />
   </node>
 
   <!-- **costmap config** -->
-  <node pkg="test_octomap" type="turtlebot_navigation" name="turtlebot_navigation_node" output="screen">
+  <!-- <node pkg="test_octomap" type="turtlebot_navigation" name="turtlebot_navigation_node" output="screen">
     <rosparam file="$(find test_octomap)/param/costmap_common_params.yaml" command="load" ns="global_costmap" />
     <rosparam file="$(find test_octomap)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />
     <rosparam file="$(find test_octomap)/param/local_costmap_params.yaml" command="load" />
@@ -46,7 +48,36 @@
     <param name="local_costmap/point_cloud_sensor/topic" value="/camera/depth/points"/>
     <param name="local_costmap/obstacle_layer/point_cloud_sensor/topic" value="/camera/depth/points"/>
     <remap from="map" to="/projected_map"/>
+  </node> -->
+
+<!-- **navigation -->
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base_node" output="screen">
+    <param name="footprint_padding" value="0.01" />
+    <param name="controller_frequency" value="5.0" />
+    <param name="controller_patience" value="3.0" />
+    <param name="oscillation_timeout" value="30.0" />
+    <param name="oscillation_distance" value="0.5" />
+    <param name="planner_patience" value="1" />
+    <param name="controller_patience" value="1" /> 
+    <remap from="cmd_vel" to="mobile_base/commands/velocity"/>
+    <param name="recovery_behavior_enabled" value="false" />
+    <rosparam file="$(find test_octomap)/param/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find test_octomap)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find test_octomap)/param/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find test_octomap)/param/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find test_octomap)/param/base_local_planner_params.yaml" command="load" />  
+    <param name="global_costmap/global_frame" value="/odom"/>
+    <param name="global_costmap/robot_base_frame" value="/base_link"/>
+    <param name="global_costmap/point_cloud_sensor/sensor_frame" value="/camera_depth_frame"/>
+    <param name="global_costmap/point_cloud_sensor/topic" value="/camera/depth/points"/>    
+    <param name="local_costmap/global_frame" value="/odom"/>
+    <param name="local_costmap/robot_base_frame" value="/base_link"/>
+    <param name="local_costmap/point_cloud_sensor/sensor_frame" value="/camera_depth_frame"/>
+    <param name="local_costmap/point_cloud_sensor/topic" value="/camera/depth/points"/>
+    <param name="local_costmap/obstacle_layer/point_cloud_sensor/topic" value="/camera/depth/points"/>
+    <remap from="map" to="/projected_map"/>
   </node>
+
 
    <!-- RViz -->
   <node pkg="rviz" type="rviz" name="$(anon rviz)" respawn="false" output="screen" args="-d $(find test_octomap)/rviz/turtlebot_octomap.rviz"/>

@@ -9,9 +9,9 @@
     <include>
       <uri>model://ground_plane</uri>
     </include>
-    <include>
-      <!-- <uri>model://asphalt_plane</uri> -->
-    </include>
+    <!-- <include>
+      <uri>model://asphalt_plane</uri>
+    </include> -->
     <!-- A moon plane -->
     <include>
     <name>Amy_terrain</name>
