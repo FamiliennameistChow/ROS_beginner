@@ -75,6 +75,8 @@
     sudo apt install ros-kinetic-teleop-twist-keyboard
     sudo apt-get install ros-kinetic-joint-state-publisher-gui
     sudo apt install ros-kinetic-ros-controllers
+    sudo apt install ros-kinetic-webots-ros
+    sudo apt install ros-kinetic-navigation
     ```
 
     * 使用请进入`/scout_ros/navi_ros/sh`
@@ -83,7 +85,7 @@
     * TODO List
         - [x] 四驱车模型  
         - [x] 相机模型添加
-        - [ ] 多线激光雷达添加
+        - [x] 多线激光雷达添加
 
 * [octomap_scout包](./octomap_scout)  
   使用scout四驱小车在gazebo仿真环境进行导航的包，独立于scout_ros。好处在于不用修改官方scout_ros包的内容就可以使用自定义的scout小车。
