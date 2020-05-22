@@ -1,10 +1,11 @@
 <launch>
 
     <arg name="robot_namespace" default="/"/>
-    <arg name="world_name" default="$(find mavlink_sitl_gazebo)/worlds/moon.world"/>
-    <arg name="x" default="8.66"/>
-    <arg name="y" default="-4.77"/>
-    <arg name="z" default="0.3"/>
+    <arg name="world_name" default="$(find octomap_scout)/worlds/moon.world"/>
+    <arg name="x" default="10.77"/>
+    <arg name="y" default="-0.3"/>
+    <arg name="z" default="1.56"/>
+    <arg name="yaw" default="3.14"/>
 
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="world_name" value="$(arg world_name)"/>
@@ -19,9 +20,10 @@
         <arg name="x" value="$(arg x)"/>
         <arg name="y" value="$(arg y)"/>
         <arg name="z" value="$(arg z)"/>
+        <arg name="yaw" value="$(arg yaw)"/>
     </include>
 
-    <include file="$(find scout_base)/launch/scout_base_sim.launch" />
+    <!-- <include file="$(find scout_base)/launch/scout_base_sim.launch" /> -->
         
     <!--node name="rviz" pkg="rviz" type="rviz" args="-d $(find scout_description)/rviz/navigation.rviz" /-->
 </launch>

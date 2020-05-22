@@ -12,7 +12,9 @@ find_package(catkin REQUIRED
   roscpp
   rospy
   std_msgs
-  tf)
+  tf
+  costmap_2d
+  )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -211,3 +213,28 @@ add_executable(tf_slam_publisher
 
 target_link_libraries(tf_slam_publisher 
   ${catkin_LIBRARIES})
+
+add_executable(tf_laser_base 
+  src/tf_laser_base.cpp)
+
+target_link_libraries(tf_laser_base 
+  ${catkin_LIBRARIES})
+
+add_executable(tf_trans_base 
+  src/tf_trans_base.cpp)
+
+target_link_libraries(tf_trans_base 
+  ${catkin_LIBRARIES})
+
+add_executable(tf_trans 
+  src/tf_trans.cpp)
+
+target_link_libraries(tf_trans
+  ${catkin_LIBRARIES})
+
+add_executable(scout_navi
+  src/scout_navi.cpp)
+
+target_link_libraries(scout_navi   
+  ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+  

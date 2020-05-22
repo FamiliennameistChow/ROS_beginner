@@ -21,6 +21,7 @@ int main(int argc, char** argv){
         q.setRPY(1.5707963, 0, 1.5707963);
         transform.setRotation(q);
         br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "odom", "camera_init"));
+        // br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "map", "camera_init"));
         ros::spinOnce();
         rate.sleep();
     }

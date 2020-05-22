@@ -102,13 +102,13 @@
     <!-- VLP-16 -->
     <!--xacro:include filename="$(find velodyne_description)/urdf/VLP-16.urdf.xacro"/>
     <VLP-16 parent="base_link" name="velodyne" topic="/velodyne_points" hz="10" samples="1024" gpu="true" lasers="16" max_range="50">
-        <origin xyz="0 0 0.3" rpy="0 0 0" />
+        <origin xyz="0 0 0.4" rpy="0 0 0" />
     </VLP-16-->
 
     <!-- VHDL-32E -->
-	<xacro:include filename="$(find velodyne_description)/urdf/HDL-32E.urdf.xacro"/>
+    <xacro:include filename="$(find velodyne_description)/urdf/HDL-32E.urdf.xacro"/>
   	<HDL-32E parent="base_link" name="velodyne" topic="/velodyne_points" hz="10" samples="1024" gpu="true" lasers="32" max_range="50">
-    	<origin xyz="0 0 0.4" rpy="0 0 0" />
+        <origin xyz="0 0 0.4" rpy="0 0 0" />
   	</HDL-32E> 
       
     <!-- kinect link config -->
@@ -116,5 +116,13 @@
     <sensor_kinect  parent="base_link">
         <!--origin xyz="0 0 0" rpy="0 0 0" /-->
     </sensor_kinect>
+
+    <!-- imu link config -->
+    <link name="imu_link" />
+    <joint name="imu_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <parent link="base_link" />
+        <child link="imu_link" />
+    </joint>
 
 </robot>
