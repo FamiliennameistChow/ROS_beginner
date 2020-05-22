@@ -151,3 +151,7 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 
 20200510 zb
 * 更新test_octomap包，增加64线雷达，与costmap
+
+20200520 zb
+* 更新了octomap_scout包，增加aloam为小车估计位姿
+
