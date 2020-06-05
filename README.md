@@ -155,3 +155,8 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 20200520 zb
 * 更新了octomap_scout包，增加aloam为小车估计位姿
 
+20200520 zb
+* 更新了octomap_scout包，增加基于aloam的导航方法
+* 更新了octomap_scout包，更新octomap中二维地图抽取`src/process_2d_map.cpp`
+* `octomap_scout/sh/scout_aloam_octomap.sh` 导航方法
+

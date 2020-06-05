@@ -104,7 +104,8 @@
         - [x] 多线激光雷达添加
         - [x] IMU传感器添加
         - [x] LOAM_velodyne初步实现
-        - [ ] 生成costmap
+        - [x] 基于octomap抽取二维地图，并构建costmap
+        - [x] 使用navigation包导航
 
 
 

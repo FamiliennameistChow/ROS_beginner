@@ -15,8 +15,8 @@ Eigen::Matrix4f T_odom_laser = Eigen::Matrix4f::Identity();
 Eigen::Matrix4f T_laser_odom = Eigen::Matrix4f::Identity();
 void laser_loca_cb(const nav_msgs::OdometryConstPtr& laser_msg_ptr){
     laser_pose(0,3) = laser_msg_ptr->pose.pose.position.x;
-    laser_pose(1,3) = laser_msg_ptr->pose.pose.position.x;
-    laser_pose(2,3) = laser_msg_ptr->pose.pose.position.x;
+    laser_pose(1,3) = laser_msg_ptr->pose.pose.position.y;
+    laser_pose(2,3) = laser_msg_ptr->pose.pose.position.z;
     Eigen::Quaternionf q;
     q.x() = laser_msg_ptr->pose.pose.orientation.x;
     q.y() = laser_msg_ptr->pose.pose.orientation.y;
@@ -27,8 +27,8 @@ void laser_loca_cb(const nav_msgs::OdometryConstPtr& laser_msg_ptr){
 
 void odom_loca_cb(const nav_msgs::OdometryConstPtr& odom_msg_ptr){
     odom_spose(0,3) = odom_msg_ptr->pose.pose.position.x;
-    odom_spose(1,3) = odom_msg_ptr->pose.pose.position.x;
-    odom_spose(2,3) = odom_msg_ptr->pose.pose.position.x;
+    odom_spose(1,3) = odom_msg_ptr->pose.pose.position.y;
+    odom_spose(2,3) = odom_msg_ptr->pose.pose.position.z;
     Eigen::Quaternionf q1;
     q1.x() = odom_msg_ptr->pose.pose.orientation.x;
     q1.y() = odom_msg_ptr->pose.pose.orientation.y;

@@ -8,17 +8,37 @@ add_compile_options(-std=c++11)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+set(PACKAGE_DEPENDENCIES
+  roscpp
+  visualization_msgs
+  sensor_msgs
+  pcl_ros
+  pcl_conversions
+  nav_msgs
+  std_msgs
+  std_srvs
+  octomap_ros
+  octomap_msgs
+  dynamic_reconfigure
+  nodelet
+)
+
 find_package(catkin REQUIRED
   roscpp
   rospy
   std_msgs
   tf
   costmap_2d
+  message_generation
+  ${PACKAGE_DEPENDENCIES}
   )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
+find_package(octomap REQUIRED)
+add_definitions(-DOCTOMAP_NODEBUGOUT)
 
+generate_dynamic_reconfigure_options(cfg/OctomapServer.cfg)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -50,11 +70,11 @@ find_package(catkin REQUIRED
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+  FILES
+  ElevationGrid.msg
+  # Message2.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -71,10 +91,11 @@ find_package(catkin REQUIRED
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs  # Or other packages containing msgs
+  nav_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -106,11 +127,11 @@ find_package(catkin REQUIRED
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  CATKIN_DEPENDS roscpp rospy std_msgs
-#  INCLUDE_DIRS include
-#  LIBRARIES octomap_scout
-#  CATKIN_DEPENDS other_catkin_pkg
-#  DEPENDS system_lib
+  CATKIN_DEPENDS roscpp rospy std_msgs message_runtime
+  INCLUDE_DIRS include
+  # LIBRARIES octomap_scout
+  CATKIN_DEPENDS ${PACKAGE_DEPENDENCIES}
+  DEPENDS OCTOMAP 
 )
 
 ###########
@@ -120,8 +141,14 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
- include
- ${catkin_INCLUDE_DIRS}
+  include
+  ${catkin_INCLUDE_DIRS}
+  ${OCTOMAP_INCLUDE_DIRS}
+)
+
+set(LINK_LIBS
+  ${OCTOMAP_LIBRARIES}
+  ${catkin_LIBRARIES}
 )
 
 ## Declare a C++ library
@@ -237,4 +264,46 @@ add_executable(scout_navi
 
 target_link_libraries(scout_navi   
   ${catkin_LIBRARIES} ${PCL_LIBRARIES})
-  
+
+add_executable(process_2d_map src/process_2d_map.cpp)
+
+target_link_libraries(process_2d_map   
+  ${catkin_LIBRARIES} )
+
+add_library(${PROJECT_NAME} src/OctomapServer.cpp src/OctomapServerMultilayer.cpp src/TrackingOctomapServer.cpp)
+target_link_libraries(${PROJECT_NAME} ${LINK_LIBS})
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)
+
+add_library(${PROJECT_NAME}_color src/OctomapServer.cpp src/OctomapServerMultilayer.cpp src/TrackingOctomapServer.cpp)
+target_link_libraries(${PROJECT_NAME}_color ${LINK_LIBS})
+add_dependencies(${PROJECT_NAME}_color ${PROJECT_NAME}_gencfg)
+target_compile_definitions(${PROJECT_NAME}_color PUBLIC COLOR_OCTOMAP_SERVER)
+
+add_executable(octomap_server_node src/octomap_server_node.cpp)
+target_link_libraries(octomap_server_node ${PROJECT_NAME} ${LINK_LIBS})
+
+add_executable(octomap_server_multilayer src/octomap_server_multilayer.cpp)
+target_link_libraries(octomap_server_multilayer ${PROJECT_NAME} ${LINK_LIBS})
+
+# Nodelet
+add_library(octomap_server_nodelet src/octomap_server_nodelet.cpp)
+target_link_libraries(octomap_server_nodelet ${PROJECT_NAME} ${LINK_LIBS})
+
+add_library(octomap_color_server_nodelet src/octomap_server_nodelet.cpp)
+target_link_libraries(octomap_color_server_nodelet ${PROJECT_NAME}_color ${LINK_LIBS})
+
+# # install targets:
+# install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_color
+#   octomap_server_node
+#   octomap_color_server_node
+#   octomap_server_static
+#   octomap_server_multilayer
+#   octomap_saver
+#   octomap_tracking_server_node
+#   octomap_server_nodelet
+#   octomap_color_server_nodelet
+#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# )
+

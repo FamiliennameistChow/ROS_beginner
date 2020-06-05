@@ -18,7 +18,7 @@
 
     <node pkg="aloam_velodyne" type="alaserMapping" name="alaserMapping" output="screen" />
 
-    <arg name="rviz" default="true" />
+    <arg name="rviz" default="false" />
     <group if="$(arg rviz)">
         <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find octomap_scout)/rviz/aloam_velodyne.rviz" />
     </group>

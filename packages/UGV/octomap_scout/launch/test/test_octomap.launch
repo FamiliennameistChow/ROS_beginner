@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
-  <arg name="pointcloudTopic" default="/laser_cloud_map"/>  <!--/velodyne_cloud_registered /laser_cloud_map  -->
-  <arg name="mapFrame" default="camera_init"/> 
+  <!--/laser_cloud_surround for lego ** /laser_cloud_map for aloam ** /velodyne_cloud_registered  for loam -->
+  <arg name="pointcloudTopic" default="/registered_cloud"/>  
+  <arg name="mapFrame" default="map"/> 
   <arg name="pointcloudFrame" default="base_link"/> 
 
   <!-- <node pkg="test_octomap" type="tf_camera_to_map" name="tf_camera2map"/> -->
@@ -11,7 +12,8 @@
     <param name="pointcloud_in_topic" value="/camera/depth/points" />
   </node> -->
 
-  <node pkg="octomap_server" type="octomap_server_node" name="octomap_server">
+  <!-- <node pkg="octomap_scout" type="octomap_server_multilayer" name="octomap_server" output="screen"> -->
+  <node pkg="octomap_scout" type="octomap_server_node" name="octomap_server" output="screen">
     <!-- resolution in meters per pixel -->
     <param name="resolution" value="0.15" />
 
@@ -21,6 +23,7 @@
 
     <!-- max range / depth resolution of the kinect in meter -->
     <!-- <param name="sensor_model/max_range" value="10.0" /> -->
+    
     <param name="latch" value="false" />
 
     <!-- max/min height for occupancy map, should be in meters -->
@@ -28,8 +31,8 @@
     <param name="pointcloud_min_z" value="-1000" />
 
     <!-- max/min height for occupancy map, should be in meters -->
-    <param name="occupancy_min_z" value="-1"/>
-    <param name="occupancy_max_z" value="30"/>
+    <param name="occupancy_min_z" value="-1000"/>
+    <param name="occupancy_max_z" value="1000"/>
 
      <!-- Ignore speckles in the map -->
     <param name="filter_speckles" value="true" />
@@ -42,6 +45,21 @@
 
     <!-- topic from where pointcloud2 messages are subscribed -->
     <remap from="/cloud_in" to="$(arg pointcloudTopic)" />
+  </node>
+
+  <!-- **process 2d map form octomap and output a "/map" topic occupied map**-->
+  <node pkg="octomap_scout" type="process_2d_map" name="process_2d_map" >
+    <!-- step for search the elevation map in angle_method \ stdev_method  methods-->
+    <param name="step" value="5" />
+    <!-- the num of cells threshold in search eara, greater than this threshold will be set free cells -->
+    <param name="th_free_num" value="3" />
+    <!--  method to calculate the occupied probability for 2d map >>> -->
+    <!-- now support two ways: angle_method \ stdev_method \ stdev_method_sparse-->
+    <param name="method" value="stdev_method_sparse" />
+    <!-- if choose angle_method, the angle threshold, cells greater than this threshold will be set occupied -->
+    <param name="th_angle" value="30.0" />
+    <!-- if choose stdev_method, the stdev threshold, cells greater than this threshold will be set occupied -->
+    <param name="th_stdev" value="2.0" />
   </node>
 
   <!-- RViz -->

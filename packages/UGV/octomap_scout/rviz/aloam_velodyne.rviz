@@ -10,6 +10,7 @@ Panels:
         - /odometry1/PointCloud21
         - /mapping1
         - /mapping1/allMapCloud1
+        - /TF1/Frames1
       Splitter Ratio: 0.5
     Tree Height: 545
   - Class: rviz/Selection
@@ -268,7 +269,7 @@ Visualization Manager:
           Enabled: true
           Invert Rainbow: false
           Max Color: 255; 255; 255
-          Max Intensity: 7.12492657
+          Max Intensity: 22.1249275
           Min Color: 0; 0; 0
           Min Intensity: -0.0249266457
           Name: currPoints
@@ -658,41 +659,39 @@ Visualization Manager:
       Enabled: true
       Frame Timeout: 15
       Frames:
-        All Enabled: true
+        All Enabled: false
         aft_mapped:
           Value: true
         base_link:
           Value: true
         camera_depth_frame:
-          Value: true
+          Value: false
         camera_depth_optical_frame:
-          Value: true
+          Value: false
         camera_init:
-          Value: true
+          Value: false
         camera_link:
-          Value: true
+          Value: false
         camera_rgb_frame:
-          Value: true
+          Value: false
         camera_rgb_optical_frame:
-          Value: true
+          Value: false
         front_left_wheel_link:
-          Value: true
+          Value: false
         front_right_wheel_link:
-          Value: true
+          Value: false
         imu_link:
-          Value: true
+          Value: false
         inertial_link:
-          Value: true
-        odom:
-          Value: true
+          Value: false
         rear_left_wheel_link:
-          Value: true
+          Value: false
         rear_right_wheel_link:
-          Value: true
+          Value: false
         velodyne:
-          Value: true
+          Value: false
         velodyne_base_link:
-          Value: true
+          Value: false
       Marker Scale: 1
       Name: TF
       Show Arrows: true
@@ -701,7 +700,30 @@ Visualization Manager:
       Tree:
         camera_init:
           aft_mapped:
-            {}
+            base_link:
+              camera_rgb_frame:
+                camera_depth_frame:
+                  camera_depth_optical_frame:
+                    {}
+                camera_link:
+                  {}
+                camera_rgb_optical_frame:
+                  {}
+              front_left_wheel_link:
+                {}
+              front_right_wheel_link:
+                {}
+              imu_link:
+                {}
+              inertial_link:
+                {}
+              rear_left_wheel_link:
+                {}
+              rear_right_wheel_link:
+                {}
+              velodyne_base_link:
+                velodyne:
+                  {}
       Update Interval: 0
       Value: true
   Enabled: true
@@ -729,25 +751,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 10.5004807
+      Distance: 22.2247753
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 4.92663097
-        Y: -2.67152381
-        Z: -2.30979657
+        X: -7.08092785
+        Y: -4.76724768
+        Z: -2.30979848
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.594796717
+      Pitch: 0.554796755
       Target Frame: body
       Value: XYOrbit (rviz)
-      Yaw: 3.2849946
+      Yaw: 3.3199954
     Saved: ~
 Window Geometry:
   Displays:
