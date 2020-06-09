@@ -90,13 +90,37 @@
 * [octomap_scout包](./octomap_scout)  
   使用scout四驱小车在gazebo仿真环境进行导航的包，独立于scout_ros。好处在于不用修改官方scout_ros包的内容就可以使用自定义的scout小车。
     
-    * 依赖:  
+    * 依赖: 
+        - scout_ros  
+         1. 安装本文件夹中的包  `scout_ros` 
+         2. 参考官方scout_ros包的melodic分支，安装参考<https://github.com/westonrobot/scout_ros/tree/melodic>  
 
-    ```sh
-    官方scout_ros包的melodic分支，安装参考<https://github.com/westonrobot/scout_ros/tree/melodic>  
-    sudo apt-get install ros-kinetic-velodyne*   
-    LOAM_velodyne－安装参考<https://github.com/laboshinl/loam_velodyne>
-    ```
+        - velodyne
+        ```sh
+        sudo apt-get install ros-kinetic-velodyne*   
+        ```
+        - octomap
+
+        ```sh
+        sudo apt-get install ros-kinetic-octomap-ros #安装octomap
+        sudo apt-get install ros-kinetic-octomap-msgs
+        sudo apt-get install ros-kinetic-octomap-server
+        sudo apt-get install ros-indigo-octomap-rviz-plugins
+        ```  
+        - navigation
+
+        ```sh
+        sudo apt install ros-kinetic-navigation
+        ```
+
+        - loam (三选一)  
+        LOAM_velodyne　-- 安装参考<https://github.com/laboshinl/loam_velodyne>
+        - A-LOAM (三选一)  
+        ALoam -- 安装参考<https://github.com/HKUST-Aerial-Robotics/A-LOAM>
+        - LeGO-LOAM  (三选一)  
+        LeGO-LOAM -- 安装参考<https://github.com/RobustFieldAutonomyLab/LeGO-LOAM>
+
+
     
     * TODO List
         - [x] gazebo加载四驱车模型  
