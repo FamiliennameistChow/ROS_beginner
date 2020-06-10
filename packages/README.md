@@ -5,7 +5,7 @@
 
 # Table of Contents   
 ## tool packages for users
-* [gridmap_server包](./tool_packages/grid_map_uav)  
+* [gridmap_server包](./tool_packages/gridmap_server)  
 此功能包为点云转gridmap的服务功能包。depth_to_gridmap.hpp为深度图转grid_map并做全局地图拼接的相关代码。pointcloud_to_gridmap.hpp为kinect点云转grid_map并做全局地图拼接的相关代码。运行程序请运行sh文件夹中相应的.sh文件.
 
     * 依赖:  
