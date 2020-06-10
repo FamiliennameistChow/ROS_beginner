@@ -8,7 +8,7 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "pointcloud_to_gridmap");
   ros::NodeHandle nh("~");
   ros::Rate rate(10);
-  grid_map_uav::PointCloudToGridmap pointCloudToGridmap(nh);
+  gridmap_server::PointCloudToGridmap pointCloudToGridmap(nh);
 
   while(ros::ok())
   {

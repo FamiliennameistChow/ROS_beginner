@@ -19,7 +19,7 @@
 #include <string>
 #include "drone_flight_modes.hpp"
 
-namespace grid_map_uav {
+namespace gridmap_server {
 
 /*!
  * Loads an image and saves it as layer 'elevation' of a grid map.

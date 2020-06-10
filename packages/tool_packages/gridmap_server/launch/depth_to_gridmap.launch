@@ -1,13 +1,13 @@
 <launch>
 
   <!-- Launch the grid map image to grid map demo node. -->
-  <node pkg="grid_map_uav" type="depth_to_gridmap" name="depth_to_gridmap" output="screen" />
+  <node pkg="gridmap_server" type="depth_to_gridmap" name="depth_to_gridmap" output="screen" />
 
-  <rosparam file="$(find grid_map_uav)/config/depth_to_gridmap.yaml" command="load"/>
+  <rosparam file="$(find gridmap_server)/config/depth_to_gridmap.yaml" command="load"/>
 
   <!-- Launch the grid map visualizer -->
   <node pkg="grid_map_visualization" type="grid_map_visualization" name="grid_map_visualization" output="screen" />
 
   <!-- Launch RViz with the demo configuration -->
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find grid_map_uav)/rviz/grid_map_depth.rviz" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find gridmap_server)/rviz/grid_map_depth.rviz" />
 </launch>

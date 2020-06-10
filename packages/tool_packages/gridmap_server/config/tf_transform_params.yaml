@@ -1,0 +1,14 @@
+tf_sensor2map:
+  sensor_frame: "camera_link"
+  robot_frame: "base_link"
+  map_frame: "map"
+  robot_attitude_topic: "/mavros/local_position/pose"
+  sensor_transform_from_robot:
+    translation:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    rotation: #intrinsic rotation X-Y-Z (r-p-y)sequence
+      r: 0.0
+      p: 3.1415926
+      y: 1.5707963

@@ -42,7 +42,7 @@ void setVerbosityLevelToDebugIfFlagSet(const ros::NodeHandle& nh) {
 }
 
 std::string getParameterPath() {
-  std::string filePath = ros::package::getPath("grid_map_uav") + "/config/pointcloud_to_gridmap.yaml";
+  std::string filePath = ros::package::getPath("gridmap_server") + "/config/pointcloud_to_gridmap.yaml";
   return filePath;
 }
 

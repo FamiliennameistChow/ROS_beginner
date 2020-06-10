@@ -160,3 +160,5 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 * 更新了octomap_scout包，更新octomap中二维地图抽取`src/process_2d_map.cpp`
 * `octomap_scout/sh/scout_aloam_octomap.sh` 导航方法
 
+20200610 zwl
+* 更新了点云转gridmap的代码，将此功能独立出来作为一个服务包，供需要此功能的用户使用。

@@ -14,7 +14,7 @@
 
 namespace gm = ::grid_map::grid_map_pcl;
 
-namespace grid_map_uav {
+namespace gridmap_server {
 
 /*!
  * Loads an image and saves it as layer 'elevation' of a grid map.
@@ -188,6 +188,15 @@ void PointCloudToGridmap::pointCloudCallback(
   // grid_map::GridMapCvProcessing::changeResolution(map_, unifiedResMap_,
   // resolution_);
 
+ /*!
+   * Adds data from an other grid map to this grid map
+   * @param other the grid map to take data from.
+   * @param extendMap if true the grid map is resized that the other map fits within.
+   * @param overwriteData if true the new data replaces the old values, else only invalid cells are updated.
+   * @param copyAllLayer if true all layers are used to add data.
+   * @param layers the layers that are copied if not all layers are used.
+   * @return true if successful.
+   */
   // globalMap_.addDataFrom(unifiedResMap_, true, true, true);
   globalMap_.addDataFrom(localMap_, true, true, true);
   globalMap_.setTimestamp(ros::Time::now().toNSec());

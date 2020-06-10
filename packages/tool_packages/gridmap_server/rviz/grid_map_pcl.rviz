@@ -59,10 +59,10 @@ Visualization Manager:
       Autocompute Intensity Bounds: true
       Class: grid_map_rviz_plugin/GridMap
       Color: 200; 200; 200
-      Color Layer: elevation_smooth
+      Color Layer: elevation
       Color Transformer: GridMapLayer
       Enabled: true
-      Height Layer: elevation_smooth
+      Height Layer: elevation
       Height Transformer: GridMapLayer
       History Length: 1
       Invert Rainbow: false

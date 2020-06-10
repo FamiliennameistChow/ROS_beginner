@@ -8,7 +8,7 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "depth_to_gridmap");
   ros::NodeHandle nh("~");
   ros::Rate rate(5);
-  grid_map_uav::DepthToGridmap depthToGridmap(nh);
+  gridmap_server::DepthToGridmap depthToGridmap(nh);
 
   while(ros::ok())
   {

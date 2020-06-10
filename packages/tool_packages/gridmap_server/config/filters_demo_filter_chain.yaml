@@ -18,19 +18,19 @@ grid_map_filters:
   #     layers: [color] # List of layers.
 
   # 自己删除的，认为不需要填补空洞。而且发现填补之后,各帧的地图边缘拼接后有较严重的错位
-  # # Fill holes in the map with inpainting.   
-  # - name: inpaint
-  #   type: gridMapCv/InpaintFilter
-  #   params:
-  #     input_layer: elevation
-  #     output_layer: elevation_inpainted
-  #     radius: 0.1   # 默认参数0.05
+  # Fill holes in the map with inpainting.   
+  - name: inpaint
+    type: gridMapCv/InpaintFilter
+    params:
+      input_layer: elevation
+      output_layer: elevation_inpainted
+      radius: 0.1   # 默认参数0.05
 
   # Reduce noise with a radial blurring filter.
   - name: mean_in_radius
     type: gridMapFilters/MeanInRadiusFilter
     params:
-      input_layer: elevation   # elevation_inpainted
+      input_layer: elevation_inpainted   # elevation_inpainted
       output_layer: elevation_smooth
       radius: 0.08   # 默认参数0.06
 
