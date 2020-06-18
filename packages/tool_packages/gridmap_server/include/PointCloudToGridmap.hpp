@@ -1,5 +1,5 @@
 #include <ros/ros.h>
-
+#include <ros/time.h>
 #include "filters/filter_chain.h"
 #include "grid_map_core/GridMap.hpp"
 #include "grid_map_pcl/GridMapPclLoader.hpp"
@@ -42,6 +42,9 @@ public:
   void pointCloudCallback(
       const boost::shared_ptr<const sensor_msgs::PointCloud2> &msg);
 
+  void pointCloudMapCallback(
+    const boost::shared_ptr<const sensor_msgs::PointCloud2> &msg);
+
 private:
   //! ROS nodehandle.
   ros::NodeHandle &nodeHandle_;
@@ -63,6 +66,8 @@ private:
 
   //! Image subscriber
   ros::Subscriber pointCloudSubscriber_;
+
+  ros::Subscriber pointCloudMapSubscriber_;
 
   //! Name of the input point cloud topic.
   std::string pointCloudTopic_;
@@ -90,6 +95,8 @@ private:
   // 无人机当前位置坐标
   double uavX_;
   double uavY_;
+
+  double time_last = ros::Time::now().toSec();
 
   grid_map::GridMapPclLoader gridMapPclLoader_;
 
@@ -119,6 +126,8 @@ PointCloudToGridmap::PointCloudToGridmap(ros::NodeHandle &nodeHandle)
 
   pointCloudSubscriber_ = nodeHandle_.subscribe(
       pointCloudTopic_, 10, &PointCloudToGridmap::pointCloudCallback, this);
+  pointCloudMapSubscriber_ = nodeHandle_.subscribe(
+      "/laser_cloud_surround", 1, &PointCloudToGridmap::pointCloudMapCallback, this);
   localMapPublisher_ = nodeHandle_.advertise<grid_map_msgs::GridMap>(
       outputLocalMapTopic_, 1, true);
   globalMapPublisher_ = nodeHandle_.advertise<grid_map_msgs::GridMap>(
@@ -219,6 +228,41 @@ void PointCloudToGridmap::pointCloudCallback(
   grid_map_msgs::GridMap globalMapMessage;
   grid_map::GridMapRosConverter::toMessage(map_, globalMapMessage);
   globalMapPublisher_.publish(globalMapMessage);
+}
+
+
+
+
+
+void PointCloudToGridmap::pointCloudMapCallback(
+    const boost::shared_ptr<const sensor_msgs::PointCloud2> &msg) {   
+  if((ros::Time::now().toSec()-time_last) > 40){
+    sensor_msgs::PointCloud2 pointcloud_sub, pointcloud;
+    pointcloud_sub = *msg;
+    pointcloud_sub.header.frame_id = pointCloudFrameId_;
+
+    gridMapPclLoader_.loadParameters(gm::getParameterPath());
+    gridMapPclLoader_.loadCloudFromROSMsg(pointcloud_sub);
+
+    gm::processPointcloud(&gridMapPclLoader_, nodeHandle_);
+
+    globalMap_ = gridMapPclLoader_.getGridMap();
+    globalMap_.setFrameId(pointCloudFrameId_);
+
+      // Apply filter chain.
+  // if (!filterChain_.update(globalMap_, map_)) {
+    //  ROS_ERROR("Could not update the grid map filter chain!");
+    //  return;
+  // }
+  // map_.setTimestamp(msg->header.stamp.toNSec());
+  // map_.setFrameId(pointCloudFrameId_);
+
+    // Publish as global grid map.
+  // grid_map_msgs::GridMap globalMapMessage;
+  // grid_map::GridMapRosConverter::toMessage(map_, globalMapMessage);
+  // globalMapPublisher_.publish(globalMapMessage);
+    time_last = ros::Time::now().toSec();
+  }
 }
 
 } /* namespace */

@@ -32,7 +32,7 @@ grid_map_filters:
     params:
       input_layer: elevation   # elevation_inpainted
       output_layer: elevation_smooth
-      radius: 0.1   # 默认参数0.06
+      radius: 0.12   # 默认参数0.06
 
   # Boxblur as an alternative to the inpaint and radial blurring filter above. (默认为不使用)
   # - name: boxblur
@@ -66,7 +66,8 @@ grid_map_filters:
     type: gridMapFilters/MathExpressionFilter
     params:
       output_layer: traversability
-      expression: (1 - normal_vectors_z)*3.5   #slope = acos(normal_vectors_z)
+      expression: (1 - normal_vectors_z)*3.8  
+      #slope = acos(normal_vectors_z), roughness = elevation - elevation_smooth
   
     # Reduce noise with a radial blurring filter.
  # - name: slope_filtered
