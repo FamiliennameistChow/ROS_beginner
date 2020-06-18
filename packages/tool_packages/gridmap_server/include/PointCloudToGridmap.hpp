@@ -110,10 +110,10 @@ PointCloudToGridmap::PointCloudToGridmap(ros::NodeHandle &nodeHandle)
   map_.setBasicLayers({"elevation"});
   map_.setFrameId(mapFrameId_);
 
+  localMap_.setBasicLayers({"elevation"});
   localMap_.setFrameId(mapFrameId_);
 
-  globalMap_.setGeometry(grid_map::Length(1.0, 1.0), resolution_,
-                         grid_map::Position(0.0, 0.0)); // bufferSize(6, 6)
+  globalMap_.setGeometry(grid_map::Length(1.0, 1.0), resolution_, grid_map::Position(0.0, 0.0)); // bufferSize(6, 6)
   globalMap_.setBasicLayers({"elevation"});
   globalMap_.setFrameId(mapFrameId_);
 
@@ -156,33 +156,31 @@ void PointCloudToGridmap::pointCloudCallback(
   pointcloud_sub = *msg;
   pointcloud_sub.header.frame_id = pointCloudFrameId_;
 
-  tf::StampedTransform transform;
-  try {
-    listener_.waitForTransform(mapFrameId_, pointCloudFrameId_, msg->header.stamp,
-                               ros::Duration(5.0));
-    listener_.lookupTransform(mapFrameId_, pointCloudFrameId_, msg->header.stamp,
-                              transform);
+  //tf::StampedTransform transform;
+  //try {
+    //listener_.waitForTransform(mapFrameId_, pointCloudFrameId_, msg->header.stamp,
+     //                          ros::Duration(5.0));
+   // listener_.lookupTransform(mapFrameId_, pointCloudFrameId_, msg->header.stamp,
+   //                           transform);
 
-  } catch (tf::TransformException &ex) {
-    ROS_ERROR("fram transform error: %s", ex.what());
-    return;
-  }
+ // } catch (tf::TransformException &ex) {
+  //  ROS_ERROR("fram transform error: %s", ex.what());
+ //   return;
+ // }
 
-  pcl_ros::transformPointCloud(mapFrameId_, pointcloud_sub, pointcloud, listener_);
+  //pcl_ros::transformPointCloud(mapFrameId_, pointcloud_sub, pointcloud, listener_);
 
   gridMapPclLoader_.loadParameters(gm::getParameterPath());
-  gridMapPclLoader_.loadCloudFromROSMsg(pointcloud);
+  gridMapPclLoader_.loadCloudFromROSMsg(pointcloud_sub);
+  //gridMapPclLoader_.loadCloudFromROSMsg(pointcloud);
 
   gm::processPointcloud(&gridMapPclLoader_, nodeHandle_);
 
-  map_ = gridMapPclLoader_.getGridMap();
+  localMap_ = gridMapPclLoader_.getGridMap();
+  localMap_.setTimestamp(msg->header.stamp.toNSec());
+  localMap_.setFrameId(pointCloudFrameId_);
 
-  // Apply filter chain.
-  if (!filterChain_.update(map_, localMap_)) {
-    ROS_ERROR("Could not update the grid map filter chain!");
-    return;
-  }
-  localMap_.setFrameId(mapFrameId_);
+
 
   // grid_map::GridMap unifiedResMap_;
   // grid_map::GridMapCvProcessing::changeResolution(map_, unifiedResMap_,
@@ -198,17 +196,28 @@ void PointCloudToGridmap::pointCloudCallback(
    * @return true if successful.
    */
   // globalMap_.addDataFrom(unifiedResMap_, true, true, true);
-  globalMap_.addDataFrom(localMap_, true, true, true);
-  globalMap_.setTimestamp(ros::Time::now().toNSec());
+
+  //std::vector<std::string> stringVector;
+ // stringVector.push_back("elevation");
+  //globalMap_.addDataFrom(localMap_, true, true, false, stringVector);
+ // globalMap_.setTimestamp(msg->header.stamp.toNSec());
+
+    // Apply filter chain.
+  if (!filterChain_.update(localMap_, map_)) {
+    ROS_ERROR("Could not update the grid map filter chain!");
+    return;
+  }
+  map_.setTimestamp(msg->header.stamp.toNSec());
+  map_.setFrameId(pointCloudFrameId_);
 
   // Publish as local grid map.
-  grid_map_msgs::GridMap localMapMessage;
-  grid_map::GridMapRosConverter::toMessage(localMap_, localMapMessage);
-  localMapPublisher_.publish(localMapMessage);
+  //grid_map_msgs::GridMap localMapMessage;
+  //grid_map::GridMapRosConverter::toMessage(localMap_, localMapMessage);
+  //localMapPublisher_.publish(localMapMessage);
 
   // Publish as global grid map.
   grid_map_msgs::GridMap globalMapMessage;
-  grid_map::GridMapRosConverter::toMessage(globalMap_, globalMapMessage);
+  grid_map::GridMapRosConverter::toMessage(map_, globalMapMessage);
   globalMapPublisher_.publish(globalMapMessage);
 }
 

@@ -1,8 +1,8 @@
 pointcloud_to_gridmap:
-  pointcloud_topic: "/kinect/depth/points" #"/laser_cloud_surround"  #"/kinect/depth/points"
-  pointcloud_frame:  "camera_link"  #  "camera_init"  #"camera_link"
-  map_frame: "map"  #  "camera_init"  #"map"
-  resolution: 0.1   # global_map的分辨率，需要和local_map同步
+  pointcloud_topic: "/laser_cloud_surround" #"/laser_cloud_surround"  #"/kinect/depth/points" "/velodyne_cloud_registered"　"/velodyne_points"
+  pointcloud_frame:  "camera_init"  #  "camera_init"  #"camera_link"  "aft_mapped" "velodyne"
+  map_frame: "map" #  "camera_init"  #"map"
+  resolution: 0.08  # global_map的分辨率，需要和local_map同步
   output_local_map_topic: /pointcloud_to_gridmap/local_grid_map
   output_global_map_topic: /pointcloud_to_gridmap/global_grid_map
 
@@ -26,28 +26,34 @@ pcl_grid_map_extraction:
       p: 0.0
       y: 0.0
   cluster_extraction:
-    cluster_tolerance: 0.1 #0.05
-    min_num_points: 1 #4
+    cluster_tolerance: 0.3
+    min_num_points: 1
     max_num_points: 1000000
   outlier_removal:
-    is_remove_outliers: true
+    is_remove_outliers: false #true
     mean_K: 10
     stddev_threshold: 1.0
   downsampling:
-    is_downsample_cloud: false #true
+    is_downsample_cloud:  true
     voxel_size:
-      x: 0.04 #0.02
-      y: 0.04 #0.02
-      z: 0.04 #0.02 
+      x: 0.06 #0.02
+      y: 0.06 #0.02
+      z: 0.06 #0.02 
   grid_map:
     min_num_points_per_cell: 1 #4
-    resolution: 0.1  # local_map的分辨率，需要和global_map同步
+    resolution: 0.08  # local_map的分辨率，需要和global_map同步
 
 
 # grid_map可视化配置
 grid_map_visualization:
   grid_map_topic: /pointcloud_to_gridmap/global_grid_map
   grid_map_visualizations:
+      - name: traversability_grid
+        type: occupancy_grid
+        params:
+          layer: traversability
+          data_min: 0.0
+          data_max: 1.0
 
     # - name: elevation_points
     #   type: point_cloud
@@ -74,20 +80,14 @@ grid_map_visualization:
     #    lower_threshold: 0.1 # 上下限高度范围内的网格视为可视化的网格
     #    upper_threshold: 10.0
 
-    - name: surface_normals
-      type: vectors
-      params:
-        layer_prefix: normal_vectors_
-        position_layer: elevation
-        scale: 0.06
-        line_width: 0.005
-        color: 15600153 # red
-        
-    - name: traversability_grid
-      type: occupancy_grid
-      params:
-        layer: traversability
-        data_min: 0.0
-        data_max: 1.0
+    #- name: surface_normals
+     # type: vectors
+      #params:
+       # layer_prefix: normal_vectors_
+        #position_layer: elevation
+        #scale: 0.06
+        #line_width: 0.005
+        #color: 15600153 # red
+
     
        

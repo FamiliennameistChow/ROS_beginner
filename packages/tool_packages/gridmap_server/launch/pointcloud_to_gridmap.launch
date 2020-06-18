@@ -13,5 +13,5 @@
   <node pkg="grid_map_visualization" type="grid_map_visualization" name="grid_map_visualization" output="screen" />
 
    <!--Launch RViz with the demo configuration -->
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find gridmap_server)/rviz/grid_map_pcl.rviz" />
+  <!--node name="rviz" pkg="rviz" type="rviz" args="-d $(find gridmap_server)/rviz/grid_map_pcl.rviz" /-->
 </launch>
