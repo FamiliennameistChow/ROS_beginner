@@ -125,8 +125,21 @@
         - [x] 多线激光雷达添加
         - [x] IMU传感器添加
         - [x] LOAM_velodyne初步实现
+        - [x] aloam配置
         - [x] 基于octomap抽取二维地图，并构建costmap
         - [x] 使用navigation包导航
+        - [x] 添加全局地图
+        - [ ] 在全局地图模式下，添加障碍层
+
+        - [ ]三维导航
+
+    * 使用请进入sh目录  
+
+    ```
+       ---- sh  
+          -- scout_aloam_octomap.sh 使用aloam进行建图与导航  
+          -- scout_lego_octomap.sh 使用lego进行建图与导航  
+    ```
 
 
 

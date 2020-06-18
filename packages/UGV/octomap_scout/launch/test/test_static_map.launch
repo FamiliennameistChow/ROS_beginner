@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- test about load global map -->
+<launch>
+
+  <!-- Run the map server with a blank map -->
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find octomap_scout)/maps/gazebo.yaml" output="screen" />
+
+  <!-- RViz -->
+  <node pkg="rviz" type="rviz" name="$(anon rviz)" respawn="false" output="screen" args="-d $(find octomap_scout)/rviz/aloam_octomap.rviz"/>
+
+</launch>
+

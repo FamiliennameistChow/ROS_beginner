@@ -162,3 +162,8 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 
 20200610 zwl
 * 更新了点云转gridmap的代码，将此功能独立出来作为一个服务包，供需要此功能的用户使用。
+
+20200618 zb
+* 更新`gazebo/models/Amy_terrain`模型,[参看](./gazebo)
+* 更新了octomap_scout包，更新octomap中二维地图抽取`src/process_2d_map.cpp`，优化基于梯度的方案(推荐)
+* 更新了octomap_scout包,增加了全局地图导入,[查看](./packages)

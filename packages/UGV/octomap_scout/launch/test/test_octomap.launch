@@ -48,7 +48,7 @@
   </node>
 
   <!-- **process 2d map form octomap and output a "/map" topic occupied map**-->
-  <node pkg="octomap_scout" type="process_2d_map" name="process_2d_map" >
+  <node pkg="octomap_scout" type="process_2d_map" name="process_2d_map"  output="screen">
     <!-- step for search the elevation map in angle_method \ stdev_method  methods-->
     <param name="step" value="5" />
     <!-- the num of cells threshold in search eara, greater than this threshold will be set free cells -->

@@ -1,16 +1,23 @@
+recovery_behavior_enabled: false
+clearing_rotation_allowed: false
+
 TrajectoryPlannerROS:
   max_vel_x: 0.8
   min_vel_x: 0.3
-  max_vel_theta: 1.0
-  min_in_place_vel_theta: 0.7
-  acc_lim_theta: 2.0
+  max_vel_theta: 0.5 # 0.5
+  min_in_place_vel_theta: 0.7 # 0.7
+  acc_lim_theta: 1.0 # 1.0
   acc_lim_x: 0.2
   acc_lim_y: 0.2
   holonomic_robot: false
   yaw_goal_tolerance: 2.0
   xy_goal_tolerance: 0.3
   meter_scoring: true
-  recovery_behavior_enabled: false
-  clearing_rotation_allowed: false
+  # publish_cost_grid_pc: true
+  # prune_plan: false
+
+  sim_time: 3.0
+  # pdist_scale: 0.6
+  # gdist_scale: 3.0
   
   

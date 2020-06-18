@@ -2,9 +2,12 @@
 #include "nav_msgs/OccupancyGrid.h"
 #include <iostream>
 #include <fstream>
+#include <Eigen/Dense>
 
 using namespace std;
 #define PI 3.1415926
+typedef Eigen::Vector3d Vector3;
+
 nav_msgs::OccupancyGrid down_map, up_map, whole_map, elevation_map; 
 nav_msgs::OccupancyGrid map_out;
 bool getData2xt = false;
@@ -87,7 +90,7 @@ search pattern:
         for(auto it=value.begin(); it!=value.end(); it++){
             accum += (*it - mean)*(*it - mean);
         }
-        double stdev = sqrt(accum/(num-1));
+        float stdev = sqrt(accum/(num-1));
         if(stdev > th_stdev){
             for (auto iter_=idx.begin();iter_!=idx.end();iter_++){
                 if(*iter_ < 0 || *iter_ > map_.data.size()){
@@ -106,6 +109,12 @@ search pattern:
         }
     }else{
         map_.data[i] = 100;
+        // for (auto iter_=idx.begin();iter_!=idx.end();iter_++){
+        //     if(*iter_ < 0 || *iter_ > map_.data.size()){
+        //         continue;
+        //     }
+        //     map_.data[*iter_] = 100;
+        // }
     }
 
 }
@@ -159,9 +168,10 @@ search pattern:
         idx[a].push_back(direction[a] +1);
         idx[a].push_back(direction[a] -1);
         idx[a].push_back(direction[a]-map.info.width);
+        idx[a].push_back(direction[a]+map.info.width);
         idx[a].push_back(direction[a]-map.info.width-1);
         idx[a].push_back(direction[a]-map.info.width+1);
-        idx[a].push_back(direction[a]+map.info.width);
+
         idx[a].push_back(direction[a]+map.info.width-1);
         idx[a].push_back(direction[a]+map.info.width+1);
 
@@ -190,20 +200,20 @@ search pattern:
         if(num_temp < th_free_num){
             // map_.data[i] = 100;
             num_direction += 1;
-            // for(auto it = vec_tmp.begin(); it != vec_tmp.end(); it++){
-            //     if(*it < 0 || *it > map.data.size()){
-            //         continue;
-            //     }
-            //     map_.data[*it] = 100;
-            // }
-            
-            for(int i = 0; i < 9; i++){
-                int index = vec_tmp[i];
-                if(vec_tmp[i] < 0 || vec_tmp[i] > map.data.size()){
+            for(auto it = vec_tmp.begin(); it != vec_tmp.end(); it++){
+                if(*it < 0 || *it > map.data.size()){
                     continue;
                 }
-                map_.data[index] = 100;
+                map_.data[*it] = 100;
             }
+
+            // for(int i = 0; i < 9; i++){
+            //     int index = vec_tmp[i];
+            //     if(vec_tmp[i] < 0 || vec_tmp[i] > map.data.size()){
+            //         continue;
+            //     }
+            //     map_.data[index] = 100;
+            // }
             continue;
         }
     }
@@ -254,51 +264,50 @@ search pattern:
 
 }
 
-// void processMapValue(int i, nav_msgs::OccupancyGrid& map, int& result){
-// /* search surrounding cell
-// search pattern: 
-//                     *
-//                    *** 
-//                   **#** 
-//                    ***
-//                     * 
-// */
-//     int num = 0;
-//     int sum = 0;
-//     vector<int> value;
-//     vector<int> idx;
-//     idx.push_back(i+1);
-//     idx.push_back(i-1);
-//     idx.push_back(i-map.info.width);
-//     idx.push_back(i-map.info.width-1);
-//     idx.push_back(i-map.info.width+1);
-//     idx.push_back(i+map.info.width);
-//     idx.push_back(i+map.info.width-1);
-//     idx.push_back(i+map.info.width+1);
-//     idx.push_back(i-2);
-//     idx.push_back(i+2);
-//     idx.push_back(i-2*map.info.width);
-//     idx.push_back(i+2*map.info.width);
+void processMapHole(int i, nav_msgs::OccupancyGrid& map, nav_msgs::OccupancyGrid& map_){
+/* search surrounding cell
+search pattern: 
+                    *
+                   *** 
+                  **#** 
+                   ***
+                    * 
+*/
+    int num = 0;
+    vector<int> idx;
+    idx.push_back(i);
+    idx.push_back(i+1);
+    idx.push_back(i-1);
+    idx.push_back(i-map.info.width);
+    idx.push_back(i-map.info.width-1);
+    idx.push_back(i-map.info.width+1);
+    idx.push_back(i+map.info.width);
+    idx.push_back(i+map.info.width-1);
+    idx.push_back(i+map.info.width+1);
+    idx.push_back(i-2);
+    idx.push_back(i+2);
+    idx.push_back(i-2*map.info.width);
+    idx.push_back(i+2*map.info.width);
 
-//     for (auto iter=idx.begin();iter!=idx.end();iter++)
-//     {
-//         if(*iter < 0 || *iter > map.data.size()){
-//             continue;
-//         }
-//         if(map.data[*iter] != 100 && map.data[*iter] != -1){
-//             num += 1;
-//             value.push_back(map.data[*iter]);
-//             sum += map.data[*iter];
-//         }
-//     }
+    for (auto iter=idx.begin();iter!=idx.end();iter++)
+    {
+        if(*iter < 0 || *iter > map.data.size()){
+            continue;
+        }
+        if(map.data[*iter] != 100 && map.data[*iter] != -1){
+            num += 1;
+        }
+    }
+    if(num < th_free_num){
+        for (auto iter_=idx.begin();iter_!=idx.end();iter_++){
+            if(*iter_ < 0 || *iter_ > map_.data.size()){
+                continue;
+            }
+            map_.data[*iter_] = 100;
+        }
+    }
 
-//     if(num > 3){
-//          result = int(sum / num);
-//     }else{
-//         result = 100;
-//     }
-
-// }
+}
 
 
 void processMapGradientV(int i, nav_msgs::OccupancyGrid& map,  nav_msgs::OccupancyGrid& map_){
@@ -310,21 +319,17 @@ void processMapGradientV(int i, nav_msgs::OccupancyGrid& map,  nav_msgs::Occupan
 //                        ***
 //        #                * 
 */
-    // vector<float> mean_value; // mean_value of 9 surrounding cells
+
     vector<int> fill_idx;
     vector<vector<int> > idx(4,vector<int>(9));
-    int center_value = map.data[i]; //hegiht of the cell
-    // vector<int> idxF, idxL, idxR;
-    // int iF, iL, iR;
-    // iF = i + 3*map.info.width;
-    // iL = i - 3;
-    // iR = i + 3;
+    int center_value = map.data[i];   //hegiht of the cell
+    float res = map.info.resolution;
     vector<int> direction;
 
     direction.push_back(i + step*map.info.width);
     direction.push_back(i - step*map.info.width);
-    direction.push_back(i-step);
-    direction.push_back(i+step);
+    direction.push_back(i - step);
+    direction.push_back(i + step);
 
     fill_idx.push_back(i);
     fill_idx.push_back(i+1);
@@ -342,7 +347,7 @@ void processMapGradientV(int i, nav_msgs::OccupancyGrid& map,  nav_msgs::Occupan
 
     // ROS_INFO("direction size is %d", int(direction.size()));
 
-    // Forward left right
+    // Forward back left right
     // init the idx vector
     for(int a=0; a<idx.size(); a++){
         idx[a].push_back(direction[a]);
@@ -361,17 +366,20 @@ void processMapGradientV(int i, nav_msgs::OccupancyGrid& map,  nav_msgs::Occupan
         // idx[a].push_back(direction[a]+2);
     }
 
-    ROS_INFO("[GradientV] init sreach finished!!!");
+    // ROS_INFO("[GradientV]-------------------------------------------");
 
     vector<int> vec_tmp;
-    vector<int> stdev_value;
+    vector<float> mean_value;
     int num;
     float sum;
-    float mean_value;
     float angle;
+    int num_direction = 0; 
+    int count = 0;
+    int invaild_count = 10;
 
     for (auto iter=idx.begin();iter!=idx.end();iter++){
         vec_tmp = *iter;
+        count++;
         num = 0;
         sum = 0.0;
         for(auto it=vec_tmp.begin(); it != vec_tmp.end(); it++){
@@ -385,44 +393,95 @@ void processMapGradientV(int i, nav_msgs::OccupancyGrid& map,  nav_msgs::Occupan
         }
 
         if(num < th_free_num){
-            map_.data[i] = 100;
+            num_direction += 1;
             for(auto it = vec_tmp.begin(); it != vec_tmp.end(); it++){
                 if(*it < 0 || *it > map.data.size()){
                     continue;
                 }
-                map_.data[*it] = 100;
+                map_.data[*it] = -1;
             }
-            return;
+            //more than two direction have no value , the Gradient will will not be calculated in the cell
+            if(num_direction >= 2){ 
+                map_.data[i] = 100;
+                // map_.data[i] = -1;
+                // ROS_INFO("cell normal invaild----");
+                return;
+            }
+            if(num_direction == 1){
+                mean_value.push_back(center_value);
+                invaild_count = count;
+                // ROS_INFO("invaild_count is %d", invaild_count);
+            }
         }else
         {
-            //angle method >>>>
-            mean_value = sum / num;
-            angle = atan(abs(mean_value - center_value)/step)*180.0f/PI; //
-            // ROS_INFO("ANGLE is %f", angle);
-            if(angle > th_angle){
-                map_.data[i] = 100;
-                // for(auto it = vec_tmp.begin(); it != vec_tmp.end(); it++){
-                //     if(*it < 0 || *it > map.data.size()){
-                //         continue;
-                //     }
-                //     map_.data[*it] = 100;
-                // }
-                return;
-            }else{
-                for(auto fill_it = fill_idx.begin(); fill_it != fill_idx.end(); fill_it++){
-                    if(*fill_it < 0 || *fill_it > map.data.size()){
-                        continue;
-                    }
-                    map_.data[*fill_it] = 0;
-                }
-            }
-            // angle method <<<< 
-        }
-        // one direction end;
+            // ROS_INFO("mean_value : %f", sum/num);
+            mean_value.push_back(sum/num);
+        } // one direction end;
+
+    }  // direction end
+
+    // method to caculate normal 
+    //         -----> x (width)
+    //         |      #
+    //  height |   #  #  #
+    //         |      #
+    //         y    
+
+    double distanceX = 2* step * res;
+    double distanceY = 2* step * res;
+    Eigen::Vector3d normalVectorPositiveAxis_ = Vector3::UnitZ();
+
+    if(invaild_count == 1 || invaild_count == 2){
+        distanceY = step * res;
+    }
+    if(invaild_count == 3 || invaild_count == 4){
+        distanceX = step * res;
     }
 
+    // ROS_INFO("mean_value : %f, %f, %f, %f", mean_value[0], mean_value[1], mean_value[2], mean_value[3]);
+    // ROS_INFO("center_value : %d", center_value);
+
+    Vector3 normalVector = Vector3::Zero();
+    // X DIRECTION
+    normalVector(0) = (mean_value[0] - mean_value[1]) / (distanceX * 10);
+    // Y DIRECTION
+    normalVector(1) = (mean_value[2] - mean_value[3]) / (distanceY * 10);
+    // Z DIRECTION
+    normalVector(2) = +1;
+    // ROS_INFO("normalVector : %f, %f, %f", normalVector(0), normalVector(1), normalVector(2));
+
+    normalVector.normalize();
+    // ROS_INFO("normalVector normalize : %f, %f, %f", normalVector(0), normalVector(1), normalVector(2));
+
+    if (normalVector.dot(normalVectorPositiveAxis_) < 0.0) {
+      normalVector = -normalVector;
+    }
+
+    angle = acos(normalVector.z())*180.0f/PI;
+    // ROS_INFO("normalVector normalize z: %f", normalVector.z());
+    // ROS_INFO("ANGLE is %f", angle);
 
 
+    if(angle > th_angle){
+        // map_.data[i] = 100;
+        for(auto fill_it = fill_idx.begin(); fill_it != fill_idx.end(); fill_it++){
+            if(*fill_it < 0 || *fill_it > map.data.size()){
+                continue;
+            }
+            map_.data[*fill_it] = 100;
+        }
+ 
+        return;
+    }else{
+        for(auto fill_it = fill_idx.begin(); fill_it != fill_idx.end(); fill_it++){
+            if(*fill_it < 0 || *fill_it > map.data.size()){
+                continue;
+            }
+            map_.data[*fill_it] = 0;
+        }
+    }
+
+    
 }
 
 int main(int argc, char * argv[]) {
@@ -444,7 +503,7 @@ int main(int argc, char * argv[]) {
     ros::Subscriber up_map_sub = nh.subscribe("/projected_up_map", 100 ,up_mapCallBack);	
     ros::Subscriber whole_map_sub = nh.subscribe("/projected_whole_map", 100 ,whole_mapCallBack);	
     ros::Subscriber elevation_map_sub = nh.subscribe("/projected_map", 100 , elevation_mapCallBack);
-    ros::Publisher map_pub = nh_private.advertise<nav_msgs::OccupancyGrid>("/map", 10);
+    ros::Publisher map_pub = nh_private.advertise<nav_msgs::OccupancyGrid>("/detect_map", 10);
     
     // wait until map is received, when a map is received, mapData.header.seq will not be < 1  
     while (elevation_map.header.seq<1 or elevation_map.data.size()<1){
@@ -520,11 +579,23 @@ int main(int argc, char * argv[]) {
                 {
                     ROS_INFO("the method is NOT matched. suported methods are angle_method/stdev_method");
                 }
-                
-                
-                
             }
+            // if(elevation_map.data[i] == -1){
+            //     map_out.data[i] == -1;
+            // }
         }
+
+        // // prcess hole
+        // for(int i = 3*elevation_map.info.width; i< elevation_map.data.size() - 3*elevation_map.info.width; i++)
+        // {
+        //     // ROS_INFO("value is: %d", down_map.data[i]);
+        //     if(elevation_map.data[i] == 100){
+        //         // ROS_INFO("id: %d is hole", i);
+        //         processMapHole(i, elevation_map, map_out);
+        //         // ROS_INFO("changed value to %d", resetValue);
+                
+        //     }
+        // }
 
 
 

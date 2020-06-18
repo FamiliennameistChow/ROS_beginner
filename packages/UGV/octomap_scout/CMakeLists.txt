@@ -36,6 +36,7 @@ find_package(catkin REQUIRED
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 find_package(octomap REQUIRED)
+find_package(PCL REQUIRED)
 add_definitions(-DOCTOMAP_NODEBUGOUT)
 
 generate_dynamic_reconfigure_options(cfg/OctomapServer.cfg)
@@ -131,7 +132,7 @@ catkin_package(
   INCLUDE_DIRS include
   # LIBRARIES octomap_scout
   CATKIN_DEPENDS ${PACKAGE_DEPENDENCIES}
-  DEPENDS OCTOMAP 
+  DEPENDS OCTOMAP PCL
 )
 
 ###########
@@ -144,6 +145,7 @@ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
   ${OCTOMAP_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
 )
 
 set(LINK_LIBS
@@ -269,6 +271,7 @@ add_executable(process_2d_map src/process_2d_map.cpp)
 
 target_link_libraries(process_2d_map   
   ${catkin_LIBRARIES} )
+
 
 add_library(${PROJECT_NAME} src/OctomapServer.cpp src/OctomapServerMultilayer.cpp src/TrackingOctomapServer.cpp)
 target_link_libraries(${PROJECT_NAME} ${LINK_LIBS})

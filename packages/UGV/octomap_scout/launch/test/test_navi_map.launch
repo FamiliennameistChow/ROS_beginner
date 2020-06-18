@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
-  <!-- /laser_cloud_surroundfor lego ** /laser_cloud_map for aloam ** /velodyne_cloud_registered  for loam -->
+  <!-- /laser_cloud_surround for lego ** /laser_cloud_map for aloam ** /velodyne_cloud_registered  for loam -->
   <arg name="pointcloudTopic" default="/laser_cloud_map"/>  
   <arg name="mapFrame" default="map"/> 
   <arg name="pointcloudFrame" default="base_link"/> 
@@ -48,22 +48,26 @@
     <param name="th_free_num" value="3" />
     <!--  method to calculate the occupied probability for 2d map >>> -->
     <!-- now support two ways: angle_method \ stdev_method \ stdev_method_sparse-->
-    <param name="method" value="stdev_method_sparse" />
+    <param name="method" value="angle_method" />
     <!-- if choose angle_method, the angle threshold, cells greater than this threshold will be set occupied -->
-    <param name="th_angle" value="30.0" />
+    <param name="th_angle" value="25.0" />
     <!-- if choose stdev_method, the stdev threshold, cells greater than this threshold will be set occupied -->
-    <param name="th_stdev" value="3.0" />
+    <param name="th_stdev" value="2.0" />
   </node>
+
+  <!-- Run the map server with a prepare map -->
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find octomap_scout)/maps/gazebo.yaml" output="screen" />
+
 
   <!-- **movebase config** -->
   <node pkg="move_base" type="move_base" respawn="false" name="move_base_node" output="screen">
-    <param name="footprint_padding" value="0.03" />
-    <param name="controller_frequency" value="1.0" />
+    <param name="footprint_padding" value="0.5" />
+    <param name="controller_frequency" value="5.0" />
     <param name="controller_patience" value="3.0" />
     <param name="oscillation_timeout" value="30.0" />
     <param name="oscillation_distance" value="0.5" />
     <param name="planner_patience" value="1" />
-    <param name="controller_patience" value="1" /> 
+    <!-- <param name="planner_frequency" value="1.0"> -->
     <!-- <remap from="cmd_vel" to="mobile_base/commands/velocity"/> -->
     <param name="recovery_behavior_enabled" value="false" />
     <rosparam file="$(find octomap_scout)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
@@ -80,7 +84,7 @@
     <param name="local_costmap/point_cloud_sensor/sensor_frame" value="/camera_depth_frame"/>
     <param name="local_costmap/point_cloud_sensor/topic" value="/camera_init"/>
     <param name="local_costmap/obstacle_layer/point_cloud_sensor/topic" value="/velodyne_cloud_registered"/>
-    <remap from="map" to="/map"/>
+    <!-- <remap from="map" to="/detect_map"/> -->
   </node>
 
   <!-- RViz -->
