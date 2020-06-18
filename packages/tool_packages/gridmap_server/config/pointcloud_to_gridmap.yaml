@@ -1,5 +1,5 @@
 pointcloud_to_gridmap:
-  pointcloud_topic: "/laser_cloud_surround" #"/laser_cloud_surround"  #"/kinect/depth/points" "/velodyne_cloud_registered"　"/velodyne_points"
+  pointcloud_topic: "/velodyne_cloud_registered" #"/laser_cloud_surround"  #"/kinect/depth/points" "/velodyne_cloud_registered"　"/velodyne_points"
   pointcloud_frame:  "camera_init"  #  "camera_init"  #"camera_link"  "aft_mapped" "velodyne"
   map_frame: "map" #  "camera_init"  #"map"
   resolution: 0.08  # global_map的分辨率，需要和local_map同步
@@ -26,7 +26,7 @@ pcl_grid_map_extraction:
       p: 0.0
       y: 0.0
   cluster_extraction:
-    cluster_tolerance: 0.3
+    cluster_tolerance: 0.2
     min_num_points: 1
     max_num_points: 1000000
   outlier_removal:
@@ -34,7 +34,7 @@ pcl_grid_map_extraction:
     mean_K: 10
     stddev_threshold: 1.0
   downsampling:
-    is_downsample_cloud:  true
+    is_downsample_cloud: false
     voxel_size:
       x: 0.06 #0.02
       y: 0.06 #0.02

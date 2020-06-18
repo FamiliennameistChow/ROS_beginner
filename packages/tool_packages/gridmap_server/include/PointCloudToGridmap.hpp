@@ -159,16 +159,16 @@ void PointCloudToGridmap::pointCloudCallback(
   //tf::StampedTransform transform;
   //try {
     //listener_.waitForTransform(mapFrameId_, pointCloudFrameId_, msg->header.stamp,
-     //                          ros::Duration(5.0));
-   // listener_.lookupTransform(mapFrameId_, pointCloudFrameId_, msg->header.stamp,
-   //                           transform);
+                       //        ros::Duration(5.0));
+    //listener_.lookupTransform(mapFrameId_, pointCloudFrameId_, msg->header.stamp,
+                           //   transform);
 
  // } catch (tf::TransformException &ex) {
-  //  ROS_ERROR("fram transform error: %s", ex.what());
- //   return;
+   // ROS_ERROR("fram transform error: %s", ex.what());
+  //  return;
  // }
 
-  //pcl_ros::transformPointCloud(mapFrameId_, pointcloud_sub, pointcloud, listener_);
+ // pcl_ros::transformPointCloud(mapFrameId_, pointcloud_sub, pointcloud, listener_);
 
   gridMapPclLoader_.loadParameters(gm::getParameterPath());
   gridMapPclLoader_.loadCloudFromROSMsg(pointcloud_sub);
@@ -177,7 +177,7 @@ void PointCloudToGridmap::pointCloudCallback(
   gm::processPointcloud(&gridMapPclLoader_, nodeHandle_);
 
   localMap_ = gridMapPclLoader_.getGridMap();
-  localMap_.setTimestamp(msg->header.stamp.toNSec());
+  //localMap_.setTimestamp(msg->header.stamp.toNSec());
   localMap_.setFrameId(pointCloudFrameId_);
 
 
@@ -197,13 +197,13 @@ void PointCloudToGridmap::pointCloudCallback(
    */
   // globalMap_.addDataFrom(unifiedResMap_, true, true, true);
 
-  //std::vector<std::string> stringVector;
- // stringVector.push_back("elevation");
-  //globalMap_.addDataFrom(localMap_, true, true, false, stringVector);
- // globalMap_.setTimestamp(msg->header.stamp.toNSec());
+  std::vector<std::string> stringVector;
+  stringVector.push_back("elevation");
+  globalMap_.addDataFrom(localMap_, true, true, false, stringVector);
+  //globalMap_.setTimestamp(msg->header.stamp.toNSec());
 
     // Apply filter chain.
-  if (!filterChain_.update(localMap_, map_)) {
+  if (!filterChain_.update(globalMap_, map_)) {
     ROS_ERROR("Could not update the grid map filter chain!");
     return;
   }

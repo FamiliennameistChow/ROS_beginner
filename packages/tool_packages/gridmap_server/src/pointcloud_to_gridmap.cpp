@@ -7,7 +7,7 @@ int main(int argc, char** argv)
   // Initialize node and publisher.
   ros::init(argc, argv, "pointcloud_to_gridmap");
   ros::NodeHandle nh("~");
-  ros::Rate rate(10);
+  ros::Rate rate(30);
   gridmap_server::PointCloudToGridmap pointCloudToGridmap(nh);
 
   while(ros::ok())
