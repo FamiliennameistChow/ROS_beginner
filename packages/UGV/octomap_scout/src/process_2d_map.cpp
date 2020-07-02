@@ -8,8 +8,8 @@ using namespace std;
 #define PI 3.1415926
 typedef Eigen::Vector3d Vector3;
 
-nav_msgs::OccupancyGrid down_map, up_map, whole_map, elevation_map; 
-nav_msgs::OccupancyGrid map_out;
+nav_msgs::OccupancyGrid down_map, up_map, whole_map, elevation_map, global_map; 
+nav_msgs::OccupancyGrid map_out, map_merge;
 bool getData2xt = false;
 
 // param from ros
@@ -18,6 +18,7 @@ int th_free_num; //the num of cells threshold in search eara
 string method; // angle_method,  stdev_method, stdev_method_sparse;
 float th_angle; // angle method / angle th
 float th_stdev; // stdev_method / stdev th
+bool global_map_detect; // if have global map
 
 
 void down_mapCallBack(const nav_msgs::OccupancyGrid::ConstPtr& msg)
@@ -38,6 +39,61 @@ void whole_mapCallBack(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 void elevation_mapCallBack(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 {
     elevation_map=*msg;
+}
+
+void global_mapCallBack(const nav_msgs::OccupancyGrid::ConstPtr& msg)
+{
+    ROS_INFO("global map received");
+    global_map=*msg;
+    ROS_INFO("init form global map !");
+    map_merge.header.frame_id=global_map.header.frame_id;
+    map_merge.header.stamp = ros::Time::now();
+    map_merge.info.resolution = global_map.info.resolution;
+    map_merge.info.origin.position.x = global_map.info.origin.position.x;
+    map_merge.info.origin.position.y = global_map.info.origin.position.y;
+    map_merge.info.height = global_map.info.height;
+    map_merge.info.width = global_map.info.width;
+    map_merge.data.clear();
+    map_merge.data.resize(global_map.info.width * global_map.info.height, -1);
+}
+
+void mapindexToWorld(int i, float& wx_, float& wy_, nav_msgs::OccupancyGrid& map){
+    /**
+     *  【example】:
+     *  data为一维排列，假设其宽度为 width = 5。其index为
+     *  [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14]
+     *
+     *   转换为二维形式为:
+     *     4  3  2  1  0
+     *   <---------------
+     *  [[ 4  3  2  1  0] | 0
+     *   [ 9  8  7  6  5] | 1
+     *   [14 13 12 11 10] | 2
+     *
+     *   其中inex 14 的map坐标应该为 (4, 2)  即是: 14 % 5 = 4； 14 / 5 = 2
+     * */
+    float origin_x_ = map.info.origin.position.x; // 这里的origin.position是以起点珊格的右上角世界坐标表示
+    float origin_y_ = map.info.origin.position.y;
+    float resolution_ = map.info.resolution;
+    int width = map.info.width;
+    int mx, my;
+    mx = i % width;
+    my = i / width;
+    wx_ = (mx+0.5)* resolution_ + origin_x_; //加0.5使得　用该index所在珊格的中心world坐标来表示该index坐标
+    wy_ = (my+0.5) * resolution_ + origin_y_;
+
+}
+
+void worldToMapindex(float wx_, float wy_, int& i, nav_msgs::OccupancyGrid& map)
+{
+    float origin_x_ = map.info.origin.position.x; // 这里的origin.position是以起点珊格的右上角世界坐标表示
+    float origin_y_ = map.info.origin.position.y;
+    float resolution_ = map.info.resolution;
+    int width = map.info.width;
+    int mx, my;
+    mx = floor((wx_ - origin_x_)/resolution_);
+    my = floor((wy_ - origin_y_)/resolution_);
+    i = my*width + mx;
 }
 
 void processMapGradientSparse(int i, nav_msgs::OccupancyGrid& map,  nav_msgs::OccupancyGrid& map_){
@@ -402,8 +458,13 @@ void processMapGradientV(int i, nav_msgs::OccupancyGrid& map,  nav_msgs::Occupan
             }
             //more than two direction have no value , the Gradient will will not be calculated in the cell
             if(num_direction >= 2){ 
-                map_.data[i] = 100;
-                // map_.data[i] = -1;
+                if (global_map_detect)
+                {
+                    map_.data[i] = -1;
+                }else
+                {
+                    map_.data[i] = 100;
+                }
                 // ROS_INFO("cell normal invaild----");
                 return;
             }
@@ -422,9 +483,9 @@ void processMapGradientV(int i, nav_msgs::OccupancyGrid& map,  nav_msgs::Occupan
 
     // method to caculate normal 
     //         -----> x (width)
-    //         |      #
-    //  height |   #  #  #
-    //         |      #
+    //         |      #         1
+    //  height |   #  #  #    3   4
+    //         |      #         2
     //         y    
 
     double distanceX = 2* step * res;
@@ -497,14 +558,32 @@ int main(int argc, char * argv[]) {
     nh_private.param<string>("method", method, string("stdev_method_sparse"));
     nh_private.param<float>("th_angle", th_angle, 30.0);
     nh_private.param<float>("th_stdev", th_stdev, 2.0);
+    nh_private.param<bool>("global_map_detect", global_map_detect, true);
     
 
     ros::Subscriber down_map_sub = nh.subscribe("/projected_down_map", 100 ,down_mapCallBack);	
     ros::Subscriber up_map_sub = nh.subscribe("/projected_up_map", 100 ,up_mapCallBack);	
-    ros::Subscriber whole_map_sub = nh.subscribe("/projected_whole_map", 100 ,whole_mapCallBack);	
-    ros::Subscriber elevation_map_sub = nh.subscribe("/projected_map", 100 , elevation_mapCallBack);
+    ros::Subscriber whole_map_sub = nh.subscribe("/projected_whole_map", 100 ,whole_mapCallBack);
+    ros::Subscriber elevation_map_sub = nh.subscribe("/projected_map", 100 , elevation_mapCallBack);	
+    ros::Subscriber global_map_sub = nh.subscribe("/map", 100 , global_mapCallBack);
+
     ros::Publisher map_pub = nh_private.advertise<nav_msgs::OccupancyGrid>("/detect_map", 10);
-    
+    ros::Publisher map_octo_pub = nh_private.advertise<nav_msgs::OccupancyGrid>("/octo_map", 10);
+      
+    // if (global_map_detect)
+    // {
+    //     ROS_INFO("init form global map !");
+    //     map_merge.header.frame_id=global_map.header.frame_id;
+    //     map_merge.header.stamp = ros::Time::now();
+    //     map_merge.info.resolution = global_map.info.resolution;
+    //     map_merge.info.origin.position.x = global_map.info.origin.position.x;
+    //     map_merge.info.origin.position.y = global_map.info.origin.position.y;
+    //     map_merge.info.height = global_map.info.height;
+    //     map_merge.info.width = global_map.info.width;
+    //     map_merge.data.clear();
+    //     map_merge.data.resize(global_map.info.width * global_map.info.height, -1);
+    // }
+
     // wait until map is received, when a map is received, mapData.header.seq will not be < 1  
     while (elevation_map.header.seq<1 or elevation_map.data.size()<1){
         ROS_INFO("waiting for map !");
@@ -517,6 +596,7 @@ int main(int argc, char * argv[]) {
     map_out.info.resolution = elevation_map.info.resolution;
     map_out.info.origin.position.x = elevation_map.info.origin.position.x;
     map_out.info.origin.position.y = elevation_map.info.origin.position.y;
+    
 
     ofstream file_out("/home/bornchow/AMOV_WORKSPACE/moon_ws/src/octomap_scout/launch/test/data.txt");
     int c = 0;
@@ -525,15 +605,31 @@ int main(int argc, char * argv[]) {
     {
        
         ROS_INFO("process....");
-        if (down_map.data.size() != whole_map.data.size()){
-            ROS_INFO("DOWN map IS NOT match whole map!!!");
-            ROS_INFO("wohle map info ->  size: %zu, width: %d x height: %d", 
-            whole_map.data.size(), whole_map.info.width, whole_map.info.height);
-            ROS_INFO("down map info ->  size: %zu, width: %d x height: %d", 
-            down_map.data.size(), down_map.info.width, down_map.info.height);
-            ROS_INFO("up map info ->  size: %zu, width: %d x height: %d", 
-            up_map.data.size(), up_map.info.width, up_map.info.height);
+        // if (elevation_map.data.size() != global_map.data.size()){
+        //     ROS_INFO("DOWN map IS NOT match whole map!!!");
+        //     ROS_INFO("wohle map info ->  size: %zu, width: %d x height: %d", 
+        //     whole_map.data.size(), whole_map.info.width, whole_map.info.height);
+        //     ROS_INFO("down map info ->  size: %zu, width: %d x height: %d", 
+        //     down_map.data.size(), down_map.info.width, down_map.info.height);
+        //     ROS_INFO("up map info ->  size: %zu, width: %d x height: %d", 
+        //     up_map.data.size(), up_map.info.width, up_map.info.height);
+        // }
+
+        if (global_map_detect)
+        {
+            if (elevation_map.data.size() != global_map.data.size())
+            {
+                ROS_INFO("elevation map IS NOT match global map!!!");
+                ROS_INFO("elevation map info ->  size: %zu, width: %d x height: %d, origin_x: %f , origin_y: %f", 
+                elevation_map.data.size(), elevation_map.info.width, elevation_map.info.height, 
+                elevation_map.info.origin.position.x, elevation_map.info.origin.position.y);
+                ROS_INFO("global map info ->  size: %zu, width: %d x height: %d, origin_x: %f , origin_y: %f", 
+                global_map.data.size(), global_map.info.width, global_map.info.height, 
+                global_map.info.origin.position.x, global_map.info.origin.position.y);
+            }
+            
         }
+        
 
         // init to unknown:
         map_out.info.width = elevation_map.info.width;
@@ -543,7 +639,6 @@ int main(int argc, char * argv[]) {
         map_out.info.origin.position.y = elevation_map.info.origin.position.y;
         map_out.data.clear();
         map_out.data.resize(elevation_map.info.width * elevation_map.info.height, -1);
-
 
         // // prcess hole
         // for(int i = elevation_map.info.width; i< elevation_map.data.size() - elevation_map.info.width; i++)
@@ -613,9 +708,45 @@ int main(int argc, char * argv[]) {
         //     }
         // }
 
-        map_pub.publish(map_out);
-
-
+        if (global_map_detect)
+        {
+            ROS_INFO("map merge!!!!!");
+            ROS_INFO("map_merge info ->  size: %zu, width: %d x height: %d, origin_x: %f , origin_y: %f", 
+            map_merge.data.size(), map_merge.info.width, map_merge.info.height, 
+            map_merge.info.origin.position.x, map_merge.info.origin.position.y);
+            // map merge
+            float wx, wy;
+            int map_merge_ind;
+            map_merge.data = global_map.data;
+            for(int i = 3*map_out.info.width; i< map_out.data.size() - 3*map_out.info.width; i++){
+                if (map_out.data[i] == 100)
+                {
+                    // ROS_INFO("map out index: %d", i);
+                    mapindexToWorld(i, wx, wy, map_out);
+                    worldToMapindex(wx, wy, map_merge_ind, map_merge);
+                    map_merge.data[map_merge_ind] = 100;
+                    // ROS_INFO("map merge index: %d", map_merge_ind);
+                }
+                if (map_out.data[i] == 0)
+                {
+                    mapindexToWorld(i, wx, wy, map_out);
+                    worldToMapindex(wx, wy, map_merge_ind, map_merge);
+                    if (map_merge.data[map_merge_ind] == -1)
+                    {
+                        map_merge.data[map_merge_ind] = 0;
+                    }
+                    
+                }
+                
+            
+            }
+            map_pub.publish(map_merge);
+            map_octo_pub.publish(map_out);
+        }else
+        {
+            map_pub.publish(map_out);
+        }
+        
         if(getData2xt){
             c += 1;
             // ROS_INFO("c is:   %d", c);

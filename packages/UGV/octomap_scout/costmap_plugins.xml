@@ -1,0 +1,12 @@
+<class_libraries>
+  <library path="lib/libsimple_layer">
+    <class type="simple_layer_namespace::SimpleLayer" base_class_type="costmap_2d::Layer">
+      <description>Demo Layer that adds a point 1 meter in front of the robot</description>
+    </class>
+  </library>
+  <!-- <library path="lib/libstatic_grid_layer">
+    <class type="costmap_2d::StaticLayer" base_class_type="costmap_2d::Layer">
+      <description>Listens to OccupancyGrid messages and copies them in, like from you_node</description>
+    </class>
+  </library> -->
+</class_libraries>

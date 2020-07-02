@@ -167,3 +167,6 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 * 更新`gazebo/models/Amy_terrain`模型,[参看](./gazebo)
 * 更新了octomap_scout包，更新octomap中二维地图抽取`src/process_2d_map.cpp`，优化基于梯度的方案(推荐)
 * 更新了octomap_scout包,增加了全局地图导入,[查看](./packages)
+
+20200701 zb
+* 更新了octomap_scout包，更新`src/process_2d_map.cpp`，添加局部地图

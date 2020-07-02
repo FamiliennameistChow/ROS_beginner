@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(octomap_scout)
 
 add_compile_options(-std=c++11)
+set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
 
@@ -128,11 +129,11 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  CATKIN_DEPENDS roscpp rospy std_msgs message_runtime
+  CATKIN_DEPENDS roscpp rospy std_msgs message_runtime costmap_2d
   INCLUDE_DIRS include
   # LIBRARIES octomap_scout
   CATKIN_DEPENDS ${PACKAGE_DEPENDENCIES}
-  DEPENDS OCTOMAP PCL
+  DEPENDS OCTOMAP PCL EIGEN
 )
 
 ###########
@@ -143,6 +144,7 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
   include
+  
   ${catkin_INCLUDE_DIRS}
   ${OCTOMAP_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
@@ -272,6 +274,16 @@ add_executable(process_2d_map src/process_2d_map.cpp)
 target_link_libraries(process_2d_map   
   ${catkin_LIBRARIES} )
 
+add_executable(process_current_pc src/test/process_current_pc.cpp)
+
+target_link_libraries(process_current_pc   
+  ${catkin_LIBRARIES} ${PCL_INCLUDE_DIRS})
+
+
+add_executable(path_planning src/test/path_planning.cpp)
+
+target_link_libraries(path_planning   
+  ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES})
 
 add_library(${PROJECT_NAME} src/OctomapServer.cpp src/OctomapServerMultilayer.cpp src/TrackingOctomapServer.cpp)
 target_link_libraries(${PROJECT_NAME} ${LINK_LIBS})
@@ -294,6 +306,13 @@ target_link_libraries(octomap_server_nodelet ${PROJECT_NAME} ${LINK_LIBS})
 
 add_library(octomap_color_server_nodelet src/octomap_server_nodelet.cpp)
 target_link_libraries(octomap_color_server_nodelet ${PROJECT_NAME}_color ${LINK_LIBS})
+
+# costmap layer
+add_library(grid_layer src/test/grid_layer.cpp)
+target_link_libraries(grid_layer ${PROJECT_NAME} ${LINK_LIBS})
+
+# add_library(static_grid_layer src/test/static_layer.cpp)
+# target_link_libraries(static_grid_layer costmap_2d ${PROJECT_NAME} ${LINK_LIBS})
 
 # # install targets:
 # install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_color

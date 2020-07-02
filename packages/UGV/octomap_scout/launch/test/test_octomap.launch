@@ -1,19 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
   <!--/laser_cloud_surround for lego ** /laser_cloud_map for aloam ** /velodyne_cloud_registered  for loam -->
-  <arg name="pointcloudTopic" default="/registered_cloud"/>  
+  <arg name="pointcloudTopic" default="/laser_cloud_map"/>  
   <arg name="mapFrame" default="map"/> 
   <arg name="pointcloudFrame" default="base_link"/> 
-
-  <!-- <node pkg="test_octomap" type="tf_camera_to_map" name="tf_camera2map"/> -->
-
-  <!-- <node pkg="test_octomap" type="pointcloud2map" name="pointcloud2map" output="screen">
-    <param name="pointcloud_trans_topic" value="$(arg pointcloudTopic)" />
-    <param name="pointcloud_in_topic" value="/camera/depth/points" />
-  </node> -->
+  <arg name="prepared_map" default="true" />
 
   <!-- <node pkg="octomap_scout" type="octomap_server_multilayer" name="octomap_server" output="screen"> -->
-  <node pkg="octomap_scout" type="octomap_server_node" name="octomap_server" output="screen">
+  <node pkg="octomap_scout" type="octomap_server_node" name="octomap_server" >
     <!-- resolution in meters per pixel -->
     <param name="resolution" value="0.15" />
 
@@ -47,20 +41,27 @@
     <remap from="/cloud_in" to="$(arg pointcloudTopic)" />
   </node>
 
+  <group if="$(arg prepared_map)">
+    <!-- Run the map server with a prepare gloabl map -->
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find octomap_scout)/maps/gazebo.yaml" output="screen" />
+  </group>
+
   <!-- **process 2d map form octomap and output a "/map" topic occupied map**-->
-  <node pkg="octomap_scout" type="process_2d_map" name="process_2d_map"  output="screen">
+  <node pkg="octomap_scout" type="process_2d_map" name="process_2d_map" output="screen">
+    <param name="global_map_detect" value="$(arg prepared_map)"/>
     <!-- step for search the elevation map in angle_method \ stdev_method  methods-->
     <param name="step" value="5" />
     <!-- the num of cells threshold in search eara, greater than this threshold will be set free cells -->
     <param name="th_free_num" value="3" />
     <!--  method to calculate the occupied probability for 2d map >>> -->
     <!-- now support two ways: angle_method \ stdev_method \ stdev_method_sparse-->
-    <param name="method" value="stdev_method_sparse" />
+    <param name="method" value="angle_method" />
     <!-- if choose angle_method, the angle threshold, cells greater than this threshold will be set occupied -->
-    <param name="th_angle" value="30.0" />
+    <param name="th_angle" value="25.0" />
     <!-- if choose stdev_method, the stdev threshold, cells greater than this threshold will be set occupied -->
     <param name="th_stdev" value="2.0" />
   </node>
+
 
   <!-- RViz -->
   <node pkg="rviz" type="rviz" name="$(anon rviz)" respawn="false" output="screen" args="-d $(find octomap_scout)/rviz/aloam_octomap.rviz"/>
