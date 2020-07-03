@@ -1,0 +1,13 @@
+global_costmap:
+  global_frame: map
+  robot_base_frame: base_link
+  update_frequency: 2.0
+  publish_frequency: 2.0
+  static_map: true  #设为true，则全局costmap来自于map_server的“/map”话题。也可以设为true，然后人工发布自己的“/map”话题。
+  rolling_window: false
+
+  # width: 50.0
+  # height: 50.0
+  resolution: 0.15
+  # origin_x: 0.0
+  # origin_y: 0.0

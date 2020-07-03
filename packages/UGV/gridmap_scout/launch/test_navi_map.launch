@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <!-- /laser_cloud_surroundfor lego ** /laser_cloud_map for aloam ** /velodyne_cloud_registered  for loam >
+  <arg name="pointcloudTopic" default="/laser_cloud_map"/>  
+  <arg name="mapFrame" default="map"/> 
+  <arg name="pointcloudFrame" default="base_link"/--> 
+  <param name="use_sim_time" value="true"/>
+
+
+  <node pkg="tf" type="static_transform_publisher" name="tf_laserOdom_baselink" args="0.0 0.0 -0.4 0.0 0.0 0.0 /aft_mapped /base_link 30"/>
+  <node pkg="tf" type="static_transform_publisher" name="camera_init_to_map" args="0.0 0.0 0.0 0.0 0.0 0.0 /map /camera_init 30"/>
+  <!--<node pkg="tf" type="static_transform_publisher" name="kinect_to_base" args="0.0 0.0 0.2 -1.57 0.0 -1.57 /base_link /camera_depth_optical_frame 30"/>-->
+
+
+  <!-- Run the map server with a prepare map -->
+  <!--<node name="map_server" pkg="map_server" type="map_server" args="$(find gridmap_scout)/maps/global_map1.yaml" output="screen" />-->
+
+
+  <!-- **movebase config** -->
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base_node" output="screen">
+    <!--<param name="footprint_padding" value="0.03" />-->
+    <param name="controller_frequency" value="15.0" />
+    <param name="planner_frequency" value="0.5" />
+    <param name="planner_patience" value="3" />
+    <param name="controller_patience" value="10" /> 
+    
+    <!--设为true会原地旋转且震动-->
+    <param name="recovery_behavior_enabled" value="true" /> 
+
+    <!--困住时是否原地旋转-->
+    <param name="clearing_rotation_allowed" value="false" /> 
+
+    <rosparam file="$(find gridmap_scout)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find gridmap_scout)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find gridmap_scout)/config/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find gridmap_scout)/config/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find gridmap_scout)/config/base_local_planner_params.yaml" command="load" />  
+    <remap from="map" to="/grid_map_visualization/traversability_grid"/>
+    <!--<remap from="map_updates" to="/grid_map_visualization/traversability_grid"/>-->
+  </node>
+
+  <!-- RViz -->
+  <node pkg="rviz" type="rviz" name="$(anon rviz)" respawn="false" output="screen" args="-d $(find gridmap_scout)/rviz/aloam_gridmap.rviz"/>
+
+</launch>

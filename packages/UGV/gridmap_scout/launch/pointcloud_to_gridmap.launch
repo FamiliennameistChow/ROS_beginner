@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+  <rosparam file="$(find gridmap_scout)/config/pointcloud_to_gridmap.yaml" command="load"/>
+
+  <arg name="prefix"       default=""/>
+  <node pkg="gridmap_scout" name="pointcloud_to_gridmap" type="pointcloud_to_gridmap" 
+        output="screen"  launch-prefix="$(arg prefix)">
+    <rosparam command="load" file="$(find gridmap_scout)/config/filters_demo_filter_chain.yaml" />
+  </node>
+
+  <!-- Launch the grid map visualizer -->
+  <node pkg="grid_map_visualization" type="grid_map_visualization" name="grid_map_visualization" output="screen" />
+
+   <!--Launch RViz with the demo configuration -->
+  <!--node name="rviz" pkg="rviz" type="rviz" args="-d $(find gridmap_scout)/rviz/grid_map_pcl.rviz" /-->
+</launch>

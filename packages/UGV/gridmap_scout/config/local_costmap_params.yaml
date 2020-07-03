@@ -1,0 +1,25 @@
+local_costmap:
+  global_frame: map
+  robot_base_frame: base_link
+  update_frequency: 5.0
+  publish_frequency: 5.0
+  static_map: false
+  rolling_window: true
+  width: 5
+  height: 5
+  resolution: 0.1
+  # origin_x: 0.0
+  # origin_y: 0.0
+
+  observation_sources: point_cloud_sensor
+  point_cloud_sensor: {
+    sensor_frame: /base_link,   # /camera_depth_optical_frame, 
+    data_type: PointCloud2, 
+    topic: /robot_base/points,   # /camera/depth/points, 
+    marking: true, 
+    clearing: true,
+    max_obstacle_height: 100.0,
+    min_obstacle_height: -100.0,
+    obstacle_range: 5,
+    raytrace_range: 5
+    }
