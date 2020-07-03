@@ -4,22 +4,7 @@
 -----
 
 # Table of Contents   
-## tool packages for users
-* [gridmap_server包](./tool_packages/gridmap_server)  
-此功能包为点云转gridmap的服务功能包。depth_to_gridmap.hpp为深度图转grid_map并做全局地图拼接的相关代码。pointcloud_to_gridmap.hpp为kinect点云转grid_map并做全局地图拼接的相关代码。运行程序请运行sh文件夹中相应的.sh文件.
-
-    * 依赖:  
-
-    ```sh
-    官方grid_map包，安装参考<https://github.com/ANYbotics/grid_map>
-    ```
-
-    * TODO List
-        - [x] 实时的点云转gridmap(包含坐标转换)
-        - [x] 全局地图拼接
-        - [x] 使用滤波器生成表面法向量、坡度、粗糙度等信息层判断可通行区域，并根据可通行区域生成occupymap
-        - [x] 同时输出Localmap、Globalmap和occupancy grid map
-        - [x] 实现全过程参数化配置   
+## tool packages for users    
 
 ## packages for UAV 
 * [drone_lora包](./UAV/drone_lora)  
@@ -39,7 +24,7 @@
     运行程序请运行sh文件夹中相应的.sh文件.
 
 * [gridmap_uav包](./UAV/gridmap_uav)  
-此功能包为点云转gridmap的服务功能包。depth_to_gridmap.hpp为深度图转grid_map并做全局地图拼接的相关代码。pointcloud_to_gridmap.hpp为kinect点云转grid_map并做全局地图拼接的相关代码。运行程序请运行sh文件夹中相应的.sh文件.
+此功能包为无人机下视传感器数据转gridmap的功能包。depth_to_gridmap.hpp为无人机下视深度图转gridmap的功能包。pointcloud_to_gridmap.hpp为下视kinect点云转gridmap并做全局地图拼接的相关代码。运行程序请运行sh文件夹中相应的.sh文件.
 
     * 依赖:  
 
@@ -48,7 +33,7 @@
     ```
 
     * TODO List
-        - [x] 实时的点云转gridmap(包含坐标转换)
+        - [x] 实时的每帧点云转gridmap(包含坐标转换)
         - [x] 全局地图拼接
         - [x] 使用滤波器生成表面法向量、坡度、粗糙度等信息层判断可通行区域，并根据可通行区域生成occupymap
         - [x] 同时输出Localmap、Globalmap和occupancy grid map
@@ -158,7 +143,7 @@
     ```
 
 * [gridmap_scout包](./UGV/gridmap_scout)  
-此功能包为点云转gridmap的服务功能包。depth_to_gridmap.hpp为深度图转grid_map并做全局地图拼接的相关代码。pointcloud_to_gridmap.hpp为kinect点云转grid_map并做全局地图拼接的相关代码。运行程序请运行sh文件夹中相应的.sh文件.
+此功能包为无人小车上传感器数据转gridmap的功能包，且能够输出占据地图供Navigation导航包使用。pointcloud_to_gridmap.hpp为velodyne点云转gridmap,以及SLAM生成的全局地图同时生成全局grimap的相关代码。运行程序请运行sh文件夹中相应的.sh文件.
 
     * 依赖:  
 
@@ -168,9 +153,8 @@
 
     * TODO List
         - [x] 实时的点云转gridmap(包含坐标转换)
-        - [x] 全局地图拼接
-        - [x] 使用滤波器生成表面法向量、坡度、粗糙度等信息层判断可通行区域，并根据可通行区域生成occupymap
-        - [x] 同时输出Localmap、Globalmap和occupancy grid map
+        - [x] 全局地图生成
+        - [x] 使用滤波器生成坡度、粗糙度等信息层判断可通行区域，并根据可通行区域生成occupymap供导航使用
         - [x] 实现全过程参数化配置   
 
 

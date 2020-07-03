@@ -1,12 +1,28 @@
+tf_sensor2map:
+  sensor_frame: "camera_link"
+  robot_frame: "base_link"
+  map_frame: "map"
+  robot_attitude_topic: "/mavros/local_position/pose"
+  sensor_transform_from_robot:
+    translation:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    rotation: #intrinsic rotation X-Y-Z (r-p-y)sequence
+      r: 0.0
+      p: 3.1415926
+      y: 1.5707963
+
+
 pointcloud_to_gridmap:
-  pointcloud_topic: "/velodyne_cloud_registered" #"/laser_cloud_surround"  #"/kinect/depth/points" "/velodyne_cloud_registered"　"/velodyne_points"
-  pointcloud_frame:  "camera_init"  #  "camera_init"  #"camera_link"  "aft_mapped" "velodyne"
-  map_frame: "map" #  "camera_init"  #"map"
-  resolution: 0.1  # global_map的分辨率，需要和local_map同步
+  pointcloud_topic: "/camera/depth/points"
+  pointcloud_frame: "camera_link"
+  map_frame: "map"
+  resolution: 0.1    # global_map的分辨率，需要和local_map同步
   output_local_map_topic: /pointcloud_to_gridmap/local_grid_map
   output_global_map_topic: /pointcloud_to_gridmap/global_grid_map
 
-  folder_path: "$(find gridmap_server)/data"  # 要加载的pcd文件所在的目录
+  folder_path: "$(find gridmap_uav)/data"  # 要加载的pcd文件所在的目录
   pcd_filename: "plane_noisy.pcd"  # 加载pcd文件的名字
   map_rosbag_topic: grid_map  # 保存在rosbag内部的topic名称
   output_grid_map: elevation_map.bag  # 保存的rosbag的名字
@@ -26,21 +42,21 @@ pcl_grid_map_extraction:
       p: 0.0
       y: 0.0
   cluster_extraction:
-    cluster_tolerance: 0.2
-    min_num_points: 1
+    cluster_tolerance: 0.05
+    min_num_points: 4
     max_num_points: 1000000
   outlier_removal:
-    is_remove_outliers: false #true
+    is_remove_outliers: true
     mean_K: 10
     stddev_threshold: 1.0
   downsampling:
-    is_downsample_cloud: false
+    is_downsample_cloud: true
     voxel_size:
-      x: 0.06 #0.02
-      y: 0.06 #0.02
-      z: 0.06 #0.02 
+      x: 0.02
+      y: 0.02
+      z: 0.02
   grid_map:
-    min_num_points_per_cell: 1 #4
+    min_num_points_per_cell: 4
     resolution: 0.1  # local_map的分辨率，需要和global_map同步
 
 
@@ -48,12 +64,6 @@ pcl_grid_map_extraction:
 grid_map_visualization:
   grid_map_topic: /pointcloud_to_gridmap/global_grid_map
   grid_map_visualizations:
-      - name: traversability_grid
-        type: occupancy_grid
-        params:
-          layer: traversability
-          data_min: 0.0
-          data_max: 1.0
 
     # - name: elevation_points
     #   type: point_cloud
@@ -80,14 +90,20 @@ grid_map_visualization:
     #    lower_threshold: 0.1 # 上下限高度范围内的网格视为可视化的网格
     #    upper_threshold: 10.0
 
-    #- name: surface_normals
-     # type: vectors
-      #params:
-       # layer_prefix: normal_vectors_
-        #position_layer: elevation
-        #scale: 0.06
-        #line_width: 0.005
-        #color: 15600153 # red
-
+    - name: surface_normals
+      type: vectors
+      params:
+        layer_prefix: normal_vectors_
+        position_layer: elevation
+        scale: 0.06
+        line_width: 0.005
+        color: 15600153 # red
+        
+    - name: traversability_grid
+      type: occupancy_grid
+      params:
+        layer: traversability
+        data_min: 0.0
+        data_max: 1.0
     
        

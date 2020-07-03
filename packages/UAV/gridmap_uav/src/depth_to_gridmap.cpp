@@ -1,14 +1,14 @@
 #include <ros/ros.h>
-#include "PointCloudToGridmap.hpp"
+#include "DepthToGridmap.hpp"
 #include <time.h>
 
 int main(int argc, char** argv)
 {
   // Initialize node and publisher.
-  ros::init(argc, argv, "pointcloud_to_gridmap");
+  ros::init(argc, argv, "depth_to_gridmap");
   ros::NodeHandle nh("~");
-  ros::Rate rate(30);
-  gridmap_server::PointCloudToGridmap pointCloudToGridmap(nh);
+  ros::Rate rate(5);
+  gridmap_uav::DepthToGridmap depthToGridmap(nh);
 
   while(ros::ok())
   {

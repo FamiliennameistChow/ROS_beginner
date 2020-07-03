@@ -172,4 +172,4 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 * 更新了octomap_scout包，更新`src/process_2d_map.cpp`，添加局部地图
 
 20200703 zwl
-* 删除了gridmap_server，分成了gridmap_uav和gridmap_scout两个包
+* 删除了gridmap_server，分成了gridmap_uav和gridmap_scout两个包。分别对无人机和无人车的应用场景做了优化。

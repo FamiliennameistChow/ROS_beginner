@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(gridmap_server)
+project(gridmap_uav)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 set(CMAKE_CXX_STANDARD 14)
@@ -121,8 +121,8 @@ add_executable(
   src/depth_to_gridmap.cpp
 )
 
-add_executable(pointcloud_to_gridmap
-  src/pointcloud_to_gridmap.cpp
+add_executable(pointcloud_to_gridmap_uav
+  src/pointcloud_to_gridmap_uav.cpp
 )
 
 add_executable(tf_sensor2map 
@@ -189,7 +189,7 @@ target_link_libraries(
   ${Boost_LIBRARIES}
 )
 
-target_link_libraries(pointcloud_to_gridmap
+target_link_libraries(pointcloud_to_gridmap_uav
   ${PROJECT_NAME}
   ${catkin_LIBRARIES}
   ${OpenMP_CXX_LIBRARIES}

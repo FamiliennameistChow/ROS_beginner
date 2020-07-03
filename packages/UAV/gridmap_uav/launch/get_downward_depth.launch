@@ -3,9 +3,9 @@
     <!-- MAVROS posix SITL environment launch script -->
     <!-- launches MAVROS, PX4 SITL, Gazebo environment, and spawns vehicle -->
     <!-- vehicle pose -->
-    <arg name="x" default="0"/>
-    <arg name="y" default="0"/>
-    <arg name="z" default="1.5"/>
+    <arg name="x" default="8.66"/>
+    <arg name="y" default="-4.77"/>
+    <arg name="z" default="1"/>
     <arg name="R" default="0"/>
     <arg name="P" default="0"/>
     <arg name="Y" default="0"/>
@@ -54,9 +54,4 @@
         <arg name="fcu_url" value="$(arg fcu_url)"/>
         <arg name="respawn_mavros" value="$(arg respawn_mavros)"/>
     </include>
-
-    <!-- run the tf node -->
-    <rosparam file="$(find gridmap_server)/config/tf_transform_params.yaml" command="load"/>
-    <node pkg="gridmap_server" type="tf_sensor2map" name="tf_sensor2map" />
-
 </launch>
