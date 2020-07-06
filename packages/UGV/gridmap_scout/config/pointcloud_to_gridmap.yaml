@@ -2,7 +2,7 @@ pointcloud_to_gridmap:
   pointcloud_topic: "/velodyne_cloud_registered" #"/laser_cloud_surround"  #"/kinect/depth/points" "/velodyne_cloud_registered"　"/velodyne_points"
   pointcloud_frame:  "camera_init"  #  "camera_init"  #"camera_link"  "aft_mapped" "velodyne"
   map_frame: "map" #  "camera_init"  #"map"
-  resolution: 0.13  # global_map的分辨率，需要和local_map同步。越大越快
+  resolution: 0.15  # global_map的分辨率，需要和local_map同步。越大越快
   output_local_map_topic: /pointcloud_to_gridmap/local_grid_map
   output_global_map_topic: /pointcloud_to_gridmap/global_grid_map
 
@@ -41,7 +41,7 @@ pcl_grid_map_extraction:
       z: 0.06 #0.02 
   grid_map:
     min_num_points_per_cell: 1 #4
-    resolution: 0.13  # local_map的分辨率，需要和global_map同步。越大越快
+    resolution: 0.15  # local_map的分辨率，需要和global_map同步。越大越快
 
 
 # grid_map可视化配置

@@ -1,5 +1,5 @@
 TrajectoryPlannerROS:
-  max_vel_x: 0.5
+  max_vel_x: 0.8
   min_vel_x: 0.3
   max_vel_theta: 1.0
   min_vel_theta: -1.0
@@ -7,12 +7,16 @@ TrajectoryPlannerROS:
   backup_vel: -0.2
   escape_vel: -0.2
   acc_lim_theta: 0.8
-  acc_lim_x: 0.4
-  acc_lim_y: 0.4
+  acc_lim_x: 0.6
+  acc_lim_y: 0.6
   holonomic_robot: false    #我们的机器人没有y方向速度，所以不完整
-  yaw_goal_tolerance: 0.05
+  yaw_goal_tolerance: 0.1
   xy_goal_tolerance: 0.1
   meter_scoring: true
+
+  # dwa: false #使用DWA（动态窗口法）或者轨迹展开法,默认为false
+  sim_time: 2
+  vx_samples: 10
 
   
   

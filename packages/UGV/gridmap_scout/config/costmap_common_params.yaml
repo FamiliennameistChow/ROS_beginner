@@ -3,6 +3,8 @@
 #For this example we'll configure the costmap in voxel-grid mode
 map_type: costmap
 
+global_frame: map
+robot_base_frame: base_link
 
 
 #Set the tolerance we're willing to have for tf transforms
@@ -34,7 +36,7 @@ static_layer:
 
 inflation_layer:
   inflation_radius: 1.0
-  cost_scaling_factor: 13
+  cost_scaling_factor: 12
 
 #Configuration for the sensors that the costmap will use to update a map
 # observation_sources: laser_scan_sensor

@@ -18,11 +18,12 @@
 
   <!-- **movebase config** -->
   <node pkg="move_base" type="move_base" respawn="false" name="move_base_node" output="screen">
-    <!--<param name="footprint_padding" value="0.03" />-->
+    <param name="footprint_padding" value="0.5" />
     <param name="controller_frequency" value="15.0" />
     <param name="planner_frequency" value="0.5" />
     <param name="planner_patience" value="3" />
     <param name="controller_patience" value="10" /> 
+    <param name="oscillation_timeout" value="20" /> 
     
     <!--设为true会原地旋转且震动-->
     <param name="recovery_behavior_enabled" value="true" /> 
@@ -36,6 +37,7 @@
     <rosparam file="$(find gridmap_scout)/config/global_costmap_params.yaml" command="load" />
     <rosparam file="$(find gridmap_scout)/config/base_local_planner_params.yaml" command="load" />  
     <remap from="map" to="/grid_map_visualization/traversability_grid"/>
+    <!--<remap from="/odom" to="/aft_mapped_to_init_high_frec"/>-->
     <!--<remap from="map_updates" to="/grid_map_visualization/traversability_grid"/>-->
   </node>
 

@@ -1,0 +1,7 @@
+image: global_map4.pgm
+resolution: 0.150000
+origin: [-106.575000, -86.325000, 0.000000]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196
+
