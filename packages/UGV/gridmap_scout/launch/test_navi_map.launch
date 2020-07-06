@@ -13,7 +13,7 @@
 
 
   <!-- Run the map server with a prepare map -->
-  <!--<node name="map_server" pkg="map_server" type="map_server" args="$(find gridmap_scout)/maps/global_map1.yaml" output="screen" />-->
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find gridmap_scout)/maps/mymap2.yaml" output="screen" />
 
 
   <!-- **movebase config** -->
@@ -36,9 +36,9 @@
     <rosparam file="$(find gridmap_scout)/config/local_costmap_params.yaml" command="load" />
     <rosparam file="$(find gridmap_scout)/config/global_costmap_params.yaml" command="load" />
     <rosparam file="$(find gridmap_scout)/config/base_local_planner_params.yaml" command="load" />  
-    <remap from="map" to="/grid_map_visualization/traversability_grid"/>
+    <remap from="/map" to="/mergedMap"/>
+    <!--<remap from="map" to="/grid_map_visualization/traversability_grid"/>-->
     <!--<remap from="/odom" to="/aft_mapped_to_init_high_frec"/>-->
-    <!--<remap from="map_updates" to="/grid_map_visualization/traversability_grid"/>-->
   </node>
 
   <!-- RViz -->

@@ -15,6 +15,7 @@ using namespace std;
 
 typedef pcl::PointXYZ PCLPoint;
 
+namespace gridmap_scout {
 
 class ProcessKinectPC {
 public:
@@ -90,4 +91,6 @@ void ProcessKinectPC::pointcloud_cb(const sensor_msgs::PointCloud2ConstPtr &msg)
 
 
     ROS_INFO("have processing Kinect's pointcloud.");
+}
+
 }

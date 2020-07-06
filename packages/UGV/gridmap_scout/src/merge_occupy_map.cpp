@@ -1,13 +1,13 @@
 #include <ros/ros.h>
-#include "ProcessKinectPC.hpp"
+#include "MergeOccupyMap.hpp"
 
 int main(int argc, char ** argv){
-    ros::init(argc, argv, "process_kinect_pointcloud");
+    ros::init(argc, argv, "merge_occupy_map");
 
     ros::NodeHandle nh("~");
     ros::Rate rate(30.0);
 
-    gridmap_scout::ProcessKinectPC processKinectPC(nh, -0.8, 0.6);
+    gridmap_scout::MergeOccupyMap mergeOccupyMap(nh);
 
     while(ros::ok())
     {

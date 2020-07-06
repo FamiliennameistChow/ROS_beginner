@@ -124,6 +124,11 @@ add_executable(pointcloud_to_gridmap
 add_executable(process_kinect_pointcloud
   src/process_kinect_pointcloud.cpp
 )
+
+
+add_executable(merge_occupy_map
+  src/merge_occupy_map.cpp
+)
 # add_executable(
 #   simple_demo
 #   src/simple_demo_node.cpp
@@ -188,6 +193,10 @@ target_link_libraries(pointcloud_to_gridmap
 
 
 target_link_libraries(process_kinect_pointcloud
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(merge_occupy_map
   ${catkin_LIBRARIES}
 )
 # target_link_libraries(
