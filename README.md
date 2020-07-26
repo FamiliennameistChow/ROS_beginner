@@ -173,3 +173,6 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 
 20200703 zwl
 * 删除了gridmap_server，分成了gridmap_uav和gridmap_scout两个包。分别对无人机和无人车的应用场景做了优化。
+
+20200726 zwl
+* 新增moon_landing包，内容为月面着陆仿真代码．

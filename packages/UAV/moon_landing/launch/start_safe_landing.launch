@@ -1,0 +1,30 @@
+<launch>
+    <arg name="pointcloud_topics" default="/camera/depth/points"/>
+
+
+    <!-- Launch rqt_reconfigure -->
+    <node pkg="rqt_reconfigure" type="rqt_reconfigure" output="screen" name="rqt_reconfigure" />
+
+
+    <!-- Define a static transform from a camera internal frame to the fcu for every camera used -->
+    <!--<node pkg="tf" type="static_transform_publisher" name="tf_local_origin"
+          args="0 0 0 0 0 0 local_origin fcu 20"/>-->
+    <node pkg="tf" type="static_transform_publisher" name="tf_depth_camera"
+          args="0 0 0 -1.57 0 3.14 fcu camera_link 30"/>
+          <!--local_origin -> fcu -> camera_link-->
+
+    <!-- Launch local planner -->
+    <node name="safe_landing_planner_node" pkg="safe_landing_planner" type="safe_landing_planner_node" output="screen">
+      <param name="pointcloud_topics" value="$(arg pointcloud_topics)" />
+      <param name="world_name" value="$(find moon_landing)/config/safe_landing.yaml" />
+    </node>
+
+    <node name="waypoint_generator_node" pkg="safe_landing_planner" type="waypoint_generator_node" output="screen" >
+    </node>
+
+    <node name="dynparam_slpn" pkg="dynamic_reconfigure" type="dynparam" args="load safe_landing_planner_node $(find safe_landing_planner)/cfg/slpn.yaml" />
+    <node name="dynparam_wpgn" pkg="dynamic_reconfigure" type="dynparam" args="load waypoint_generator_node $(find safe_landing_planner)/cfg/wpgn.yaml" />
+
+    <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find moon_landing)/rviz/safe_landing_planner.rviz" />
+
+</launch>

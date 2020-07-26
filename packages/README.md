@@ -39,6 +39,27 @@
         - [x] 同时输出Localmap、Globalmap和occupancy grid map
         - [x] 实现全过程参数化配置   
 
+
+* [moon_landing包](./UAV/moon_landing)  
+此功能包为无人机月面着陆仿真代码。MoonLanding.hpp为障碍识别、月面地标追踪的代码。moon_landing_node.cpp为降落过程的任务规划主代码。运行moon_landing.h即可运行仿真。
+
+    * 依赖:  
+
+    ```sh
+    PX4/avoidance避障包。安装参考<https://github.com/PX4/avoidance>
+    ```
+
+    * TODO List
+        - [x] 障碍检测
+        - [x] 安全降落区域识别
+        - [x] 分阶段的特征点（月面地标）追踪导航
+        - [x] 最终降落时悬停进行月面扫描选取安全着陆点
+        - [　] 分阶段后各阶段到全局地图的映射   
+        - [　] 换算到真实距离     
+        - [ ] 加入IMU进行数据融合 
+
+
+
 * [grad_traj_optimization包]()  
 此功能包为香港科技大学git上的轨迹生成和优化包。[github地址](http://github.com/HKUST-Aerial-Robotics/grad_traj_optimization)
 

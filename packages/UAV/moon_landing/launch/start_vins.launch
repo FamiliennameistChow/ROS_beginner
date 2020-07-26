@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<launch>
+
+  <node pkg="tf" type="static_transform_publisher" name="tf_robot_imu"
+          args="0 0 0 0 0 0 base_link imu_link 20"/>
+  
+  <node pkg="tf" type="static_transform_publisher" name="tf_robot_camera"
+          args="0 0 0 0 1.57 0 base_link robot_camera_link 20"/>
+
+   <node name="rvizvisualisation" pkg="rviz" type="rviz" output="log" args="-d $(find moon_landing)/rviz/vins_rviz_config.rviz" />
+
+    <!-- Config file -->
+    <arg name="config" default="$(find moon_landing)/config/mono_imu_config.yaml" />
+
+    <!-- Our launch details -->
+    <node name="vins_estimator" pkg="vins" type="vins_node" args="$(arg config)" output="screen">
+    </node>
+
+    <node name="loop_fusion" pkg="loop_fusion" type="loop_fusion_node" args="$(arg config)" output="screen">
+    </node>
+
+</launch>
