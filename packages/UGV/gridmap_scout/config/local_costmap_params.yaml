@@ -18,6 +18,6 @@ local_costmap:
     clearing: true,
     max_obstacle_height: 100.0,
     min_obstacle_height: -100.0,
-    obstacle_range: 3,
-    raytrace_range: 3
+    obstacle_range: 3.5,
+    raytrace_range: 3.5
     }

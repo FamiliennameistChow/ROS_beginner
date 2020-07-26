@@ -1,0 +1,29 @@
+<launch>
+    <!--<env name="GAZEBO_MODEL_PATH" value="$(find octomap_scout)/models/Amy_terrain"/>-->
+    <arg name="robot_namespace" default="/"/>
+    <arg name="world_name" default="$(find mavlink_sitl_gazebo)/worlds/moon.world"/>
+    <arg name="x" default="18.0"/>
+    <arg name="y" default="-0.3"/>
+    <arg name="z" default="1.56"/>
+    <arg name="yaw" default="3.14"/>
+
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(arg world_name)"/>
+        <arg name="paused" value="false"/>
+        <arg name="use_sim_time" value="true"/>
+        <arg name="gui" value="true"/>
+        <arg name="headless" value="false"/>
+        <arg name="debug" value="false"/>
+    </include>
+
+    <include file="$(find gridmap_scout)/launch/spawn_scout_v2.launch">
+        <arg name="x" value="$(arg x)"/>
+        <arg name="y" value="$(arg y)"/>
+        <arg name="z" value="$(arg z)"/>
+        <arg name="yaw" value="$(arg yaw)"/>
+    </include>
+
+    <!-- <include file="$(find scout_base)/launch/scout_base_sim.launch" /> -->
+        
+    <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find scout_description)/rviz/navigation.rviz" /> -->
+</launch>

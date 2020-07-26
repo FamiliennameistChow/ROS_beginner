@@ -284,9 +284,9 @@ Visualization Manager:
       Channel Name: intensity
       Class: rviz/PointCloud2
       Color: 255; 255; 255
-      Color Transformer: Intensity
+      Color Transformer: RGB8
       Decay Time: 0
-      Enabled: false
+      Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 4096
@@ -297,13 +297,13 @@ Visualization Manager:
       Queue Size: 10
       Selectable: true
       Size (Pixels): 3
-      Size (m): 0.00999999978
+      Size (m): 0.100000001
       Style: Flat Squares
       Topic: /robot_base/points
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: false
+      Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -389,25 +389,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 35.1615906
+      Distance: 10.7222157
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 8.74907112
-        Y: -8.89868164
-        Z: 5.55298567
+        X: 0.205598176
+        Y: -0.899052262
+        Z: -0.736419976
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 1.0047965
+      Pitch: 0.539797187
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.47861362
+      Yaw: 1.36360633
     Saved: ~
 Window Geometry:
   Displays:
@@ -425,5 +425,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1440
-  X: 205
-  Y: 196
+  X: 731
+  Y: 258

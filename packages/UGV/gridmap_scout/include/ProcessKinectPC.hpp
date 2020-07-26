@@ -9,11 +9,13 @@
 # include <pcl_conversions/pcl_conversions.h>
 
 # include <pcl/point_types.h>
+#include <pcl/filters/statistical_outlier_removal.h>
+#include <pcl/keypoints/uniform_sampling.h>
 # include <pcl/filters/passthrough.h>
 
 using namespace std;
 
-typedef pcl::PointXYZ PCLPoint;
+typedef pcl::PointXYZRGB PCLPoint;
 
 namespace gridmap_scout {
 
@@ -39,9 +41,10 @@ private:
 
     pcl::PassThrough<PCLPoint> pass_z_;
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr pointcloud_data_sub_;
-
-    pcl::PointCloud<pcl::PointXYZ>::Ptr pointcloud_data_sub_filtered_;
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointcloud_data_sub_;
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_uniformsampled_;
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered_;
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_passthroughed_;
 
     sensor_msgs::PointCloud2 pointcloud_, pointcloud_data_pub_;
 
@@ -51,7 +54,11 @@ private:
 
 ProcessKinectPC::ProcessKinectPC(ros::NodeHandle &nodeHandle, double m_pointcloudMinZ, double m_pointcloudMaxZ)
     : nodeHandle_(nodeHandle), m_pointcloudMinZ_(m_pointcloudMinZ), m_pointcloudMaxZ_(m_pointcloudMaxZ),
-    pointcloud_data_sub_(new pcl::PointCloud<pcl::PointXYZ>), pointcloud_data_sub_filtered_(new pcl::PointCloud<pcl::PointXYZ>) {
+        pointcloud_data_sub_(new pcl::PointCloud<pcl::PointXYZRGB>),
+        cloud_uniformsampled_(new pcl::PointCloud<pcl::PointXYZRGB>),
+        cloud_filtered_(new pcl::PointCloud<pcl::PointXYZRGB>),
+        cloud_passthroughed_(new pcl::PointCloud<pcl::PointXYZRGB>){
+
         pointcloud_sub_ = nodeHandle_.subscribe<sensor_msgs::PointCloud2>("/camera/depth/points", 10, &ProcessKinectPC::pointcloud_cb, this);
         pointcloud_pub_ = nodeHandle_.advertise<sensor_msgs::PointCloud2>("/robot_base/points", 10, true);
 
@@ -80,11 +87,34 @@ void ProcessKinectPC::pointcloud_cb(const sensor_msgs::PointCloud2ConstPtr &msg)
     pcl_ros::transformPointCloud("base_link", *msg, pointcloud_, listener_);
 
     pcl::fromROSMsg(pointcloud_, *pointcloud_data_sub_);
+    std::cout << "Original cloud: " << std::endl;
+    std::cout << *pointcloud_data_sub_ << std::endl;
 
-    pass_z_.setInputCloud(pointcloud_data_sub_);
-    pass_z_.filter(*pointcloud_data_sub_filtered_);
+    // 均匀采样，取一定半径 r 的球体内的点保留质心。
+    pcl::UniformSampling<pcl::PointXYZRGB> filter;
+    filter.setInputCloud(pointcloud_data_sub_);
+    filter.setRadiusSearch(0.03);
+    // We need an additional object to store the indices of surviving points.
+    pcl::PointCloud<int> keypointIndices;
+    filter.compute(keypointIndices);
+    pcl::copyPointCloud(*pointcloud_data_sub_, keypointIndices.points, *cloud_uniformsampled_);
+    std::cerr << "Cloud after uniformSampling: " << std::endl;
+    std::cerr << *cloud_uniformsampled_ << std::endl;
 
-    pcl::toROSMsg(*pointcloud_data_sub_filtered_, pointcloud_data_pub_);
+
+    // 滤波移除离群点
+    pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> sor;
+    sor.setInputCloud (cloud_uniformsampled_);
+    sor.setMeanK (50);
+    sor.setStddevMulThresh (1.0);
+    sor.filter (*cloud_filtered_);
+    std::cerr << "Cloud after filtering: " << std::endl;
+    std::cerr << *cloud_filtered_ << std::endl;
+
+    pass_z_.setInputCloud(cloud_filtered_);
+    pass_z_.filter(*cloud_passthroughed_);
+
+    pcl::toROSMsg(*cloud_passthroughed_, pointcloud_data_pub_);
     pointcloud_data_pub_.header.stamp = msg -> header.stamp;
     pointcloud_data_pub_.header.frame_id = "base_link";
     pointcloud_pub_.publish(pointcloud_data_pub_);
