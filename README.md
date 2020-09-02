@@ -176,3 +176,6 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 
 20200726 zwl
 * 新增moon_landing包，内容为月面着陆仿真代码．
+
+20200901 zb
+* 新增`octomap_navi`包，内容为小车基于八叉树的三维导航

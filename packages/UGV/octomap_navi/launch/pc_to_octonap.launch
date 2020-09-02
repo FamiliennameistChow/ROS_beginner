@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <!--/laser_cloud_surround for lego ** /laser_cloud_map for aloam ** /velodyne_cloud_registered  for loam -->
+  <arg name="pointcloudTopic" default="/cloud_pcd"/>  
+  <arg name="mapFrame" default="map"/> 
+  <arg name="baseFrame" default="base_link"/> 
+
+  <node pkg="pcl_ros" type="pcd_to_pointcloud" name="pcd_to_pointcloud" args="$(find octomap_navi)/maps/map_cloud.pcd 0.1 _frame_id:=$(arg mapFrame)" />
+
+  <!-- <node pkg="octomap_scout" type="octomap_server_multilayer" name="octomap_server" output="screen"> -->
+  <node pkg="octomap_server" type="octomap_server_node" name="octomap_server" output="screen">
+    <!-- resolution in meters per pixel -->
+    <param name="resolution" value="0.15" />
+
+    <!-- name of the fixed frame, needs to be "/map" for SLAM -->
+    <param name="frame_id" type="string" value="$(arg mapFrame)" />
+    <param name="base_frame_id" type="string" value="$(arg baseFrame)" />
+
+    <!-- max range / depth resolution of the kinect in meter -->
+    <!-- <param name="sensor_model/max_range" value="10.0" /> -->
+    
+    <param name="latch" value="false" />
+
+    <!-- max/min height for occupancy map, should be in meters -->
+    <param name="pointcloud_max_z" value="1000" />
+    <param name="pointcloud_min_z" value="-1000" />
+
+    <!-- max/min height for occupancy map, should be in meters -->
+    <param name="occupancy_min_z" value="-1000"/>
+    <param name="occupancy_max_z" value="1000"/>
+
+     <!-- Ignore speckles in the map -->
+    <param name="filter_speckles" value="true" />
+
+    <!-- filter_ground -->
+    <!-- <param name="filter_ground" value="true"/>
+    <param name="ground_filter/distance" value="-0.7"/>
+    <param name="ground_filter/angle" value="0.0"/>
+    <param name="ground_filter/plane_distance" value="0.1" /> -->
+
+    <!-- topic from where pointcloud2 messages are subscribed -->
+    <remap from="/cloud_in" to="$(arg pointcloudTopic)" />
+  </node>
+
+
+  <!-- RViz -->
+  <node pkg="rviz" type="rviz" name="$(anon rviz)" respawn="false" output="screen" args="-d $(find octomap_navi)/rviz/octomap_navi.rviz"/>
+
+</launch>
+
