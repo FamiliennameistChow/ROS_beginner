@@ -33,12 +33,17 @@ typedef std::unordered_map<octomap::point3d, rrtNode>::iterator TreeIterator;
 class RRTPathFinder
 {
 private:
-    vector<octomap::point3d> rrt_path_;
+
     octomap::point3d start_pt_;
     octomap::point3d end_pt_;
     octomap::point3d new_pt_, rand_pt_, nearest_pt_;
     Point_Pair_Set rrt_tree_set_;  // 八叉树无序容器， 保存【当前节，(父节点, 当前节点代价)】对
     rrtNode this_node_;
+
+	vector<octomap::point3d> rrt_path_; //rrt最终路径节点集合
+	vector<octomap::point3d> vis_new_pt_set_; //rrt采样点集合
+	vector<octomap::point3d> vis_block_pt_set_; //rrt阻断的节点集合
+	vector<pair<octomap::point3d, octomap::point3d> > vis_rrt_tree_set_; // rrt树
 
     // rrt 相关参数
     int rrt_count_; // 迭代次数 
@@ -46,7 +51,7 @@ private:
     float eta_; // 步进长度
     float search_r_; // rewire阶段搜索半径
 	bool search_Finished_; // 是否完成搜索
-
+	
 	// 地形分析相关
 	float th_stdev_; // 地形平整度阈值
 
@@ -55,6 +60,12 @@ private:
     float map_resolution_;
     // 模型尺寸，用于膨胀地图;
     octomap::point3d carBodySize;
+
+	// ros::NodeHandle n_;
+	// ros::Publisher rrt_tree_pub_;
+	// ros::Publisher rrt_path_pub_;
+	// ros::Publisher vis_pub_;
+	// bool is_vis_;
 
 private:
     // rrt 流程
@@ -81,16 +92,35 @@ private:
 	    return pow( pow(p1(0)-p2(0), 2) + pow(p1(1)-p2(1),2), 0.5);
     }
 
+	bool point_equal(octomap::point3d p, octomap::point3d p1){
+		float half_szie = map_resolution_ / 2; 
+		if(abs(p(0) - p1(0)) <= half_szie && abs(p(1) - p1(1)) <= half_szie && abs(p(2) - p1(2)) <= half_szie){
+			return true;
+		}else
+		{
+			return false;
+		}
+	}
+
 
 public:
-    RRTPathFinder(/* args */);
+    RRTPathFinder();
     ~RRTPathFinder();
-	void initParam(float search_radius, float th_stdev, float eta, int rrt_iter_count, Eigen::Vector3d car_size);
-    void getPath(vector<octomap::point3d> &path);
-    void updateMap(shared_ptr<octomap::OcTree> map);
-    void pathSearch(octomap::point3d start_pt, octomap::point3d end_pt);
+	void initParam(float search_radius, float th_stdev, float eta, int rrt_iter_count, Eigen::Vector3d car_size, ros::NodeHandle &nh, bool is_vis);
+	void pathSearch(octomap::point3d start_pt, octomap::point3d end_pt);
+
+	void updateMap(shared_ptr<octomap::OcTree> map);
     bool validGround(octomap::point3d query_point);
 	bool validGround(octomap::point3d query_point, float& mean_);
+
+    bool getPath(vector<octomap::point3d> &path);
+	void getVisNode(vector<octomap::point3d> &vis_new_pt_set, 
+					vector<octomap::point3d> &vis_block_pt_set, 
+					vector<pair<octomap::point3d, octomap::point3d> > &vis_rrt_tree_set);
+	bool getSearchState();
+
+
+	
 
 };
 
@@ -109,7 +139,7 @@ RRTPathFinder::RRTPathFinder()
 	search_Finished_ = false;
 }
 
-void RRTPathFinder::initParam(float search_radius, float th_stdev, float eta, int rrt_iter_count, Eigen::Vector3d car_size){
+void RRTPathFinder::initParam(float search_radius, float th_stdev, float eta, int rrt_iter_count, Eigen::Vector3d car_size, ros::NodeHandle &nh, bool is_vis){
 	search_r_ = search_radius;
 	th_stdev_ = th_stdev;
 	eta_ = eta;
@@ -118,6 +148,13 @@ void RRTPathFinder::initParam(float search_radius, float th_stdev, float eta, in
 	carBodySize(0) = car_size(0);
 	carBodySize(1) = car_size(1);
 	carBodySize(2) = car_size(2);
+
+	// n_ = nh;
+	// is_vis_ = is_vis;
+
+	// vis_pub_ = n_.advertise<visualization_msgs::Marker>( "rrt_sample_node", 10 ); // 发布采样点
+	// rrt_tree_pub_ = n_.advertise<visualization_msgs::Marker>("rrt_tree", 10); //发布rrt 树
+    // rrt_path_pub_ = n_.advertise<visualization_msgs::Marker>("rrt_path", 10);	//发布回溯rrt节点
 
 }
 
@@ -132,6 +169,10 @@ void RRTPathFinder::pathSearch(octomap::point3d start_pt, octomap::point3d end_p
     end_pt_ = end_pt;
 
     rrt_count_ = -1;
+
+	vis_rrt_tree_set_.clear();
+	vis_new_pt_set_.clear();
+	vis_block_pt_set_.clear();
 
     rrt_path_.clear();
     rrt_tree_set_.clear();
@@ -148,15 +189,15 @@ void RRTPathFinder::pathSearch(octomap::point3d start_pt, octomap::point3d end_p
 
 
     // rrt查找过程
-    while (1)
+    while (rrt_count_ <= rrt_count_th_)
     {
 		rrt_count_++;
 
-        if(rrt_count_ % 30000 == 0)
-        {
-			cout <<"[rrt path finder]: input any to continue: " << endl;
-            int a = cin.get();  
-        }
+        // if(rrt_count_ % 30000 == 0)
+        // {
+		// 	cout <<"[rrt path finder]: input any to continue: " << endl;
+        //     int a = cin.get();  
+        // }
 	
         cout << "[rrt path finder]-----------------------"<< endl;
 		cout << "[rrt path finder]: rand smaple a point " << endl;
@@ -187,17 +228,24 @@ void RRTPathFinder::pathSearch(octomap::point3d start_pt, octomap::point3d end_p
 		}
 		cout << "[rrt path finder]: new_pt_ after " << new_pt_(0) <<" " << new_pt_(1) << " " << new_pt_(2) << endl;
 
+		
+
         checking = collisionFree(nearest_pt_, new_pt_);
 		cout << "checking..." << checking << endl;
 
         if (checking == 0)
         {
             cout<<"[rrt path finder]: collosion" << endl;
+
+			vis_block_pt_set_.push_back(new_pt_); // 阻断的节点, 用于显示
         }
 
         if (checking == 1)
         {
             cout <<"[rrt path finder]: rrt tree add new point " <<endl;
+
+			vis_new_pt_set_.push_back(new_pt_); // 加入八叉树的节点, 用于显示
+			vis_rrt_tree_set_.push_back(make_pair(new_pt_, nearest_pt_)); //八叉树，用于显示
 
             // rrt-star
             rewirteTree(rrt_tree_set_, new_pt_, nearest_pt_, search_r_);
@@ -216,12 +264,16 @@ void RRTPathFinder::pathSearch(octomap::point3d start_pt, octomap::point3d end_p
 				backTree(end_pt_, start_pt_, rrt_path_);
 				reverse(rrt_path_.begin(), rrt_path_.end()); //反转vector
 				search_Finished_ = true;
+				cout <<"[rrt path finder]: rrt have got goal" << endl;
+				break;
 
 			}
 			
         }
     
     }
+
+	cout <<"[rrt path finder]: NO path finded" << endl;
     
 }
 
@@ -237,6 +289,13 @@ void RRTPathFinder::backTree(octomap::point3d p, octomap::point3d p_init, vector
 		{
 			rrt_tree.push_back(point_back);
 			point_back = it->second.father_node;
+
+			if (point_equal(point_back, p_init))
+			{
+				rrt_tree.push_back(point_back);
+				return;
+			}
+			
 		}else
 		{
 			cout << "[ERROR]: back point not in rrt tree!!!!" << endl;
@@ -433,8 +492,8 @@ void RRTPathFinder::rewirteTree(Point_Pair_Set &V, octomap::point3d new_point, o
         return;
     }
 
-    TreeIterator iter = V.begin();
-    while (iter != V.end())
+	// 遍历
+    for (TreeIterator iter = V.begin(); iter != V.end(); iter++)
     {
         dis = Norm(iter->first, new_point);
         if(dis <=search_r )
@@ -515,17 +574,17 @@ octomap::point3d RRTPathFinder::Near(Point_Pair_Set &V , octomap::point3d p){
     float temp;
     octomap::point3d nearest_point;
 
-	// 遍历
-    TreeIterator it = V.begin();
-    while (it != V.end())
-    {
-        temp = Norm(it->first, p);
-        if(temp <=min )
-        {
-            min = temp;
-            nearest_point = it->first;
-        }
-    }
+	for (auto &it : V)
+	{
+		temp = Norm(it.first, p);
+		if (temp <= min)
+		{
+			min = temp;
+			nearest_point = it.first;
+		}	
+	}
+	
+
     return nearest_point;
 }
 
@@ -537,12 +596,33 @@ void RRTPathFinder::updateMap(shared_ptr<octomap::OcTree> map){
 }
 
 
-void RRTPathFinder::getPath(vector<octomap::point3d> &path){
+bool RRTPathFinder::getPath(vector<octomap::point3d> &path){
 	if (search_Finished_)
 	{
 		path = rrt_path_;
+		return true;
 	}else
 	{
 		cout << "[rrt path finder] finding......... Pealse wait" <<endl;
+		return false;
 	}
+}
+
+void RRTPathFinder::getVisNode(vector<octomap::point3d> &vis_new_pt_set, 
+					vector<octomap::point3d> &vis_block_pt_set, 
+					vector<pair<octomap::point3d, octomap::point3d> > &vis_rrt_tree_set){
+
+						vis_new_pt_set = vis_new_pt_set_;
+						vis_new_pt_set_.clear();
+
+						vis_block_pt_set = vis_block_pt_set_;
+						vis_block_pt_set_.clear();
+
+						vis_rrt_tree_set = vis_rrt_tree_set_;
+						vis_rrt_tree_set_.clear();
+							
+					}
+
+bool RRTPathFinder::getSearchState(){
+	return search_Finished_;
 }

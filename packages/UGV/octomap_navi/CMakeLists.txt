@@ -161,6 +161,9 @@ include_directories(
 add_executable(path_planning src/path_planning.cpp)
 target_link_libraries(path_planning  ${catkin_LIBRARIES} )
 
+add_executable(path_planning_rrt src/path_planning_rrt.cpp)
+target_link_libraries(path_planning_rrt  ${catkin_LIBRARIES} )
+
 add_executable(trajectory_generator src/trajectory_generator.cpp)
 target_link_libraries(trajectory_generator  ${catkin_LIBRARIES} )
 

@@ -7,6 +7,7 @@ Panels:
         - /Global Options1
         - /Polygon1
         - /rrt_tree1/Namespaces1
+        - /rrt_node1/Namespaces1
       Splitter Ratio: 0.424408019
     Tree Height: 747
   - Class: rviz/Selection
@@ -139,29 +140,45 @@ Visualization Manager:
       Unreliable: false
       Value: true
     - Class: rviz/Marker
-      Enabled: false
-      Marker Topic: /visualization_marker
+      Enabled: true
+      Marker Topic: /rrt_tree
       Name: rrt_tree
       Namespaces:
-        {}
+        rrt_tree: true
       Queue Size: 50000
-      Value: false
+      Value: true
     - Class: rviz/Marker
       Enabled: false
-      Marker Topic: /lines
+      Marker Topic: /rrt_sample_node
       Name: rrt_node
       Namespaces:
         {}
       Queue Size: 10000
       Value: false
     - Class: rviz/Marker
-      Enabled: false
-      Marker Topic: /lines_back
+      Enabled: true
+      Marker Topic: /rrt_path
       Name: path
+      Namespaces:
+        rrt_path: true
+      Queue Size: 100
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /rrt_sample_node
+      Name: rrt_node_
       Namespaces:
         {}
       Queue Size: 100
-      Value: false
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /goal_node
+      Name: goal_node
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -187,25 +204,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 12.1674824
+      Distance: 66.4423447
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.457242489
-        Y: 0.285760134
-        Z: 3.16890407
+        X: 13.2361784
+        Y: -14.383688
+        Z: -8.66764355
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.589797258
+      Pitch: 0.97479713
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.2286489
+      Yaw: 3.04861259
     Saved: ~
 Window Geometry:
   Displays:

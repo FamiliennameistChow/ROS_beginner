@@ -25,7 +25,7 @@
 #include <vector> 
 #include <map>
 #include <ctime>
-#include "PathFinder.hpp"
+
 
 using namespace std;
 typedef vector<pair<octomap::point3d, octomap::point3d> > Point_pair_set; //储存(当前节，父节点)对
@@ -598,6 +598,7 @@ void planner::plan(void){
 	line_back.points.clear();
 	line.points.clear();
 	rrt_path.clear();
+
 	rrt_tree_set.push_back(make_pair(base_start, base_start));
 
 	int a;
@@ -837,10 +838,10 @@ int main(int argc, char **argv)
 	ros::Subscriber goal_sub = n.subscribe<geometry_msgs::PointStamped>("/clicked_point", 1, boost::bind(&goalCb, _1, &planner_object));
 	// ros::Subscriber start_sub = n.subscribe<geometry_msgs::PointStamped>("/start/clicked_point", 1, boost::bind(&goalCb, _1, &planner_object));
 
-	vis_pub = n.advertise<visualization_msgs::Marker>( "visualization_marker", 0 ); // 发布采样点
+	vis_pub = n.advertise<visualization_msgs::Marker>( "rrt_sample_node", 10 ); // 发布采样点
 	traj_pub = n.advertise<trajectory_msgs::MultiDOFJointTrajectory>("waypoints",1);  // 发布最终轨迹
-	line_pub = n.advertise<visualization_msgs::Marker>("lines", 10); //发布rrt 树
-    line_back_pub = n.advertise<visualization_msgs::Marker>("lines_back", 10);	//发布回溯rrt节点
+	line_pub = n.advertise<visualization_msgs::Marker>("rrt_tree", 10); //发布rrt 树
+    line_back_pub = n.advertise<visualization_msgs::Marker>("rrt_path", 10);	//发布回溯rrt节点
 	
 
 	ros::spin();

@@ -36,8 +36,8 @@ public:
 
         if( disp_ )
         {
-          std::cout.precision(3); // 10 for sec, 3 for ms 
-          std::cout << _about_task << ": " << elapsed_ms << " msec." << std::endl;
+          //std::cout.precision(10); // 10 for sec, 3 for ms 
+          std::cout << _about_task << ": " << elapsed_ms << " ms." << std::endl;
         }
     }
 
