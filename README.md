@@ -192,3 +192,6 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
     4. 使用双目数据进行局部避障
 
 * 注意本次更新*重构了文件目录*
+
+20200903 zb  
+* 更新了`octomap_navi`包，实现八叉树上的通行走廊生成

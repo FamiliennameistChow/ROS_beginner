@@ -22,7 +22,7 @@ struct Cube;
 
 struct Cube
 {     
-      //Eigen::Vector3d p1, p2, p3, p4, p5, p6, p7, p8;   // the 8 vertex of a cube 
+      //Eigen::Vector3d p0, p1, p2, p3, p4, p5, p6, p7;   // the 8 vertex of a cube 
       Eigen::MatrixXd vertex;
       Eigen::Vector3d center; // the center of the cube
       bool valid;    // indicates whether this cube should be deleted
@@ -30,14 +30,14 @@ struct Cube
       double t; // time allocated to this cube
       std::vector< std::pair<double, double> > box;
 /*
-           P4------------P3 
+           P3------------P2 
            /|           /|              ^
           / |          / |              | z
-        P1--|---------P2 |              |
-         |  P8--------|--p7             |
+        P0--|---------P1 |              |
+         |  P7--------|--p6             |
          | /          | /               /--------> y
          |/           |/               /  
-        P5------------P6              / x
+        P4------------P5              / x
 */                                                                                 
 
       // create a cube using 8 vertex and the center point
@@ -91,9 +91,9 @@ struct Cube
       {
             box.clear();
             box.resize(3);
-            box[0] = std::make_pair( vertex(3, 0), vertex(0, 0) );
-            box[1] = std::make_pair( vertex(0, 1), vertex(1, 1) );
-            box[2] = std::make_pair( vertex(4, 2), vertex(1, 2) );
+            box[0] = std::make_pair( vertex(3, 0), vertex(0, 0) ); // x 方向长度
+            box[1] = std::make_pair( vertex(0, 1), vertex(1, 1) ); // y 方向长度
+            box[2] = std::make_pair( vertex(4, 2), vertex(1, 2) ); // z 方向长度
       }
 
       void printBox()

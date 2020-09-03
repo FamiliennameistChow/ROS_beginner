@@ -6,7 +6,7 @@
  * Date: 2020.09.01
  * 
  * 说明:在octomap上实现rrt导航,用于小车的起伏地形导航
- * 这里实现的是流程控制类 planner类 与流程控制ros节点
+ * 这里实现的是流程控制类 planner类 流程控制ros节点
  * 
  ******************************************************/
 
@@ -29,10 +29,12 @@
 #include <ctime>
 #include <thread>
 #include <mutex>
+#include <math.h>
 
-#include "PathFinder.hpp"
+
 #include "data_type.h"
 #include "tictoc.h"
+#include "PathFinder.hpp"
 
 // Declear some global variables
 
@@ -49,28 +51,35 @@ private:
 	ros::Publisher traj_pub_;
 	ros::Publisher rrt_tree_pub_;
 	ros::Publisher rrt_path_pub_;
-	ros::Publisher vis_pub_, vis_goal_pub_;
+	ros::Publisher vis_pub_, vis_goal_pub_, vis_corridor_pub_;
 
 
-	// ros参数
+	// >>>>>>>>>>ros参数
 	string odom_topic_;
 	//与前端rrt相关ros参数
 	float search_radius_, th_stdev_, setp_eta_;
 	int max_iter_;
+
+	//车体参数
+	Eigen::Vector3d car_body_size_;
+	
+	// corridor相关
+	int max_inflate_iter_; // 最大膨胀次数
+	bool is_proj_cube_; // 是否扁平显示
+	float inflate_step_length_; //每次膨胀步长
+	// <<<<<<<<<<ros参数
 	
 	std::mutex mtx;
 
-	vector<octomap::point3d> path_;  
+	vector<octomap::point3d> path_;  //前端rrt路径点
 
-	// Flag for initialization
+	// 流程相关
 	bool set_start_ = false;
-
 	shared_ptr<octomap::OcTree> map_tree_;
-	float map_resolution_;
+	double map_resolution_;
 	geometry_msgs::Point start_point_, goal_point_, pre_goal_point_;
-	Eigen::Vector3d car_body_size_;
 	
-	// for vis
+	// >>>>>>>>>>>>>>>vis for rrt
 	visualization_msgs::MarkerArray node_vis_;
 	visualization_msgs::Marker marker, line, line_path; // 显示采样点, 显示rrt树, 与最终路径
 	vector<octomap::point3d> rrt_path_; //rrt最终路径节点集合
@@ -79,6 +88,11 @@ private:
 	vector<pair<octomap::point3d, octomap::point3d> > pub_rrt_tree_set_; // rrt树
 	int nu;
 	geometry_msgs::Point point_pub_;
+	// <<<<<<<<<<<<<<<<vis for rrt
+
+	// >>>>>>>>>>>>>>>>>>>vis for corridor
+	visualization_msgs::MarkerArray cube_vis_;
+	// <<<<<<<<<<<<<<<<<<<vis for corridor
 
 	// UGV trajectory
 	trajectory_msgs::MultiDOFJointTrajectory msg;
@@ -95,8 +109,24 @@ private:
 	void odomCb(const nav_msgs::Odometry::ConstPtr &msg);
 	void startCb(const geometry_msgs::PointStamped::ConstPtr &msg);
 	void goalCb(const geometry_msgs::PointStamped::ConstPtr &msg);
+	// rrt 相关显示
 	void visRRTFlow();
-	void visRRTPath(vector<octomap::point3d> &path);
+	void visRRTPath(vector<octomap::point3d> path);
+	// corridor相关
+	std::vector<Cube> corridorGeneration(vector<octomap::point3d> path);
+	Cube generateCube(octomap::point3d pt);
+	pair<Cube, bool> inflateCube(Cube cube, Cube lstcube);
+	bool isContains(Cube cube1, Cube cube2)
+	{   
+		// if( cube1.vertex(0, 0) >= cube2.vertex(0, 0) && cube1.vertex(0, 1) <= cube2.vertex(0, 1) && cube1.vertex(0, 2) >= cube2.vertex(0, 2) &&
+		// 	cube1.vertex(6, 0) <= cube2.vertex(6, 0) && cube1.vertex(6, 1) >= cube2.vertex(6, 1) && cube1.vertex(6, 2) <= cube2.vertex(6, 2)  )
+		if( cube1.vertex(0, 0) >= cube2.vertex(0, 0) && cube1.vertex(0, 1) <= cube2.vertex(0, 1) &&
+			cube1.vertex(6, 0) <= cube2.vertex(6, 0) && cube1.vertex(6, 1) >= cube2.vertex(6, 1)  )
+			return true;
+		else
+			return false; 
+	}
+
 	
 	bool point_equal(double x, double y, double z, geometry_msgs::Point point){
 		if(abs(point.x - x)< 0.00001 && abs(point.y - y)< 0.00001 && abs(point.z - z)< 0.00001){
@@ -118,6 +148,7 @@ public:
 	void replan(void);
 
 	void visualizeRRTThread();
+	void visCorridor(vector<Cube> corridor);
 	
 };
 
@@ -142,7 +173,10 @@ planner::planner(ros::NodeHandle &nh, ros::NodeHandle &private_nh) : n_(nh)
 	private_nh.param<float>("path_finder/search_radius", search_radius_, 4.0);
 	private_nh.param<float>("path_finder/th_stdev", th_stdev_, 0.1);
 	private_nh.param<float>("path_finder/setp_eta", setp_eta_, 2.0);
-	private_nh.param<int>("path_finder/max_iter", max_iter_, 10000);
+	private_nh.param<int>  ("path_finder/max_iter", max_iter_, 10000);
+	private_nh.param<bool> ("vis/is_proj_cube", is_proj_cube_, false);
+	private_nh.param<int>  ("planner/max_inflate", max_inflate_iter_, 20);
+	private_nh.param<float>("planner/inflate_step_length", inflate_step_length_, 1.0);
 
 
 	octree_sub_ = n_.subscribe<octomap_msgs::Octomap>("/octomap_binary", 1, &planner::octomapCallback, this);
@@ -155,6 +189,7 @@ planner::planner(ros::NodeHandle &nh, ros::NodeHandle &private_nh) : n_(nh)
 	vis_goal_pub_ = n_.advertise<visualization_msgs::Marker>( "goal_node", 10 ); // 发布采样点
 	rrt_tree_pub_ = n_.advertise<visualization_msgs::Marker>("rrt_tree", 10); //发布rrt 树
     rrt_path_pub_ = n_.advertise<visualization_msgs::Marker>("rrt_path", 10);	//发布回溯rrt节点
+	vis_corridor_pub_  = nh.advertise<visualization_msgs::MarkerArray>("corridor_vis", 1);
 
 
 	path_finder->initParam(search_radius_, th_stdev_, setp_eta_, max_iter_, car_body_size_, n_, true);
@@ -261,7 +296,7 @@ void planner::setGoal(double x, double y, double z){
 void planner::plan(void){
 	cout<<"start plan"<<endl;
 
-	// rrt 前端　路径搜索
+	// 步骤一: rrt 前端　路径搜索
 	octomap::point3d base_start(start_point_.x, start_point_.y, start_point_.z);
 	octomap::point3d base_goal(goal_point_.x, goal_point_.y, goal_point_.z);
 
@@ -285,7 +320,6 @@ void planner::plan(void){
 
 	rrt_path_.clear();
 
-
 	TicToc time_rrt;
 	path_finder->updateMap(map_tree_);
 	path_finder->pathSearch(base_start, base_goal);
@@ -295,13 +329,283 @@ void planner::plan(void){
 	time_rrt.toc("time rrt finder: ");
 	cout << "[rrt state] : " << path_finder->getSearchState() << endl;
 
+	// 步骤二: corridor生成　需要 rrt_path_ , map_tree_
+	vector<Cube> corridor;
 
-	// corridor生成
+	TicToc time_corridor_gen;
+	corridor = corridorGeneration(rrt_path_);
+	time_corridor_gen.toc("time time corridor gen: ");
+	cout << "corridor size: " << corridor.size()<< endl;
+
+	visCorridor(corridor);
 	
 }
 
 void planner::replan(void){
 	// plan();
+}
+
+std::vector<Cube> planner::corridorGeneration(vector<octomap::point3d> path){
+	vector<Cube> cubeList;
+	octomap::point3d pt;
+	Cube lastCube;
+
+	for (size_t i = 0; i < (int)path.size(); i++)
+	{
+		
+		pt = path[i];
+		// cout << "path pt: " << pt(0) << " " << pt(1) << " " << pt(2) << endl;
+		Cube cube = generateCube(pt);
+		auto result = inflateCube(cube, lastCube);
+
+		if(result.second == false)
+            continue;
+
+        cube = result.first;
+
+		lastCube = cube;
+		cubeList.push_back(cube);
+	}
+	return cubeList;
+	
+}
+
+
+Cube planner::generateCube(octomap::point3d pt){
+/**********************************************************
+           P3------------P2 
+           /|           /|              ^
+          / |          / |              | z
+        P0--|---------P1 |              |
+         |  P7--------|--p6             |
+         | /          | /               /--------> y
+         |/           |/               /  
+        P4------------P5              / x
+
+	以路径点为中心生成初始立方体, 点的膨胀尺度为一个地图分辨率
+	实现参考：https://github.com/HKUST-Aerial-Robotics/Btraj
+***********************************************************/ 
+	Cube cube;
+	
+	cube.center(0) = pt(0);
+	cube.center(1) = pt(1);
+	cube.center(2) = pt(2);
+
+	double x_u = pt(0) + map_resolution_;
+    double x_l = pt(0) - map_resolution_;
+    
+    double y_u = pt(1) + map_resolution_;
+    double y_l = pt(1) - map_resolution_;
+    
+    double z_u = pt(2) + map_resolution_;
+    double z_l = pt(2) - map_resolution_;
+
+	cube.vertex.row(0) = Eigen::Vector3d(x_u, y_l, z_u);  
+    cube.vertex.row(1) = Eigen::Vector3d(x_u, y_u, z_u);  
+    cube.vertex.row(2) = Eigen::Vector3d(x_l, y_u, z_u);  
+    cube.vertex.row(3) = Eigen::Vector3d(x_l, y_l, z_u);  
+
+    cube.vertex.row(4) = Eigen::Vector3d(x_u, y_l, z_l);  
+    cube.vertex.row(5) = Eigen::Vector3d(x_u, y_u, z_l);  
+    cube.vertex.row(6) = Eigen::Vector3d(x_l, y_u, z_l);  
+    cube.vertex.row(7) = Eigen::Vector3d(x_l, y_l, z_l);  
+
+    return cube;
+
+}
+
+
+pair<Cube, bool> planner::inflateCube(Cube cube, Cube lstcube){
+/******************************************
+ * 基于初始立方体的通行走廊生成
+ * 具体方法为向八个方向膨胀
+ * 
+ * 
+******************************************/
+	Cube cubeMax = cube;
+	Eigen::MatrixXd vertex_idx(8, 3);
+
+	vertex_idx = cube.vertex;
+
+	double id_x, id_y, id_z;
+
+	/*
+	       P3------------P2 
+           /|           /|              ^
+          / |          / |              | z
+        P0--|---------P1 |              |
+         |  P7--------|--p6             |
+         | /          | /               /--------> y
+         |/           |/               /  
+        P4------------P5              / x
+
+	*/
+
+	int iter = 0;
+	bool collide;
+
+	while (iter < max_inflate_iter_)
+	{
+		// 向八个方向膨胀
+		// Y- 将初始立方体向Y-方向膨胀　(膨胀面: p0 -- p3 -- p7 -- p4 )
+		//***********************************************************************************
+		collide = false;
+		int y_lo = vertex_idx(0, 1) - inflate_step_length_;
+
+		for (id_y = vertex_idx(0, 1); id_y >= y_lo; id_y = id_y - 3*map_resolution_)
+		{
+			//cout << "id_y: " << id_y << endl;
+			if (collide) break;
+
+			for (id_x = vertex_idx(0, 0); id_x >= vertex_idx(3, 0); id_x = id_x - 3*map_resolution_)
+			{
+				//cout << "vertex_idx(0, 0): " << vertex_idx(0, 0) << " vertex_idx(3, 0)" << vertex_idx(3, 0) << " id_x " << id_x <<endl;
+				if (collide) break;
+
+				id_z = vertex_idx(0, 2); 
+
+				octomap::point3d p(id_x, id_y, id_z);
+				if (!path_finder->validGround(p))
+				{
+					collide = true;
+					break;
+				}
+			}	
+		}
+
+		if (collide)
+		{
+			//与边界保持3个分辨率的距离
+			vertex_idx(0, 1) = min(id_y+6*map_resolution_, vertex_idx(0, 1));
+            vertex_idx(3, 1) = min(id_y+6*map_resolution_, vertex_idx(3, 1));
+            vertex_idx(7, 1) = min(id_y+6*map_resolution_, vertex_idx(7, 1));
+            vertex_idx(4, 1) = min(id_y+6*map_resolution_, vertex_idx(4, 1));
+		}else
+		{
+			vertex_idx(0, 1) = vertex_idx(3, 1) = vertex_idx(7, 1) = vertex_idx(4, 1) = id_y + map_resolution_;
+		}
+
+		// Y+ 将初始立方体向Y+方向膨胀　(膨胀面: p1 -- p2 -- p6 -- p5 )
+		//***********************************************************************************
+		collide = false;
+		int y_up = vertex_idx(1, 1) + inflate_step_length_;
+
+		for (id_y = vertex_idx(1, 1); id_y <= y_up; id_y = id_y + 3*map_resolution_)
+		{
+			if (collide) break;
+
+			for (id_x = vertex_idx(1, 0); id_x >= vertex_idx(2, 0); id_x = id_x - 3*map_resolution_)
+			{
+				if (collide) break;
+
+				id_z = vertex_idx(1, 2);
+
+				octomap::point3d p(id_x, id_y, id_z);
+				if (!path_finder->validGround(p))
+				{
+					collide = true;
+					break;
+				}
+			}
+		}
+
+		if (collide)
+		{
+			//与边界保持3个分辨率的距离
+			vertex_idx(1, 1) = max(id_y-6*map_resolution_, vertex_idx(1, 1));
+            vertex_idx(2, 1) = max(id_y-6*map_resolution_, vertex_idx(2, 1));
+            vertex_idx(5, 1) = max(id_y-6*map_resolution_, vertex_idx(5, 1));
+            vertex_idx(6, 1) = max(id_y-6*map_resolution_, vertex_idx(6, 1));
+		}else
+		{
+			vertex_idx(1, 1) = vertex_idx(2, 1) = vertex_idx(6, 1) = vertex_idx(5, 1) = id_y - map_resolution_;
+		}
+
+		// X+ 将初始立方体向X+方向膨胀　(膨胀面: p0 -- p1 -- p5 -- p4 )
+		//***********************************************************************************
+		collide = false;
+		int x_up = vertex_idx(0, 0) + inflate_step_length_;
+
+		for (id_x = vertex_idx(0, 0); id_x <= x_up; id_x = id_x + 3*map_resolution_)
+		{
+			if (collide) break;
+
+			for (id_y = vertex_idx(0, 1); id_y <= vertex_idx(1, 1); id_y = id_y + 3*map_resolution_)
+			{
+				if (collide) break;
+
+				id_z = vertex_idx(0, 2);
+
+				octomap::point3d p(id_x, id_y, id_z);
+				if (!path_finder->validGround(p))
+				{
+					collide = true;
+					break;
+				}
+			}
+		}
+
+		if(collide)
+        {
+            vertex_idx(0, 0) = max(id_x-6*map_resolution_, vertex_idx(0, 0)); 
+            vertex_idx(1, 0) = max(id_x-6*map_resolution_, vertex_idx(1, 0)); 
+            vertex_idx(5, 0) = max(id_x-6*map_resolution_, vertex_idx(5, 0)); 
+            vertex_idx(4, 0) = max(id_x-6*map_resolution_, vertex_idx(4, 0)); 
+        }
+        else{
+			vertex_idx(0, 0) = vertex_idx(1, 0) = vertex_idx(5, 0) = vertex_idx(4, 0) = id_x - map_resolution_; 
+		}
+
+		// X- 将初始立方体向X-方向膨胀　(膨胀面: p3 -- p2 -- p6 -- p7 )
+		//***********************************************************************************
+		collide = false;
+		int x_lo = vertex_idx(3, 0) - inflate_step_length_;
+
+		for (id_x = vertex_idx(3, 0); id_x >= x_lo; id_x = id_x - 3*map_resolution_)
+		{
+			if (collide) break;
+
+			for (id_y = vertex_idx(3, 1); id_y <= vertex_idx(2, 1); id_y = id_y + 3*map_resolution_)
+			{
+				if (collide) break;
+
+				id_z = vertex_idx(3, 2);
+
+				octomap::point3d p(id_x, id_y, id_z);
+				if (!path_finder->validGround(p))
+				{
+					collide = true;
+					break;
+				}
+
+			}
+			
+		}
+
+		if(collide)
+        {
+            vertex_idx(3, 0) = min(id_x+6*map_resolution_, vertex_idx(3, 0)); 
+            vertex_idx(2, 0) = min(id_x+6*map_resolution_, vertex_idx(2, 0)); 
+            vertex_idx(6, 0) = min(id_x+6*map_resolution_, vertex_idx(6, 0)); 
+            vertex_idx(7, 0) = min(id_x+6*map_resolution_, vertex_idx(7, 0)); 
+        }
+        else{
+			vertex_idx(3, 0) = vertex_idx(2, 0) = vertex_idx(6, 0) = vertex_idx(7, 0) = id_x + map_resolution_;
+		}
+            
+		
+		// 一次膨胀完成
+		//************************************************************************************
+		
+		cubeMax.setVertex(vertex_idx, map_resolution_);
+		if( isContains(lstcube, cubeMax))        
+			return make_pair(lstcube, false);
+
+		iter ++;
+
+	}
+
+	return make_pair(cubeMax, true);
 }
 
 
@@ -323,7 +627,7 @@ void planner::visualizeRRTThread(){
 	
 }
 
-void planner::visRRTPath(vector<octomap::point3d> &path){
+void planner::visRRTPath(vector<octomap::point3d> path){
 
 	octomap::point3d p_pub;
 	geometry_msgs::Point point_pub;
@@ -370,6 +674,63 @@ void planner::visRRTPath(vector<octomap::point3d> &path){
 
 	traj_pub_.publish(msg);
 	
+}
+
+
+void planner::visCorridor(vector<Cube> corridor)
+{   
+    // >>>>>清除历史数据
+    for(auto & mk: cube_vis_.markers) 
+        mk.action = visualization_msgs::Marker::DELETE;
+    
+    vis_corridor_pub_.publish(cube_vis_);
+
+    cube_vis_.markers.clear();
+    // <<<<<清除历史数据
+
+    visualization_msgs::Marker mk;
+    mk.header.frame_id = "map";
+    mk.header.stamp = ros::Time::now();
+    mk.ns = "corridor";
+    mk.type = visualization_msgs::Marker::CUBE;
+    mk.action = visualization_msgs::Marker::ADD;
+
+    mk.pose.orientation.x = 0.0;
+    mk.pose.orientation.y = 0.0;
+    mk.pose.orientation.z = 0.0;
+    mk.pose.orientation.w = 1.0;
+
+    mk.color.a = 0.4;
+    mk.color.r = 1.0;
+    mk.color.g = 1.0;
+    mk.color.b = 1.0;
+
+    int idx = 0;
+    for(int i = 0; i < int(corridor.size()); i++)
+    {   
+        mk.id = idx;
+
+        mk.pose.position.x = (corridor[i].vertex(0, 0) + corridor[i].vertex(3, 0) ) / 2.0; 
+        mk.pose.position.y = (corridor[i].vertex(0, 1) + corridor[i].vertex(1, 1) ) / 2.0; 
+
+        if(is_proj_cube_)
+            mk.pose.position.z = 0.0;  
+        else
+            mk.pose.position.z = (corridor[i].vertex(0, 2) + corridor[i].vertex(4, 2) ) / 2.0; 
+
+        mk.scale.x = (corridor[i].vertex(0, 0) - corridor[i].vertex(3, 0) );
+        mk.scale.y = (corridor[i].vertex(1, 1) - corridor[i].vertex(0, 1) );
+
+        if(is_proj_cube_)
+            mk.scale.z = 0.05; 
+        else
+            mk.scale.z = (corridor[i].vertex(0, 2) - corridor[i].vertex(4, 2) );
+
+        idx ++;
+        cube_vis_.markers.push_back(mk);
+    }
+
+    vis_corridor_pub_.publish(cube_vis_);
 }
 
 void planner::visRRTFlow(){

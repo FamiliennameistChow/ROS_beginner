@@ -165,8 +165,30 @@ RRTPathFinder::~RRTPathFinder()
 }
 
 void RRTPathFinder::pathSearch(octomap::point3d start_pt, octomap::point3d end_pt){
-    start_pt_ = start_pt;
+    
+	float mean;
+    int checking;
+	search_Finished_ = false;
+
+	start_pt_ = start_pt;
     end_pt_ = end_pt;
+
+	start_pt_(2) = 5;
+	if(validGround(start_pt_, mean)){
+		start_pt_(2) = mean + carBodySize(2);
+	}else
+	{
+		start_pt_(2) = start_pt(2);
+	}
+
+	end_pt_(2) = 5;
+	if(validGround(end_pt_, mean)){
+		end_pt_(2) = mean + carBodySize(2);
+	}else
+	{
+		end_pt_(2) = end_pt(2);
+	}
+
 
     rrt_count_ = -1;
 
@@ -179,10 +201,7 @@ void RRTPathFinder::pathSearch(octomap::point3d start_pt, octomap::point3d end_p
     rrtNode start_node = {start_pt_, 0.0};
     rrt_tree_set_.insert(make_pair(start_pt_, start_node));
 
-    float mean;
-    int checking;
-	search_Finished_ = false;
-
+ 
     double minX, minY, minZ, maxX, maxY, maxZ;
 	map_tree_->getMetricMin(minX, minY, minZ);
 	map_tree_->getMetricMax(maxX, maxY, maxZ);
@@ -406,6 +425,7 @@ bool RRTPathFinder::validGround(octomap::point3d query_point){
 	return true;
 
 }
+
 
 // 返回地形高度，用于显示
 bool RRTPathFinder::validGround(octomap::point3d query_point, float& mean_){

@@ -7,7 +7,7 @@ Panels:
         - /Global Options1
         - /Polygon1
         - /rrt_tree1/Namespaces1
-        - /rrt_node1/Namespaces1
+        - /rrt_node_last1/Namespaces1
       Splitter Ratio: 0.424408019
     Tree Height: 747
   - Class: rviz/Selection
@@ -144,13 +144,13 @@ Visualization Manager:
       Marker Topic: /rrt_tree
       Name: rrt_tree
       Namespaces:
-        rrt_tree: true
+        {}
       Queue Size: 50000
       Value: true
     - Class: rviz/Marker
       Enabled: false
       Marker Topic: /rrt_sample_node
-      Name: rrt_node
+      Name: rrt_node_last
       Namespaces:
         {}
       Queue Size: 10000
@@ -160,7 +160,7 @@ Visualization Manager:
       Marker Topic: /rrt_path
       Name: path
       Namespaces:
-        rrt_path: true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
@@ -175,6 +175,14 @@ Visualization Manager:
       Enabled: true
       Marker Topic: /goal_node
       Name: goal_node
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /corridor_vis
+      Name: corridor_vis
       Namespaces:
         {}
       Queue Size: 100
@@ -204,25 +212,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 66.4423447
+      Distance: 34.8742943
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 13.2361784
-        Y: -14.383688
-        Z: -8.66764355
+        X: 11.8912334
+        Y: 2.86805606
+        Z: -8.89837933
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.97479713
+      Pitch: 0.964797139
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.04861259
+      Yaw: 3.21861291
     Saved: ~
 Window Geometry:
   Displays:

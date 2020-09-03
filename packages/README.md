@@ -182,12 +182,12 @@
         - [x] 使用滤波器生成坡度、粗糙度等信息层判断可通行区域，并根据可通行区域生成occupymap供导航使用
         - [x] 实现全过程参数化配置 
 
-* [octomap_navi](./UGV/octomap_navi)
+* [octomap_navi](./UGV/octomap_navi)  
 此功能包为实现基于八叉树导航的小车功能包，区别于`octomap_scout包`基于八叉树抽取二维地图的方法
 
     * TODO List
         - [x] 实现基于八叉树的rrt前端路径查找
-        - [ ] 实现八叉树上的通行走廊生成
+        - [x] 实现八叉树上的通行走廊生成
         - [ ] 基于贝塞尔曲线的mini-jerk轨迹优化
 
 
