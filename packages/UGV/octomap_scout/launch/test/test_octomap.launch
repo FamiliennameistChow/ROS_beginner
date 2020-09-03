@@ -7,7 +7,7 @@
   <arg name="prepared_map" default="true" />
 
   <!-- <node pkg="octomap_scout" type="octomap_server_multilayer" name="octomap_server" output="screen"> -->
-  <node pkg="octomap_scout" type="octomap_server_node" name="octomap_server" >
+  <node pkg="octomap_scout" type="octomap_server_node" name="octomap_server" output="screen">
     <!-- resolution in meters per pixel -->
     <param name="resolution" value="0.15" />
 
@@ -28,8 +28,8 @@
     <param name="occupancy_min_z" value="-1000"/>
     <param name="occupancy_max_z" value="1000"/>
 
-     <!-- Ignore speckles in the map -->
-    <param name="filter_speckles" value="true" />
+    <!-- Ignore speckles in the map -->
+    <!-- <param name="filter_speckles" value="true" /> -->
 
     <!-- filter_ground -->
     <!-- <param name="filter_ground" value="true"/>
@@ -43,7 +43,7 @@
 
   <group if="$(arg prepared_map)">
     <!-- Run the map server with a prepare gloabl map -->
-    <node name="map_server" pkg="map_server" type="map_server" args="$(find octomap_scout)/maps/gazebo.yaml" output="screen" />
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find octomap_scout)/maps/gazebo.yaml"  />
   </group>
 
   <!-- **process 2d map form octomap and output a "/map" topic occupied map**-->

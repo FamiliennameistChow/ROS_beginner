@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <param name="use_sim_time" value="true"/>
+    <arg name="mapFrame" default="map"/> 
+    <arg name="points_topic" default="/velodyne_points" />
+
+    <node pkg="rviz" type="rviz" name="$(anon rviz)" respawn="false" args="-d $(find octomap_scout)/rviz/aloam_octomap.rviz"/>
+
+    <node pkg="pcl_ros" type="pcd_to_pointcloud" name="pcd_to_pointcloud" 
+    args="$(find octomap_scout)/maps/map_cloud.pcd 1 _frame_id:=$(arg mapFrame)" output="screen" />
+
+    <node pkg="octomap_scout" type="localization_init" name="ndt_localizer_node" output="screen">
+        <param name="global_map_topic"  value="/cloud_pcd"/>
+        <param name="scan_pc_topic" value="$(arg points_topic)"/>
+
+        <param name="trans_epsilon" value="0.05"/>
+        <param name="step_size" value="0.1"/>
+        <param name="resolution" value="2.0"/>
+        <param name="max_iterations" value="30.0"/>
+        <param name="converged_param_transform_probability" value="3.0"/>
+
+        <param name="leaf_size_x" value="1.0"/>
+        <param name="leaf_size_y" value="1.0"/>
+        <param name="leaf_size_z" value="1.0"/>
+    </node>
+
+</launch>

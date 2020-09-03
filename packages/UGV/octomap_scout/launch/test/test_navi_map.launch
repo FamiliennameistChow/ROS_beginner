@@ -4,7 +4,7 @@
   <arg name="pointcloudTopic" default="/laser_cloud_map"/>  
   <arg name="mapFrame" default="map"/> 
   <arg name="pointcloudFrame" default="base_link"/> 
-  <arg name="prepared_map" default="true" />
+  <arg name="prepared_map" default="false" />
 
   <!-- <node pkg="octomap_scout" type="octomap_server_multilayer" name="octomap_server" output="screen"> -->
   <node pkg="octomap_scout" type="octomap_server_node" name="octomap_server" output="screen">
@@ -47,7 +47,7 @@
   </group>
 
   <!-- **process 2d map form octomap and output a "/map" topic occupied map**-->
-  <node pkg="octomap_scout" type="process_2d_map" name="process_2d_map" output="screen" >
+  <node pkg="octomap_scout" type="process_2d_map" name="process_2d_map" output="screen">
     <param name="global_map_detect" value="$(arg prepared_map)"/>
     <!-- step for search the elevation map in angle_method \ stdev_method  methods-->
     <param name="step" value="5" />
@@ -66,21 +66,21 @@
   <!-- **movebase config** -->
   <node pkg="move_base" type="move_base" respawn="false" name="move_base_node" output="screen" >
     <param name="footprint_padding" value="0.5" />
-    <param name="controller_frequency" value="40.0" />
+    <param name="controller_frequency" value="10.0" />
     <param name="controller_patience" value="2.0" />
     <param name="oscillation_timeout" value="30.0" />
     <param name="oscillation_distance" value="0.5" />
-    <param name="planner_patience" value="1" />
+    <param name="planner_patience" value="5" />
     <param name="recovery_behavior_enabled" value="false" />
-    <param name="planner_frequency" value="1.0" />
+    <param name="clearing_rotation_allowed" value="false" />
+    <param name="planner_frequency" value="2.0" />
     <!-- <remap from="cmd_vel" to="mobile_base/commands/velocity"/> -->
-    <param name="recovery_behavior_enabled" value="false" />
     <rosparam file="$(find octomap_scout)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
     <rosparam file="$(find octomap_scout)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
     <rosparam file="$(find octomap_scout)/config/local_costmap_params.yaml" command="load" />
     <rosparam file="$(find octomap_scout)/config/global_costmap_params.yaml" command="load" />
     <rosparam file="$(find octomap_scout)/config/base_local_planner_params.yaml" command="load" />  
-    <param name="global_costmap/global_frame" value="/map"/>
+    <!-- <param name="global_costmap/global_frame" value="/map"/>
     <param name="global_costmap/robot_base_frame" value="/base_link"/>
     <param name="global_costmap/point_cloud_sensor/sensor_frame" value="/camera_init"/>
     <param name="global_costmap/point_cloud_sensor/topic" value="/velodyne_cloud_registered"/>    
@@ -88,7 +88,7 @@
     <param name="local_costmap/robot_base_frame" value="/base_link"/>
     <param name="local_costmap/point_cloud_sensor/sensor_frame" value="/camera_depth_frame"/>
     <param name="local_costmap/point_cloud_sensor/topic" value="/camera_init"/>
-    <param name="local_costmap/obstacle_layer/point_cloud_sensor/topic" value="/velodyne_cloud_registered"/>
+    <param name="local_costmap/obstacle_layer/point_cloud_sensor/topic" value="/velodyne_cloud_registered"/> -->
     <remap from="map" to="/detect_map"/>
   </node>
 

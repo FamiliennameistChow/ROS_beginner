@@ -182,3 +182,13 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 
 20200902 zb
 * 优化`octomap_navi`包，优化前端rrt路径查找显示代码
+
+
+20200903 zb
+* 更新了`octomap_scout`包，新增功能：
+    1. 在aloam的基础上增加了回环检测
+    2. 增加基于全局点云地图与栅格地图的初始定位
+    3. 优化costmap更新策略，使用局部点云更新costmap
+    4. 使用双目数据进行局部避障
+
+* 注意本次更新*重构了文件目录*

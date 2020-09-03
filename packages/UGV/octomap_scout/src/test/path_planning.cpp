@@ -1,4 +1,4 @@
- /*
+ /********************************************************
  * path_planing.cpp
  * path_planing use octomap method
  * 
@@ -7,7 +7,7 @@
  * 
  * 说明:在octomap上实现rrt导航,用于小车的起伏地形导航
  * 使用pair描述rrt树，运算时间较长
- */
+ ******************************************************/
 
 #include "ros/ros.h"
 #include <octomap_msgs/Octomap.h>
@@ -64,6 +64,9 @@ private:
 	int collisionFree(octomap::point3d nearest_point, octomap::point3d new_point);
 	bool isGoal(octomap::point3d new_point, octomap::point3d end_point);
 	void rewirteTree(Point_pair_set &V, octomap::point3d new_point, octomap::point3d nearest_point, float search_r);
+	// UGV trajectory
+	trajectory_msgs::MultiDOFJointTrajectory msg;
+	trajectory_msgs::MultiDOFJointTrajectoryPoint point_msg;
 
 	bool point_equal(double x, double y, double z, geometry_msgs::Point point){
 		if(abs(point.x - x)< 0.00001 && abs(point.y - y)< 0.00001 && abs(point.z - z)< 0.00001){
@@ -106,7 +109,6 @@ public:
 	bool validGround(octomap::point3d query_point);
 	bool validGround(octomap::point3d query_point, float& mean_);
 
-	
 	octomap::point3d carBodySize;
 	float th_stdev;
 	
@@ -120,7 +122,7 @@ planner::planner(void)
 	start_point.z = 0;
 
 	//平整度阈值
-	th_stdev = 0.1;
+	th_stdev = 0.2;
 
 	// load car size
 	carBodySize(0) = 0.6;  //x
@@ -377,7 +379,6 @@ bool planner::validGround(octomap::point3d query_point, float& mean_){
 		return true;
 	}
 	
-
 }
 
 float planner::Norm(octomap::point3d p1, octomap::point3d p2){
@@ -423,7 +424,7 @@ octomap::point3d planner::Steer(octomap::point3d nearest_point, octomap::point3d
 
 // 地面状态,  0: 无地面信息　1:有地面信息
 int planner::collisionFree(octomap::point3d nearest_point, octomap::point3d new_point){
-	float step_length = map_resolution*2;
+	float step_length = map_resolution*3; //*2
 	int step_nu = ceil(Norm(nearest_point, new_point)/step_length);  //ceil(x)返回的是大于x的最小整数
 	octomap::point3d step_point = nearest_point;
 	int state;
@@ -478,8 +479,7 @@ void planner::backTree(octomap::point3d p, octomap::point3d p_init, vector<octom
 			
 		}
 		
-	}
-	
+	}	
 }
 
 // 遍历rrt, 查询节点到起始节点的所有父节点, 返回查询节点代价
@@ -596,13 +596,14 @@ void planner::plan(void){
 	rrt_tree_set.clear();
 	line_back.points.clear();
 	line.points.clear();
+	rrt_path.clear();
 	rrt_tree_set.push_back(make_pair(base_start, base_start));
 
 	int a;
 	int checking;
 
-	float eta = 1.5;
-	float search_near = 3.0;
+	float eta = 2.0; // 1.5
+	float search_near = 4.0;
 	geometry_msgs::Point point_pub;
 	float mean;
 	double minX, minY, minZ, maxX, maxY, maxZ;
@@ -616,16 +617,15 @@ void planner::plan(void){
 		if(nu % 30000 == 0)
         {
 			cout <<"input any to continue: " << endl;
-            a = cin.get();
-            
+            a = cin.get();  
         }
 		cout<<" -----------------------"<< endl;
 		cout << "rand smaple a point " << endl;
 
 		if (nu % 8 == 0)
 		{
-			p_rand(0) = getRandData(base_goal(0) - 10, base_goal(0) + 10);
-			p_rand(1) = getRandData(base_goal(1) - 10, base_goal(1) + 10);
+			p_rand(0) = getRandData(base_goal(0) - 5, base_goal(0) + 5);
+			p_rand(1) = getRandData(base_goal(1) - 5, base_goal(1) + 5);
 		}else
 		{
 			p_rand(0) = getRandData(minX, maxX);
@@ -634,10 +634,10 @@ void planner::plan(void){
 		
 		
 
-		cout << "rand point-- " << p_rand << endl;
+		// cout << "rand point-- " << p_rand << endl;
 
 		p_nearest = Near(rrt_tree_set, p_rand);
-		cout << "nearest point-- " << p_nearest << endl;
+		// cout << "nearest point-- " << p_nearest << endl;
 
 		p_new = Steer(p_nearest, p_rand, eta);
         // cout << "new point-- " << p_new << endl;
@@ -650,7 +650,7 @@ void planner::plan(void){
 		{
 			p_new(2) = p_nearest(2);
 		}
-		cout << "new point　detect ground-- " << p_new << endl;
+		// cout << "new point　detect ground-- " << p_new << endl;
 
 		// vis 显示采样点
 		marker.id = nu;
@@ -717,38 +717,65 @@ void planner::plan(void){
 				rrt_tree_set.push_back(make_pair(base_goal, p_new));
 				cout << "[rrt plan]: you have got the goal!---- " <<endl;
 				clock_t time_end=clock();
-				cout<<"[rrt plan]： time use:"<<1000*(time_end-time_start)/(double)CLOCKS_PER_SEC<<"ms"<<endl;
+				cout<<"[rrt plan]: time use:"<<1000*(time_end-time_start)/(double)CLOCKS_PER_SEC<<"ms"<<endl;
+
+				// trajectory pub set
+				msg.header.stamp = ros::Time::now();
+				msg.header.frame_id = "world";
+				msg.joint_names.clear();
+				msg.points.clear();
+				msg.joint_names.push_back("ugv");
 
 				//rrt tree 回溯
-				p_back = base_goal;
-				for(int i = 0; i < rrt_tree_set.size(); i++){
-					for(auto it=rrt_tree_set.begin(); it!=rrt_tree_set.end();it++){
-						if (point_equal((*it).first, p_back))
-							{
-								rrt_path.push_back(p_back);
-								p_back = (*it).second;
+				float cost_total = 0.0;
+				backTree(base_goal, base_start, rrt_path, cost_total);
+				reverse(rrt_path.begin(), rrt_path.end()); //反转vector
 
-								// vis
-								p_pub= (*it).first;
-								point_pub.x = p_pub(0);
-								point_pub.y = p_pub(1);
-								point_pub.z = p_pub(2);
-								line_back.points.push_back(point_pub);
-								p_pub= (*it).second;
-								point_pub.x = p_pub(0);
-								point_pub.y = p_pub(1);
-								point_pub.z = p_pub(2);
-								line_back.points.push_back(point_pub);
-								line_back_pub.publish(line_back);	
-								// vis
+				cout<<"[rrt plan]: path size: " << rrt_path.size() << endl;
+				for (size_t i = 0; i < rrt_path.size(); i++)
+				{
+					p_pub = rrt_path[i];
+					cout<<"[rrt plan]: path size: " << rrt_path.size() << endl;
+					cout<<"rrt path point: " << p_pub <<endl;
+					// trajectory pub
+					point_msg.time_from_start.fromSec(ros::Time::now().toSec());
+					point_msg.transforms.resize(1);
+					point_msg.transforms[0].translation.x = p_pub(0);
+					point_msg.transforms[0].translation.y = p_pub(1);
+					point_msg.transforms[0].translation.z = p_pub(2);
 
-								break;
-							}
+					point_msg.transforms[0].rotation.x = 0;
+					point_msg.transforms[0].rotation.y = 0;
+					point_msg.transforms[0].rotation.z = 0;
+					point_msg.transforms[0].rotation.w = 1;
+					msg.points.push_back(point_msg);
+					// trajectory pub 
+
+					if(i+1 == rrt_path.size()){
+						continue;
 					}
-
+					//vis
+					cout<<"rrt path first point: " << p_pub <<endl;
+					point_pub.x = p_pub(0);
+					point_pub.y = p_pub(1);
+					point_pub.z = p_pub(2);
+					line_back.points.push_back(point_pub);
+					p_pub= rrt_path[i+1];
+					cout<<"rrt path second point: " << p_pub <<endl;
+					point_pub.x = p_pub(0);
+					point_pub.y = p_pub(1);
+					point_pub.z = p_pub(2);
+					line_back.points.push_back(point_pub);
+					line_back_pub.publish(line_back);
+					//vis
 				}
+
+				traj_pub.publish(msg);
+
+
+
 				time_end=clock();
-				cout<<"[rrt plan]： total time use:"<<1000*(time_end-time_start)/(double)CLOCKS_PER_SEC<<"ms"<<endl;
+				cout<<"[rrt plan]: total time use:"<<1000*(time_end-time_start)/(double)CLOCKS_PER_SEC<<"ms"<<endl;
 
 				// //rrt tree 回溯
 				// cout <<"[rrt plan]: opti input any to continue: " << endl;
@@ -769,6 +796,7 @@ void planner::replan(void){
 	// plan();
 }
 
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>class end<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 void octomapCallback(const octomap_msgs::Octomap::ConstPtr &msg, planner* planner_ptr)
@@ -808,10 +836,10 @@ int main(int argc, char **argv)
 	ros::Subscriber goal_sub = n.subscribe<geometry_msgs::PointStamped>("/clicked_point", 1, boost::bind(&goalCb, _1, &planner_object));
 	// ros::Subscriber start_sub = n.subscribe<geometry_msgs::PointStamped>("/start/clicked_point", 1, boost::bind(&goalCb, _1, &planner_object));
 
-	vis_pub = n.advertise<visualization_msgs::Marker>( "visualization_marker", 0 );
-	traj_pub = n.advertise<trajectory_msgs::MultiDOFJointTrajectory>("waypoints",1);
-	line_pub = n.advertise<visualization_msgs::Marker>("lines", 10);
-    line_back_pub = n.advertise<visualization_msgs::Marker>("lines_back", 10);	
+	vis_pub = n.advertise<visualization_msgs::Marker>( "visualization_marker", 0 ); // 发布采样点
+	traj_pub = n.advertise<trajectory_msgs::MultiDOFJointTrajectory>("waypoints",1);  // 发布最终轨迹
+	line_pub = n.advertise<visualization_msgs::Marker>("lines", 10); //发布rrt 树
+    line_back_pub = n.advertise<visualization_msgs::Marker>("lines_back", 10);	//发布回溯rrt节点
 	
 
 	ros::spin();

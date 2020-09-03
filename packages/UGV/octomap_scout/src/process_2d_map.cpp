@@ -1,14 +1,34 @@
+/****************************************************************************************
+ * process_2d_map.cpp
+ *  
+ * Author： Born Chow
+ * Date: 2020.05.21
+ * 
+ * 说明:
+ * 对八叉树地图进行二维投影
+ * 处理八叉树地图中获得的高程信息
+ * 
+ * Modify : 2020.07.07
+ * 【订阅】 八叉树节点发出的高程信息(使用自定义消息octomap_scout/ElevationGrid) 类似OccupancyGrid
+ *         该消息中 9999表示无效值，-1表示未知，其他数据表示高程(注意单位为厘米)
+ * 【订阅】 map_server发出的全局地图(通过参数`global_map_detect`选择)
+ * 【发布】 /octo_map (nav_msgs/OccupancyGrid) 由高程图处理后的栅格占用地图
+ * 【发布】 /detect_map (nav_msgs/OccupancyGrid) 如果有全局地图，则为融合全局地图的栅格占用地图
+ ****************************************************************************************/
 #include "ros/ros.h"
 #include "nav_msgs/OccupancyGrid.h"
 #include <iostream>
 #include <fstream>
 #include <Eigen/Dense>
+#include <octomap_scout/ElevationGrid.h>
+#include "tictoc.h"
 
 using namespace std;
 #define PI 3.1415926
 typedef Eigen::Vector3d Vector3;
 
-nav_msgs::OccupancyGrid down_map, up_map, whole_map, elevation_map, global_map; 
+nav_msgs::OccupancyGrid down_map, up_map, whole_map, global_map; 
+octomap_scout::ElevationGrid elevation_map;
 nav_msgs::OccupancyGrid map_out, map_merge;
 bool getData2xt = false;
 
@@ -36,7 +56,7 @@ void whole_mapCallBack(const nav_msgs::OccupancyGrid::ConstPtr& msg)
     whole_map=*msg;
 }
 
-void elevation_mapCallBack(const nav_msgs::OccupancyGrid::ConstPtr& msg)
+void elevation_mapCallBack(const octomap_scout::ElevationGrid::ConstPtr& msg)
 {
     elevation_map=*msg;
 }
@@ -96,7 +116,7 @@ void worldToMapindex(float wx_, float wy_, int& i, nav_msgs::OccupancyGrid& map)
     i = my*width + mx;
 }
 
-void processMapGradientSparse(int i, nav_msgs::OccupancyGrid& map,  nav_msgs::OccupancyGrid& map_){
+void processMapGradientSparse(int i, octomap_scout::ElevationGrid& map,  nav_msgs::OccupancyGrid& map_){
 /* search surrounding cell
 search pattern: 
                     *
@@ -133,7 +153,7 @@ search pattern:
         if(*iter < 0 || *iter > map.data.size()){
             continue;
         }
-        if(map.data[*iter] != 100 && map.data[*iter] != -1){
+        if(map.data[*iter] != 9999 && map.data[*iter] != -1){
             num += 1;
             value.push_back(map.data[*iter]);
             sum += map.data[*iter];
@@ -176,7 +196,7 @@ search pattern:
 }
 
 
-void processMapGradient(int i, nav_msgs::OccupancyGrid& map,  nav_msgs::OccupancyGrid& map_){
+void processMapGradient(int i, octomap_scout::ElevationGrid& map,  nav_msgs::OccupancyGrid& map_){
 /* search surrounding cell
 search pattern: 
                     *
@@ -248,7 +268,7 @@ search pattern:
             if(*it < 0 || *it > map.data.size()){
                 continue;
             }
-            if(map.data[*it] != 100 && map.data[*it] != -1){
+            if(map.data[*it] != 9999 && map.data[*it] != -1){
                 num_temp += 1;
             }
         }
@@ -284,7 +304,7 @@ search pattern:
         if(*iter < 0 || *iter > map.data.size()){
             continue;
         }
-        if(map.data[*iter] != 100 && map.data[*iter] != -1){
+        if(map.data[*iter] != 9999 && map.data[*iter] != -1){
             num += 1;
             value.push_back(map.data[*iter]);
             sum += map.data[*iter];
@@ -366,7 +386,7 @@ search pattern:
 }
 
 
-void processMapGradientV(int i, nav_msgs::OccupancyGrid& map,  nav_msgs::OccupancyGrid& map_){
+void processMapGradientV(int i, octomap_scout::ElevationGrid& map,  nav_msgs::OccupancyGrid& map_){
 /* search surrounding cell
 // search pattern: 
 //        #                *
@@ -442,7 +462,7 @@ void processMapGradientV(int i, nav_msgs::OccupancyGrid& map,  nav_msgs::Occupan
             if(*it < 0 || *it > map.data.size()){
                 continue;
             }
-            if(map.data[*it] != 100 && map.data[*it] != -1){
+            if(map.data[*it] != 9999 && map.data[*it] != -1){
                 num += 1;
                 sum += map.data[*it];
             }
@@ -463,7 +483,7 @@ void processMapGradientV(int i, nav_msgs::OccupancyGrid& map,  nav_msgs::Occupan
                     map_.data[i] = -1;
                 }else
                 {
-                    map_.data[i] = 100;
+                    map_.data[i] = -1;
                 }
                 // ROS_INFO("cell normal invaild----");
                 return;
@@ -504,9 +524,9 @@ void processMapGradientV(int i, nav_msgs::OccupancyGrid& map,  nav_msgs::Occupan
 
     Vector3 normalVector = Vector3::Zero();
     // X DIRECTION
-    normalVector(0) = (mean_value[0] - mean_value[1]) / (distanceX * 10);
+    normalVector(0) = (mean_value[0] - mean_value[1]) / (distanceX * 100);
     // Y DIRECTION
-    normalVector(1) = (mean_value[2] - mean_value[3]) / (distanceY * 10);
+    normalVector(1) = (mean_value[2] - mean_value[3]) / (distanceY * 100);
     // Z DIRECTION
     normalVector(2) = +1;
     // ROS_INFO("normalVector : %f, %f, %f", normalVector(0), normalVector(1), normalVector(2));
@@ -564,7 +584,7 @@ int main(int argc, char * argv[]) {
     ros::Subscriber down_map_sub = nh.subscribe("/projected_down_map", 100 ,down_mapCallBack);	
     ros::Subscriber up_map_sub = nh.subscribe("/projected_up_map", 100 ,up_mapCallBack);	
     ros::Subscriber whole_map_sub = nh.subscribe("/projected_whole_map", 100 ,whole_mapCallBack);
-    ros::Subscriber elevation_map_sub = nh.subscribe("/projected_map", 100 , elevation_mapCallBack);	
+    ros::Subscriber elevation_map_sub = nh.subscribe("/projected_elevation_map", 100 , elevation_mapCallBack);	
     ros::Subscriber global_map_sub = nh.subscribe("/map", 100 , global_mapCallBack);
 
     ros::Publisher map_pub = nh_private.advertise<nav_msgs::OccupancyGrid>("/detect_map", 10);
@@ -605,15 +625,6 @@ int main(int argc, char * argv[]) {
     {
        
         ROS_INFO("process....");
-        // if (elevation_map.data.size() != global_map.data.size()){
-        //     ROS_INFO("DOWN map IS NOT match whole map!!!");
-        //     ROS_INFO("wohle map info ->  size: %zu, width: %d x height: %d", 
-        //     whole_map.data.size(), whole_map.info.width, whole_map.info.height);
-        //     ROS_INFO("down map info ->  size: %zu, width: %d x height: %d", 
-        //     down_map.data.size(), down_map.info.width, down_map.info.height);
-        //     ROS_INFO("up map info ->  size: %zu, width: %d x height: %d", 
-        //     up_map.data.size(), up_map.info.width, up_map.info.height);
-        // }
 
         if (global_map_detect)
         {
@@ -659,10 +670,11 @@ int main(int argc, char * argv[]) {
 
 
         // prcess gradient
+        TicToc time_process;
         for(int i = 3*elevation_map.info.width; i< elevation_map.data.size() - 3*elevation_map.info.width; i++)
         {
             // ROS_INFO("value is: %d", down_map.data[i]);
-            if(elevation_map.data[i] != 100 && elevation_map.data[i] != -1){
+            if(elevation_map.data[i] != 9999 && elevation_map.data[i] != -1){
                 // ROS_INFO("id: %d is hole", i); angle_method,  stdev_method
                 if (method == "angle_method"){
                     processMapGradientV(i, elevation_map, map_out);
@@ -679,6 +691,8 @@ int main(int argc, char * argv[]) {
             //     map_out.data[i] == -1;
             // }
         }
+
+        time_process.toc("time process 2d map : ");
 
         // // prcess hole
         // for(int i = 3*elevation_map.info.width; i< elevation_map.data.size() - 3*elevation_map.info.width; i++)

@@ -9,3 +9,12 @@ local_costmap:
   width: 10
   height: 10
   resolution: 0.15
+
+  observation_sources: point_cloud_sensor
+  point_cloud_sensor: {
+    sensor_frame: /base_link,  # /base_link
+    data_type: PointCloud2, 
+    topic: /robot_base/points,   # /camera/depth/points, 
+    marking: true, 
+    clearing: true
+    }

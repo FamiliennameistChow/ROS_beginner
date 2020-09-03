@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(octomap_scout)
 
-add_compile_options(-std=c++11)
-set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+add_compile_options(-std=c++14)
+set(CMAKE_CXX_FLAGS "-std=c++14 ${CMAKE_CXX_FLAGS}")
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
+set(CMAKE_CXX_STANDARD 14)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -31,13 +32,16 @@ find_package(catkin REQUIRED
   tf
   costmap_2d
   message_generation
+  diagnostic_msgs
   ${PACKAGE_DEPENDENCIES}
   )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 find_package(octomap REQUIRED)
+find_package(GTSAM REQUIRED QUIET)
 find_package(PCL REQUIRED)
+find_package(OpenCV REQUIRED)
 add_definitions(-DOCTOMAP_NODEBUGOUT)
 
 generate_dynamic_reconfigure_options(cfg/OctomapServer.cfg)
@@ -129,7 +133,7 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  CATKIN_DEPENDS roscpp rospy std_msgs message_runtime costmap_2d
+  CATKIN_DEPENDS roscpp rospy std_msgs message_runtime costmap_2d diagnostic_msgs
   INCLUDE_DIRS include
   # LIBRARIES octomap_scout
   CATKIN_DEPENDS ${PACKAGE_DEPENDENCIES}
@@ -144,15 +148,22 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
   include
-  
   ${catkin_INCLUDE_DIRS}
   ${OCTOMAP_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
+  ${GTSAM_INCLUDE_DIR}
+  ${OpenCV_INCLUDE_DIRS}
 )
 
 set(LINK_LIBS
   ${OCTOMAP_LIBRARIES}
   ${catkin_LIBRARIES}
+)
+
+link_directories(
+	include
+  ${GTSAM_LIBRARY_DIRS}
+  ${PCL_LIBRARY_DIRS}
 )
 
 ## Declare a C++ library
@@ -239,72 +250,105 @@ set(LINK_LIBS
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
-add_executable(tf_slam_publisher 
-  src/tf_slam_publisher.cpp)
 
-target_link_libraries(tf_slam_publisher 
-  ${catkin_LIBRARIES})
+# add_executable(tf_laser_base 
+#   src/tf_laser_base.cpp)
 
-add_executable(tf_laser_base 
-  src/tf_laser_base.cpp)
+# target_link_libraries(tf_laser_base 
+#   ${catkin_LIBRARIES})
 
-target_link_libraries(tf_laser_base 
-  ${catkin_LIBRARIES})
+# add_executable(tf_trans_base 
+#   src/tf_trans_base.cpp)
 
-add_executable(tf_trans_base 
-  src/tf_trans_base.cpp)
+# target_link_libraries(tf_trans_base 
+#   ${catkin_LIBRARIES})
 
-target_link_libraries(tf_trans_base 
-  ${catkin_LIBRARIES})
+# add_executable(tf_trans 
+#   src/tf_trans.cpp)
 
-add_executable(tf_trans 
-  src/tf_trans.cpp)
+# target_link_libraries(tf_trans
+#   ${catkin_LIBRARIES})
+SET(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")
 
-target_link_libraries(tf_trans
-  ${catkin_LIBRARIES})
+add_executable(tf_trans_init src/location/tf_trans_init.cpp)
+target_link_libraries(tf_trans_init ${catkin_LIBRARIES})
 
-add_executable(scout_navi
-  src/scout_navi.cpp)
+add_executable(voxel_grid_filter src/location/voxel_grid_filter.cpp)
+target_link_libraries(voxel_grid_filter  ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
-target_link_libraries(scout_navi   
-  ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+add_executable(map_loader src/location/mapLoader.cpp)
+target_link_libraries(map_loader  ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+add_executable(ndt_localizer_node src/location/ndt.cpp)
+target_link_libraries(ndt_localizer_node  ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+# add_executable(localization_init src/location/localization_init.cpp)
+# target_link_libraries(localization_init  ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+add_executable(back_end_opti src/back_end/back_end_opti.cpp)
+target_link_libraries(back_end_opti  
+                      ${catkin_LIBRARIES} 
+                      ${PCL_LIBRARIES} 
+                      gtsam)
+
+
+add_executable(process_kinect_pc src/process_kinect_pointcloud.cpp)
+target_link_libraries(process_kinect_pc ${catkin_LIBRARIES})
+
+
+add_executable(map_optmization 
+      src/back_end/mapOptmization.cpp
+      src/back_end/Scancontext.cpp
+)
+target_link_libraries(map_optmization 
+      ${catkin_LIBRARIES} 
+      ${PCL_LIBRARIES} 
+      ${OpenCV_LIBS} 
+      gtsam
+      # Eigen3::Eigen
+)
+
+add_executable(scout_navi src/scout_navi.cpp)
+target_link_libraries(scout_navi ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
 
 add_executable(process_2d_map src/process_2d_map.cpp)
-
-target_link_libraries(process_2d_map   
-  ${catkin_LIBRARIES} )
-
-add_executable(process_current_pc src/test/process_current_pc.cpp)
-
-target_link_libraries(process_current_pc   
-  ${catkin_LIBRARIES} ${PCL_INCLUDE_DIRS})
+target_link_libraries(process_2d_map ${catkin_LIBRARIES} )
 
 
-add_executable(path_planning src/test/path_planning.cpp)
+add_executable(crop_global_map src/crop_global_map.cpp)
+target_link_libraries(crop_global_map ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
-target_link_libraries(path_planning   
-  ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES})
+# add_executable(process_current_pc src/test/process_current_pc.cpp)
+# target_link_libraries(process_current_pc ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
-add_library(${PROJECT_NAME} src/OctomapServer.cpp src/OctomapServerMultilayer.cpp src/TrackingOctomapServer.cpp)
+
+# add_executable(path_planning src/test/path_planning.cpp)
+# target_link_libraries(path_planning ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES})
+
+# add_executable(traj_gen src/test/trajectory_generator.cpp)
+# target_link_libraries(traj_gen ${catkin_LIBRARIES})
+
+add_library(${PROJECT_NAME} src/octomap/OctomapServer.cpp src/octomap/OctomapServerMultilayer.cpp src/octomap/TrackingOctomapServer.cpp)
 target_link_libraries(${PROJECT_NAME} ${LINK_LIBS})
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)
 
-add_library(${PROJECT_NAME}_color src/OctomapServer.cpp src/OctomapServerMultilayer.cpp src/TrackingOctomapServer.cpp)
+add_library(${PROJECT_NAME}_color src/octomap/OctomapServer.cpp src/octomap/OctomapServerMultilayer.cpp src/octomap/TrackingOctomapServer.cpp)
 target_link_libraries(${PROJECT_NAME}_color ${LINK_LIBS})
 add_dependencies(${PROJECT_NAME}_color ${PROJECT_NAME}_gencfg)
 target_compile_definitions(${PROJECT_NAME}_color PUBLIC COLOR_OCTOMAP_SERVER)
 
-add_executable(octomap_server_node src/octomap_server_node.cpp)
+add_executable(octomap_server_node src/octomap/octomap_server_node.cpp)
 target_link_libraries(octomap_server_node ${PROJECT_NAME} ${LINK_LIBS})
 
-add_executable(octomap_server_multilayer src/octomap_server_multilayer.cpp)
+add_executable(octomap_server_multilayer src/octomap/octomap_server_multilayer.cpp)
 target_link_libraries(octomap_server_multilayer ${PROJECT_NAME} ${LINK_LIBS})
 
 # Nodelet
-add_library(octomap_server_nodelet src/octomap_server_nodelet.cpp)
+add_library(octomap_server_nodelet src/octomap/octomap_server_nodelet.cpp)
 target_link_libraries(octomap_server_nodelet ${PROJECT_NAME} ${LINK_LIBS})
 
-add_library(octomap_color_server_nodelet src/octomap_server_nodelet.cpp)
+add_library(octomap_color_server_nodelet src/octomap/octomap_server_nodelet.cpp)
 target_link_libraries(octomap_color_server_nodelet ${PROJECT_NAME}_color ${LINK_LIBS})
 
 # costmap layer

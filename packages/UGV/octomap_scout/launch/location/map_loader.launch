@@ -1,0 +1,41 @@
+<launch>
+    
+    <!--- Sim Time -->
+    <!-- <param name="/use_sim_time" default="false" /> -->
+    <arg name="roll" default="0.0" />
+    <arg name="pitch" default="0.0" />
+    <arg name="yaw" default="0.0" />
+    <arg name="x" default="0.0" />
+    <arg name="y" default="0.0" />
+    <arg name="z" default="0.0" />
+
+
+    <!-- <arg name="roll" default="1.570795" />
+    <arg name="pitch" default="0.0" />
+    <arg name="yaw" default="1.570795" />
+    <arg name="x" default="0.0" />
+    <arg name="y" default="0.0" />
+    <arg name="z" default="0.0" /> -->
+
+    <!--- Run Rviz-->
+    <node pkg="rviz" type="rviz" name="$(anon rviz)" respawn="false" args="-d $(find octomap_scout)/rviz/aloam_octomap.rviz"/>
+
+    <!--- MapLoader map_cloud -->    
+    <arg name="pcd_path"  default="$(find octomap_scout)/maps/map1.pcd"/>
+    
+    <arg name="map_topic" default="/points_map"/>
+
+
+    <node pkg="octomap_scout" type="map_loader"    name="map_loader"    output="screen">
+        <param name="pcd_path" value="$(arg pcd_path)"/>
+        <param name="map_topic" value="$(arg map_topic)"/>
+
+        <param name="roll" value="$(arg roll)" />
+        <param name="pitch" value="$(arg pitch)" />
+        <param name="yaw" value="$(arg yaw)" />
+        <param name="x" value="$(arg x)" />
+        <param name="y" value="$(arg y)" />
+        <param name="z" value="$(arg z)" />
+    </node>
+
+</launch>

@@ -151,16 +151,20 @@
         - [x] 基于octomap抽取二维地图，并构建costmap
         - [x] 使用navigation包导航
         - [x] 添加全局地图
-        - [ ] 在全局地图模式下，添加障碍层
+        - [x] 在全局地图模式下，添加障碍层，使用了是双目的点云数据
+        - [x] 在aloam上添加回环（位置回环与检测上下文回环）
+        - [x] 在有全局点云地图和栅格地图的情况下，完成初始定位
+        - [x] 使用全局点云裁剪的局部地图更新costmap
 
-        - [ ]三维导航
 
     * 使用请进入sh目录  
 
     ```
        ---- sh  
-          -- scout_aloam_octomap.sh 使用aloam进行建图与导航  
-          -- scout_lego_octomap.sh 使用lego进行建图与导航  
+          -- scout_aloam_navi.sh 使用aloam进行建图与导航  
+          -- scout_lego_navi.sh 使用lego进行建图与导航
+          -- scout_aloam_navi_map.sh 在有全局地图的情况下，使用aloam进行建图与导航（完成了初始定位）
+          -- scout_navi_octomap.sh使用loam进行导航（未充分测试，慎用）    
     ```
 
 * [gridmap_scout包](./UGV/gridmap_scout)  

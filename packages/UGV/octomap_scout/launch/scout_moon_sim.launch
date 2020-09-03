@@ -6,6 +6,10 @@
     <arg name="y" default="-0.3"/>
     <arg name="z" default="1.56"/>
     <arg name="yaw" default="3.14"/>
+    <!-- <arg name="x" default="5.16"/>
+    <arg name="y" default="-15.20"/>
+    <arg name="z" default="1.72"/>
+    <arg name="yaw" default="3.14"/> -->
 
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="world_name" value="$(arg world_name)"/>

@@ -16,7 +16,9 @@
 
     <node pkg="aloam_velodyne" type="alaserOdometry" name="alaserOdometry" output="screen" />
 
-    <node pkg="aloam_velodyne" type="alaserMapping" name="alaserMapping" output="screen" />
+    <!-- <node pkg="aloam_velodyne" type="alaserMapping" name="alaserMapping" output="screen" /> -->
+
+    <node pkg="octomap_scout" type="map_optmization" name="alaserMapping" output="screen" />
 
     <arg name="rviz" default="true" />
     <group if="$(arg rviz)">

@@ -25,9 +25,15 @@ cost_scaling_factor: 10.0
 lethal_cost_threshold: 100
 
 
-#Configuration for the sensors that the costmap will use to update a map
+# Configuration for the sensors that the costmap will use to update a map
 # observation_sources: laser_scan_sensor
 # laser_scan_sensor: {sensor_frame: base_laser_link, data_type: LaserScan, topic: /base_scan, marking: true, clearing: true, max_obstacle_height: 20.0, min_obstacle_height: 0.0}
-observation_sources: point_cloud_sensor
-point_cloud_sensor: {sensor_frame: /camera_init, data_type: PointCloud2, topic: /velodyne_cloud_registered, marking: true, clearing: true}
+# observation_sources: point_cloud_sensor
+# point_cloud_sensor: {
+#   sensor_frame: /camera_depth_optical_frame, 
+#   data_type: PointCloud2, 
+#   topic: /camera/depth/points, 
+#   marking: true, 
+#   clearing: true
+#   }
 

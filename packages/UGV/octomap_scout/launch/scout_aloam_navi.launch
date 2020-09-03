@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <!-- /laser_cloud_surround for lego ** /laser_cloud_map for aloam ** /velodyne_cloud_registered  for loam -->
+  <arg name="pointcloudTopic" default="/laser_cloud_map_local"/>  
+  <arg name="mapFrame" default="map"/> 
+  <arg name="pointcloudFrame" default="base_link"/> 
+  <arg name="prepared_map" default="false" />
+
+  <!-- <local map 以小车为中心的> -->
+  <node pkg="octomap_scout" type="crop_global_map" name="crop_global_map" output="screen" >
+    <param name="local_map_x" value="20.0" />   <!--40.0 -->
+    <param name="local_map_y" value="20.0" />   <!--40.0 -->
+    <param name="local_map_z" value="10.0" />
+    <param name="global_map_load_thre" value="50" />
+  </node>
+
+  <!-- <node pkg="octomap_scout" type="octomap_server_multilayer" name="octomap_server" output="screen"> -->
+  <node pkg="octomap_scout" type="octomap_server_node" name="octomap_server" output="screen">
+    <!-- resolution in meters per pixel -->
+    <param name="resolution" value="0.15" />
+
+    <!-- name of the fixed frame, needs to be "/map" for SLAM -->
+    <param name="frame_id" type="string" value="$(arg mapFrame)" />
+    <param name="base_frame_id" type="string" value="$(arg pointcloudFrame)" />
+
+    <!-- max range / depth resolution of the kinect in meter -->
+    <!-- <param name="sensor_model/max_range" value="20.0" /> -->
+    
+    <param name="latch" value="false" />
+
+    <!-- max/min height for occupancy map, should be in meters -->
+    <param name="pointcloud_max_z" value="1000" />
+    <param name="pointcloud_min_z" value="-1000" />
+
+    <!-- max/min height for occupancy map, should be in meters -->
+    <param name="occupancy_min_z" value="-1000"/>
+    <param name="occupancy_max_z" value="1000"/>
+
+    <!-- Ignore speckles in the map -->
+    <!-- <param name="filter_speckles" value="true" /> -->
+
+    <!-- filter_ground -->
+    <!-- <param name="filter_ground" value="true"/>
+    <param name="ground_filter/distance" value="-0.7"/>
+    <param name="ground_filter/angle" value="0.0"/>
+    <param name="ground_filter/plane_distance" value="0.1" /> -->
+
+    <!-- topic from where pointcloud2 messages are subscribed -->
+    <remap from="/cloud_in" to="$(arg pointcloudTopic)" />
+  </node>
+
+  <group if="$(arg prepared_map)">
+    <!-- Run the map server with a prepare gloabl map -->
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find octomap_scout)/maps/gazebo.yaml" />
+  </group>
+
+  <!-- **process 2d map form octomap and output a "/map" topic occupied map**-->
+  <node pkg="octomap_scout" type="process_2d_map" name="process_2d_map" output="screen">
+    <param name="global_map_detect" value="$(arg prepared_map)"/>
+    <!-- step for search the elevation map in angle_method \ stdev_method  methods-->
+    <param name="step" value="3" />
+    <!-- the num of cells threshold in search eara, greater than this threshold will be set free cells -->
+    <param name="th_free_num" value="3" />
+    <!--  method to calculate the occupied probability for 2d map >>> -->
+    <!-- now support two ways: angle_method \ stdev_method \ stdev_method_sparse-->
+    <param name="method" value="angle_method" />
+    <!-- if choose angle_method, the angle threshold, cells greater than this threshold will be set occupied -->
+    <param name="th_angle" value="20.0" />
+    <!-- if choose stdev_method, the stdev threshold, cells greater than this threshold will be set occupied -->
+    <param name="th_stdev" value="2.0" />
+  </node>
+
+
+  <!-- **movebase config** -->
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base_node" output="screen" >
+    <param name="footprint_padding" value="0.5" />
+    <param name="controller_frequency" value="10.0" />
+    <param name="controller_patience" value="2.0" />
+    <param name="oscillation_timeout" value="30.0" />
+    <param name="oscillation_distance" value="0.5" />
+    <param name="planner_patience" value="5" />
+    <param name="recovery_behavior_enabled" value="false" />
+    <param name="clearing_rotation_allowed" value="false" />
+    <param name="planner_frequency" value="0.5" />
+    <!-- <remap from="cmd_vel" to="mobile_base/commands/velocity"/> -->
+    <rosparam file="$(find octomap_scout)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find octomap_scout)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find octomap_scout)/config/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find octomap_scout)/config/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find octomap_scout)/config/base_local_planner_params.yaml" command="load" />  
+    <!-- <param name="global_costmap/global_frame" value="/map"/>
+    <param name="global_costmap/robot_base_frame" value="/base_link"/>
+    <param name="global_costmap/point_cloud_sensor/sensor_frame" value="/camera_init"/>
+    <param name="global_costmap/point_cloud_sensor/topic" value="/velodyne_cloud_registered"/>    
+    <param name="local_costmap/global_frame" value="/map"/>
+    <param name="local_costmap/robot_base_frame" value="/base_link"/>
+    <param name="local_costmap/point_cloud_sensor/sensor_frame" value="/camera_depth_frame"/>
+    <param name="local_costmap/point_cloud_sensor/topic" value="/camera_init"/>
+    <param name="local_costmap/obstacle_layer/point_cloud_sensor/topic" value="/velodyne_cloud_registered"/> -->
+    <remap from="map" to="/detect_map"/>
+  </node>
+
+  <!-- RViz -->
+  <node pkg="rviz" type="rviz" name="$(anon rviz)" respawn="false" output="screen" args="-d $(find octomap_scout)/rviz/aloam_octomap.rviz"/>
+
+</launch>
+

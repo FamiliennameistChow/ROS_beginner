@@ -11,8 +11,8 @@ global_costmap:
   height: 100.0
   resolution: 0.15
 
-  plugins:
-    - {name: static_map,       type: "costmap_2d::StaticLayer"}
-    - {name: obstacles,        type: "costmap_2d::VoxelLayer"}
-    # - {name: gridlayer,        type: "simple_layer_namespace::GridLayer"}     
-    - {name: inflation_layer,        type: "costmap_2d::InflationLayer"}
+  # plugins:
+  #   - {name: static_map,       type: "costmap_2d::StaticLayer"}
+  #   - {name: obstacles,        type: "costmap_2d::VoxelLayer"}
+  #   # - {name: gridlayer,        type: "simple_layer_namespace::GridLayer"}     
+  #   - {name: inflation_layer,        type: "costmap_2d::InflationLayer"}

@@ -139,29 +139,29 @@ Visualization Manager:
       Unreliable: false
       Value: true
     - Class: rviz/Marker
-      Enabled: false
+      Enabled: true
       Marker Topic: /visualization_marker
       Name: rrt_tree
       Namespaces:
         {}
       Queue Size: 50000
-      Value: false
+      Value: true
     - Class: rviz/Marker
-      Enabled: false
+      Enabled: true
       Marker Topic: /lines
       Name: rrt_node
       Namespaces:
         {}
       Queue Size: 10000
-      Value: false
+      Value: true
     - Class: rviz/Marker
-      Enabled: false
+      Enabled: true
       Marker Topic: /lines_back
       Name: path
       Namespaces:
         {}
       Queue Size: 100
-      Value: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -187,25 +187,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 12.1674824
+      Distance: 19.1457691
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.457242489
-        Y: 0.285760134
-        Z: 3.16890407
+        X: 0.248538494
+        Y: -3.83733153
+        Z: 2.32259488
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.589797258
+      Pitch: 0.614797235
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.2286489
+      Yaw: 3.04364729
     Saved: ~
 Window Geometry:
   Displays:
