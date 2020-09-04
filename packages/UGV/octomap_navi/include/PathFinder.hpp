@@ -110,8 +110,8 @@ public:
 	void pathSearch(octomap::point3d start_pt, octomap::point3d end_pt);
 
 	void updateMap(shared_ptr<octomap::OcTree> map);
-    bool validGround(octomap::point3d query_point);
-	bool validGround(octomap::point3d query_point, float& mean_);
+    bool validGround(octomap::point3d query_point, float th_stdev);
+	bool validGround(octomap::point3d query_point, float& mean_, float th_stdev);
 
     bool getPath(vector<octomap::point3d> &path);
 	void getVisNode(vector<octomap::point3d> &vis_new_pt_set, 
@@ -174,7 +174,7 @@ void RRTPathFinder::pathSearch(octomap::point3d start_pt, octomap::point3d end_p
     end_pt_ = end_pt;
 
 	start_pt_(2) = 5;
-	if(validGround(start_pt_, mean)){
+	if(validGround(start_pt_, mean, th_stdev_)){
 		start_pt_(2) = mean + carBodySize(2);
 	}else
 	{
@@ -182,7 +182,7 @@ void RRTPathFinder::pathSearch(octomap::point3d start_pt, octomap::point3d end_p
 	}
 
 	end_pt_(2) = 5;
-	if(validGround(end_pt_, mean)){
+	if(validGround(end_pt_, mean, th_stdev_)){
 		end_pt_(2) = mean + carBodySize(2);
 	}else
 	{
@@ -239,7 +239,7 @@ void RRTPathFinder::pathSearch(octomap::point3d start_pt, octomap::point3d end_p
 		cout << "[rrt path finder]: new_pt_ " << new_pt_(0) <<" " << new_pt_(1) << " " << new_pt_(2) << endl;
         new_pt_(2) = 5;
 		// cout << validGround(p_new, mean) << endl;
-		if(validGround(new_pt_, mean)){
+		if(validGround(new_pt_, mean, th_stdev_)){
 			new_pt_(2) = mean + carBodySize(2);
 		}else
 		{
@@ -344,7 +344,7 @@ int RRTPathFinder::collisionFree(octomap::point3d nearest_point, octomap::point3
 	for (size_t i = 0; i < step_nu; i++)
 	{
 		step_point = Steer(step_point, new_point, step_length);
-		if(validGround(step_point)){
+		if(validGround(step_point, th_stdev_)){
 			state = 1;
 			continue;
 		}else
@@ -359,7 +359,7 @@ int RRTPathFinder::collisionFree(octomap::point3d nearest_point, octomap::point3
 
 
 // process octomap
-bool RRTPathFinder::validGround(octomap::point3d query_point){
+bool RRTPathFinder::validGround(octomap::point3d query_point, float th_stdev){
 	// sreach the ground state
 	// sreach pattern
 	//     *
@@ -417,7 +417,7 @@ bool RRTPathFinder::validGround(octomap::point3d query_point){
 			accum += ((*it)(2) - mean)*((*it)(2) - mean);
 		}
 		float stdev = sqrt(accum/(ground_point_set.size()-1));
-		if(stdev > th_stdev_){ //0.005 0.1
+		if(stdev > th_stdev){ //0.005 0.1
 			// cout<< query_point <<  " stdev: " << stdev <<endl; 
 			return false;
 		}
@@ -428,7 +428,7 @@ bool RRTPathFinder::validGround(octomap::point3d query_point){
 
 
 // 返回地形高度，用于显示
-bool RRTPathFinder::validGround(octomap::point3d query_point, float& mean_){
+bool RRTPathFinder::validGround(octomap::point3d query_point, float& mean_, float th_stdev){
 	// sreach the ground state
 	// sreach pattern
 	// 

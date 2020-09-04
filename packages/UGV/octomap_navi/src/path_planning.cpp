@@ -175,7 +175,7 @@ planner::planner(ros::NodeHandle &nh, ros::NodeHandle &private_nh) : n_(nh)
 	private_nh.param<float>("path_finder/setp_eta", setp_eta_, 2.0);
 	private_nh.param<int>  ("path_finder/max_iter", max_iter_, 10000);
 	private_nh.param<bool> ("vis/is_proj_cube", is_proj_cube_, false);
-	private_nh.param<int>  ("planner/max_inflate", max_inflate_iter_, 20);
+	private_nh.param<int>  ("planner/max_inflate", max_inflate_iter_, 10);
 	private_nh.param<float>("planner/inflate_step_length", inflate_step_length_, 1.0);
 
 
@@ -354,7 +354,7 @@ std::vector<Cube> planner::corridorGeneration(vector<octomap::point3d> path){
 	{
 		
 		pt = path[i];
-		// cout << "path pt: " << pt(0) << " " << pt(1) << " " << pt(2) << endl;
+		cout << "path pt: " << pt(0) << " " << pt(1) << " " << pt(2) << endl;
 		Cube cube = generateCube(pt);
 		auto result = inflateCube(cube, lastCube);
 
@@ -452,9 +452,11 @@ pair<Cube, bool> planner::inflateCube(Cube cube, Cube lstcube){
 		collide = false;
 		int y_lo = vertex_idx(0, 1) - inflate_step_length_;
 
+		cout << "-------------------------------" <<iter << endl;
+		cout << "Y-" << endl;
 		for (id_y = vertex_idx(0, 1); id_y >= y_lo; id_y = id_y - 3*map_resolution_)
 		{
-			//cout << "id_y: " << id_y << endl;
+			cout << "id_y: " << id_y << endl;
 			if (collide) break;
 
 			for (id_x = vertex_idx(0, 0); id_x >= vertex_idx(3, 0); id_x = id_x - 3*map_resolution_)
@@ -465,7 +467,7 @@ pair<Cube, bool> planner::inflateCube(Cube cube, Cube lstcube){
 				id_z = vertex_idx(0, 2); 
 
 				octomap::point3d p(id_x, id_y, id_z);
-				if (!path_finder->validGround(p))
+				if (!path_finder->validGround(p, th_stdev_+0.1))
 				{
 					collide = true;
 					break;
@@ -490,6 +492,7 @@ pair<Cube, bool> planner::inflateCube(Cube cube, Cube lstcube){
 		collide = false;
 		int y_up = vertex_idx(1, 1) + inflate_step_length_;
 
+		cout << "Y+" << endl;
 		for (id_y = vertex_idx(1, 1); id_y <= y_up; id_y = id_y + 3*map_resolution_)
 		{
 			if (collide) break;
@@ -501,7 +504,7 @@ pair<Cube, bool> planner::inflateCube(Cube cube, Cube lstcube){
 				id_z = vertex_idx(1, 2);
 
 				octomap::point3d p(id_x, id_y, id_z);
-				if (!path_finder->validGround(p))
+				if (!path_finder->validGround(p, th_stdev_+0.1))
 				{
 					collide = true;
 					break;
@@ -526,6 +529,7 @@ pair<Cube, bool> planner::inflateCube(Cube cube, Cube lstcube){
 		collide = false;
 		int x_up = vertex_idx(0, 0) + inflate_step_length_;
 
+		cout << "X+" << endl;
 		for (id_x = vertex_idx(0, 0); id_x <= x_up; id_x = id_x + 3*map_resolution_)
 		{
 			if (collide) break;
@@ -537,7 +541,7 @@ pair<Cube, bool> planner::inflateCube(Cube cube, Cube lstcube){
 				id_z = vertex_idx(0, 2);
 
 				octomap::point3d p(id_x, id_y, id_z);
-				if (!path_finder->validGround(p))
+				if (!path_finder->validGround(p, th_stdev_+0.1))
 				{
 					collide = true;
 					break;
@@ -561,6 +565,7 @@ pair<Cube, bool> planner::inflateCube(Cube cube, Cube lstcube){
 		collide = false;
 		int x_lo = vertex_idx(3, 0) - inflate_step_length_;
 
+		cout << "X-" << endl;
 		for (id_x = vertex_idx(3, 0); id_x >= x_lo; id_x = id_x - 3*map_resolution_)
 		{
 			if (collide) break;
@@ -572,7 +577,7 @@ pair<Cube, bool> planner::inflateCube(Cube cube, Cube lstcube){
 				id_z = vertex_idx(3, 2);
 
 				octomap::point3d p(id_x, id_y, id_z);
-				if (!path_finder->validGround(p))
+				if (!path_finder->validGround(p, th_stdev_+0.1))
 				{
 					collide = true;
 					break;
