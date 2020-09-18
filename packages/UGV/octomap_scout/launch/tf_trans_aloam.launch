@@ -3,7 +3,7 @@
   <param name="use_sim_time" value="true"/>
   <arg name="prepared_map" default="false" />
   <!-- <node pkg="tf2_ros" type="static_transform_publisher" name="loam_broadcaster" args="0 0 0 0 0 0 /map /camera_init"/> -->
-  <node pkg="tf" type="static_transform_publisher" name="laser_odom_to_baselink" args="0.0 0.0 0.0 0.0 0.0 0.0 /aft_mapped /base_link 50"/>
+  <node pkg="tf" type="static_transform_publisher" name="laser_odom_to_baselink" args="0.0 0.0 0.0 0.0 0.0 0.0 /camera /base_link 50"/>
 
   <group unless="$(arg prepared_map)">
     <node pkg="tf" type="static_transform_publisher" name="camera_init_to_map" args="0.0 0.0 0.0 0.0 0.0 0.0 /map /camera_init 50"/>

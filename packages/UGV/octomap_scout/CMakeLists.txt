@@ -308,8 +308,12 @@ target_link_libraries(map_optmization
       # Eigen3::Eigen
 )
 
-add_executable(scout_navi src/scout_navi.cpp)
-target_link_libraries(scout_navi ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+add_executable(trans_fusion src/back_end/transformFusion.cpp)
+target_link_libraries(trans_fusion ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBRARIES})
+
+
+# add_executable(scout_navi src/scout_navi.cpp)
+# target_link_libraries(scout_navi ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 
 add_executable(process_2d_map src/process_2d_map.cpp)
