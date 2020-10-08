@@ -199,3 +199,6 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 20200918 zb
 * 更新`octomap_scout`包，新增功能:
     1. 提高位姿估计频率
+
+20201008 zb
+* 更新了`octomap_navi`包，实现mini-jerk轨迹优化

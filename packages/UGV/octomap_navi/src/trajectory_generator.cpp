@@ -1,314 +1,550 @@
- /*
- * Copyright 2017 Ayush Gaud 
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
+#include "trajectory_generator.h"
+using namespace std;    
+using namespace Eigen;
 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
- 
-#include "ros/ros.h"
-#include <thread>
-#include "mutex"
-#include <Eigen/Dense>
-#include <trajectory_msgs/MultiDOFJointTrajectory.h>
-#include "visualization_msgs/Marker.h"
-#include <geometry_msgs/PointStamped.h>
-
-ros::Publisher vis_pub;
-ros::Publisher traj_pub;
-ros::Publisher start_pub;
-
-bool istrajpub = true;
-bool visualize = true;
-bool terminate_prev = false;
-bool is_terminated = true;
-bool init_trajpub = false;
-int id = 0;
-
-ros::Duration planner_delay(2);
-
-Eigen::MatrixXf prev_states = Eigen::MatrixXf::Zero(4,3);
-std::mutex states_mutex;
-
-// Function to differentiate a polynomial
-Eigen::MatrixXf poly_diff(int n, int k, double t)
+static void MSKAPI printstr(void *handle, MSKCONST char str[])
 {
-	Eigen::ArrayXf T = Eigen::ArrayXf::Constant(n, 1, 1);
-	Eigen::ArrayXf D = Eigen::ArrayXf::LinSpaced(n, 0, n -1);
-	
-	for (int j = 0; j < k; ++j)
-	{
-		for (int i = 0; i < n; ++i)
-		{
-			T(i) *= D(i);
-			if(D(i) > 0)
-				D(i) -= 1;
-		}
-	}
-
-	for (int i = 0; i < n; ++i)
-	{
-		T(i) *= std::pow(t, D(i));
-	}
-	return T.matrix().transpose();
+  printf("%s",str);
 }
 
-void trajCb(Eigen::MatrixXf coefficients, Eigen::MatrixXf waypoints)
-{
-	init_trajpub = true;
-	is_terminated = false;
-	size_t n = waypoints.rows() - 1;
-	Eigen::VectorXf time = Eigen::VectorXf::Zero(n);
-	float avg_vel = 0.3;
-	// Calculate time based on average velocity for the trajetory
-	for (int i = 0; i < n; ++i)
-	{
-		time(i) = std::sqrt(std::pow(waypoints(i + 1, 0) - waypoints(i, 0), 2) + std::pow(waypoints(i + 1, 1) - waypoints(i, 1), 2) + std::pow(waypoints(i + 1, 2) - waypoints(i, 2), 2));
-		time(i) /=avg_vel;
-	}
+int TrajectoryGenerator::BezierPloyCoeffGeneration(
+            const vector<Cube> &corridor,
+            const MatrixXd &MQM,
+            const MatrixXd &pos,
+            const MatrixXd &vel,
+            const MatrixXd &acc,
+            const double maxVel,
+            const double maxAcc,
+            const int traj_order,
+            const double minimize_order,
+            const double margin,
+            const bool & isLimitVel,
+            const bool & isLimitAcc,
+            double & obj,
+            MatrixXd & PolyCoeff)  // define the order to which we minimize.   1 -- velocity, 2 -- acceleration, 3 -- jerk, 4 -- snap  
+{   
+#define ENFORCE_VEL  isLimitVel // whether or not adding extra constraints for ensuring the velocity feasibility
+#define ENFORCE_ACC  isLimitAcc // whether or not adding extra constraints for ensuring the acceleration feasibility
 
-	// Trajectory publish
+    double initScale = corridor.front().t; 
+    double lstScale  = corridor.back().t;
+    int segment_num  = corridor.size();
 
-	trajectory_msgs::MultiDOFJointTrajectory traj_msg;
-	trajectory_msgs::MultiDOFJointTrajectoryPoint point_msg;
-	traj_msg.header.frame_id = "world";
-	traj_msg.joint_names.clear();
-	traj_msg.joint_names.push_back("Quadcopter");
-	
-	int idx = 0;
-	int idx_replan = 0;
-	geometry_msgs::PointStamped replan_pos;
+    int n_poly = traj_order + 1; //多项式的项数
+    int s1d1CtrlP_num = n_poly; //位置控制点??
+    int s1CtrlP_num   = 3 * s1d1CtrlP_num; //?? 位置,速度，加速度控制点
 
-	visualization_msgs::Marker marker;
-	
-	ros::Time time_start = ros::Time::now();
-	ros::Time time_start_replan = ros::Time::now();
-	double curr_time = ros::Time::now().toSec() - time_start.toSec();
-	if(istrajpub)
-	{	
-		while(idx < n)
-		{
-			if(terminate_prev)
-			{
-				is_terminated = true;
-				break;
-			}
-			curr_time = ros::Time::now().toSec() - time_start.toSec();
+    int equ_con_s_num = 3 * 3; // p, v, a in x, y, z axis at the start point // con -- 连续性约束
+    int equ_con_e_num = 3 * 3; // p, v, a in x, y, z axis at the end point
+    int equ_con_continuity_num = 3 * 3 * (segment_num - 1);
+    int equ_con_num   = equ_con_s_num + equ_con_e_num + equ_con_continuity_num; // p, v, a in x, y, z axis in each segment's joint position
+    
+    int vel_con_num = 3 *  traj_order * segment_num;
+    int acc_con_num = 3 * (traj_order - 1) * segment_num;
 
-			while(true)
-			{
-				if(curr_time > time(idx))
-				{
-					idx++;
-					time_start = ros::Time::now();
-					break;
-				}
-				else
-					break;
-			}
-			while(true)
-			{
-				if(ros::Time::now().toSec() - time_start_replan.toSec() + planner_delay.toSec() > time(idx_replan))
-				{
-					idx_replan++;
-					time_start_replan = ros::Time::now();
-					break;
-				}
-				else
-					break;
-			}
-			if(idx_replan <= n)
-			{	
-				replan_pos.point.x = waypoints(n, 0);
-				replan_pos.point.y = waypoints(n, 1);
-				replan_pos.point.z = waypoints(n, 2);
+    if( !ENFORCE_VEL )
+        vel_con_num = 0;
 
-				start_pub.publish(replan_pos);
-			}
-			else
-			{
-				Eigen::MatrixXf replan_position = poly_diff(8, 0, (ros::Time::now().toSec() - time_start_replan.toSec()  + planner_delay.toSec())/time(idx_replan)) * coefficients.block(8*idx_replan, 0, 8, 3);
-				replan_pos.point.x = replan_position(0);
-				replan_pos.point.y = replan_position(1);
-				replan_pos.point.z = replan_position(2);
+    if( !ENFORCE_ACC )
+        acc_con_num = 0;
 
-				start_pub.publish(replan_pos);
-			}
-			// Termination criterion
-			if(idx >= n)
-				break;
-			curr_time = ros::Time::now().toSec() - time_start.toSec();
-			traj_msg.points.clear();
+    int high_order_con_num = vel_con_num + acc_con_num; 
+    //int high_order_con_num = 0; //3 * traj_order * segment_num;
 
-			Eigen::MatrixXf position = poly_diff(8, 0, curr_time/time(idx)) * coefficients.block(8*idx, 0, 8, 3);
-			// Eigen::MatrixXf velocity = poly_diff(8, 1, curr_time) * coefficients.block(8*idx, 0, 8, 3);
-			// Eigen::MatrixXf acceleration = poly_diff(8, 2, curr_time) * coefficients.block(8*idx, 0, 8, 3);
-			
-			std::lock_guard<std::mutex> lock(states_mutex);
-			// Store states for replanning
-			for(int j = 0; j < 4; j++)
-				prev_states.block(j, 0, 1, 3) = poly_diff(8, j, curr_time/time(idx)) * coefficients.block(8*idx, 0, 8, 3);
+    int con_num   = equ_con_num + high_order_con_num;
+    int ctrlP_num = segment_num * s1CtrlP_num; //总的控制点
 
-			traj_msg.header.stamp = ros::Time::now();
-			point_msg.time_from_start.fromSec(ros::Time::now().toSec());
-			point_msg.transforms.resize(1);
-			// point_msg.velocities.resize(1);
-			// point_msg.accelerations.resize(1);
+    double x_var[ctrlP_num];
+    double primalobj;
 
-			point_msg.transforms[0].translation.x = position(0);
-			point_msg.transforms[0].translation.y = position(1);
-			point_msg.transforms[0].translation.z = position(2);
-			std::cout << idx << ": Trajectory: " << position << std::endl;
+    MSKrescodee  r; 
+    vector< pair<MSKboundkeye, pair<double, double> > > con_bdk; 
+    
+    if(ENFORCE_VEL)
+    {
+        /***  Stack the bounding value for the linear inequality for the velocity constraints  ***/
+        for(int i = 0; i < vel_con_num; i++)
+        {
+            pair<MSKboundkeye, pair<double, double> > cb_ie = make_pair( MSK_BK_RA, make_pair( - maxVel,  + maxVel) );
+            con_bdk.push_back(cb_ie);   
+        }
+    }
 
-			traj_msg.points.push_back(point_msg);
-			traj_pub.publish(traj_msg);
+    if(ENFORCE_ACC)
+    {
+        /***  Stack the bounding value for the linear inequality for the acceleration constraints  ***/
+        for(int i = 0; i < acc_con_num; i++)
+        {
+            pair<MSKboundkeye, pair<double, double> > cb_ie = make_pair( MSK_BK_RA, make_pair( - maxAcc,  maxAcc) ); 
+            con_bdk.push_back(cb_ie);   
+        }
+    }
 
-			// Markers for visualization
-			if(visualize)
-			{
-				marker.header.frame_id = "map";
-				marker.header.stamp = ros::Time();
-				marker.ns = "Jerk";
-				marker.id = id++;
-				marker.type = visualization_msgs::Marker::CUBE;
-				marker.action = visualization_msgs::Marker::ADD;
+    //ROS_WARN("[Bezier Trajectory] equality bound %d", equ_con_num);
+    for(int i = 0; i < equ_con_num; i ++ ){ 
+        double beq_i;
+        if(i < 3)                    beq_i = pos(0, i); 
+        else if (i >= 3  && i < 6  ) beq_i = vel(0, i - 3); 
+        else if (i >= 6  && i < 9  ) beq_i = acc(0, i - 6);
+        else if (i >= 9  && i < 12 ) beq_i = pos(1, i - 9 );
+        else if (i >= 12 && i < 15 ) beq_i = vel(1, i - 12);
+        else if (i >= 15 && i < 18 ) beq_i = acc(1, i - 15);
+        else beq_i = 0.0;
 
-				marker.pose.position.x = position(0);
-				marker.pose.position.y = position(1);
-				marker.pose.position.z = position(2);
+        pair<MSKboundkeye, pair<double, double> > cb_eq = make_pair( MSK_BK_FX, make_pair( beq_i, beq_i ) ); // # cb_eq means: constriants boundary of equality constrain
+        con_bdk.push_back(cb_eq);
+    }
 
-				marker.scale.x = 0.1;
-				marker.scale.y = 0.1;
-				marker.scale.z = 0.1;
-				marker.color.a = 1.0;
-				marker.color.r = 0.0;
-				marker.color.g = 0.0;
-				marker.color.b = 1.0;
-				vis_pub.publish(marker);
-			}
-			ros::Duration(0.1).sleep(); //Publish points at 10 Hz
+    /* ## define a container for control points' boundary and boundkey ## */ 
+    /* ## dataType in one tuple is : boundary type, lower bound, upper bound ## */
+    vector< pair<MSKboundkeye, pair<double, double> > > var_bdk; 
 
-		}
-		if(!terminate_prev)
-		{
-			std::cout << "Reached Goal" << std::endl;
-			id = 0;
-			// marker.action = visualization_msgs::Marker::DELETEALL;
-			// ros::Duration(5).sleep();
-			// vis_pub.publish(marker);
-		}
-		is_terminated = true;
-	}
-	
-}
+    for(int k = 0; k < segment_num; k++)
+    {   
+        Cube cube_     = corridor[k];
+        double scale_k = cube_.t;
 
-void plannerCb(const trajectory_msgs::MultiDOFJointTrajectory& msg)
-{
-	
-	size_t n = msg.points.size() - 1;
-	
-	Eigen::MatrixXf b = Eigen::MatrixXf::Zero(8*n, 3);
-	Eigen::MatrixXf A = Eigen::MatrixXf::Zero(8*n, 8*n);
-	Eigen::MatrixXf waypoints = Eigen::MatrixXf::Zero(n + 1, 3);
+        for(int i = 0; i < 3; i++ )
+        {   
+            for(int j = 0; j < n_poly; j ++ )
+            {   
+                pair<MSKboundkeye, pair<double, double> > vb_x;
 
-	// Copy waypoints from message
-	for (int i = 0; i <= n; ++i)
-	{
-		waypoints(i, 0) = msg.points[i].transforms[0].translation.x;
-		waypoints(i, 1) = msg.points[i].transforms[0].translation.y;
-		waypoints(i, 2) = msg.points[i].transforms[0].translation.z;
-	}
+                double lo_bound, up_bound;
+                if(k > 0)
+                {
+                    lo_bound = (cube_.box[i].first  + margin) / scale_k;
+                    up_bound = (cube_.box[i].second - margin) / scale_k;
+                }
+                else
+                {
+                    lo_bound = (cube_.box[i].first)  / scale_k;
+                    up_bound = (cube_.box[i].second) / scale_k;
+                }
 
-	// Make b such that it's in the form Ax = b 
-	for(int i = 0; i < n; i++)
-	{
-		b(i, 0) = waypoints(i, 0);
-		b(i, 1) = waypoints(i, 1);
-		b(i, 2) = waypoints(i, 2);
+                vb_x  = make_pair( MSK_BK_RA, make_pair( lo_bound, up_bound ) ); // # vb_x means: varialbles boundary of unknowns x (Polynomial coeff)
 
-		b(i + n, 0) = waypoints(i + 1, 0);
-		b(i + n, 1) = waypoints(i + 1, 1);
-		b(i + n, 2) = waypoints(i + 1, 2);;
+                var_bdk.push_back(vb_x);
+            }
+        } 
+    }
 
-	}
+    MSKint32t  j,i; 
+    MSKenv_t   env; 
+    MSKtask_t  task; 
+    // Create the mosek environment. 
+    r = MSK_makeenv( &env, NULL ); 
+  
+    // Create the optimization task. 
+    r = MSK_maketask(env,con_num, ctrlP_num, &task); 
 
-	size_t row = 0;
+// Parameters used in the optimizer
+//######################################################################
+    //MSK_putintparam (task, MSK_IPAR_OPTIMIZER , MSK_OPTIMIZER_INTPNT );
+    MSK_putintparam (task, MSK_IPAR_NUM_THREADS, 1);
+    MSK_putdouparam (task, MSK_DPAR_CHECK_CONVEXITY_REL_TOL, 1e-2);
+    MSK_putdouparam (task, MSK_DPAR_INTPNT_TOL_DFEAS,  1e-4);
+    MSK_putdouparam (task, MSK_DPAR_INTPNT_TOL_PFEAS,  1e-4);
+    MSK_putdouparam (task, MSK_DPAR_INTPNT_TOL_INFEAS, 1e-4);
+    //MSK_putdouparam (task, MSK_DPAR_INTPNT_TOL_REL_GAP, 5e-2 );
+//######################################################################
+    
+    //r = MSK_linkfunctotaskstream(task,MSK_STREAM_LOG,NULL,printstr); 
+    // Append empty constraints. 
+     //The constraints will initially have no bounds. 
+    if ( r == MSK_RES_OK ) 
+      r = MSK_appendcons(task,con_num);  
 
-	// Position constraints at t = 0
-	for(int i = 0; i < n; i++)
-	{
-		A.block(row, 8*i, 1, 8) = poly_diff(8, 0, 0);
-		row++;
-	}
+    // Append optimizing variables. The variables will initially be fixed at zero (x=0). 
+    if ( r == MSK_RES_OK ) 
+      r = MSK_appendvars(task,ctrlP_num); 
 
-	// Position constraints at t =1
-	for(int i = 0; i < n; i++)
-	{
-		A.block(row, 8*i, 1, 8) = poly_diff(8, 0, 1);
-		row++;
-	}
+    //ROS_WARN("set variables boundary");
+    for(j = 0; j<ctrlP_num && r == MSK_RES_OK; ++j){ 
+        if (r == MSK_RES_OK) 
+            r = MSK_putvarbound(task, 
+                                j,                            // Index of variable. 
+                                var_bdk[j].first,             // Bound key.
+                                var_bdk[j].second.first,      // Numerical value of lower bound.
+                                var_bdk[j].second.second );   // Numerical value of upper bound.      
+    } 
+    
+    // Set the bounds on constraints. 
+    //   for i=1, ...,con_num : blc[i] <= constraint i <= buc[i] 
+    for( i = 0; i < con_num && r == MSK_RES_OK; i++ ) {
+        r = MSK_putconbound(task, 
+                            i,                            // Index of constraint. 
+                            con_bdk[i].first,             // Bound key.
+                            con_bdk[i].second.first,      // Numerical value of lower bound.
+                            con_bdk[i].second.second );   // Numerical value of upper bound. 
+    }
 
-	// Velocity acceleration and jerk constraints at t = 0 for first point
-	for (int i = 0; i < 3; i++)
-	{
-		A.block(row, 0, 1, 8) = poly_diff(8, i + 1, 0);
-		if(init_trajpub)
-		{
-			b.block(0, 0, 1, 3) = prev_states.block(0, 0, 1, 3);
-			b.block(row, 0, 1, 3) = prev_states.block(1 + i, 0, 1, 3);
-		}
-		row++;
-	}
+    //ROS_WARN("[Bezier Trajectory] Start stacking the Linear Matrix A, inequality part");
+    int row_idx = 0;
+    // The velocity constraints
+    if(ENFORCE_VEL)
+    {   
+        for(int k = 0; k < segment_num ; k ++ )
+        {   
+            for(int i = 0; i < 3; i++)
+            {  // for x, y, z loop
+                for(int p = 0; p < traj_order; p++)
+                {
+                    int nzi = 2;
+                    MSKint32t asub[nzi];
+                    double aval[nzi];
 
-	// Velocity acceleration and jerk constraints at t = 1 for last point
-	for (int i = 0; i < 3; i++)
-	{
-		A.block(row, 8*(n -1), 1, 8) = poly_diff(8, i + 1, 1);
-		row++;
-	}
+                    aval[0] = -1.0 * traj_order;
+                    aval[1] =  1.0 * traj_order;
 
-	// Continuity constraints at intermediate points
-	for (int i = 0; i < n - 1; i++)
-	{
-		for (int k = 0; k < 6; k++)
-		{
-			A.block(row, 8*i ,1, 8) = poly_diff(8, k + 1, 1);
-			A.block(row, 8*i + 8, 1, 8) = -poly_diff(8, k + 1, 0);
-			row++;
-		}
-	}
+                    asub[0] = k * s1CtrlP_num + i * s1d1CtrlP_num + p;    
+                    asub[1] = k * s1CtrlP_num + i * s1d1CtrlP_num + p + 1;    
 
-	Eigen::MatrixXf coefficients = A.colPivHouseholderQr().solve(b); //Fast and reliable
-	// std::cout << "coefficients: " << coefficients << std::endl;
+                    r = MSK_putarow(task, row_idx, nzi, asub, aval);    
+                    row_idx ++;
+                }
+            }
+        }
+    }
 
-	// send trajectory commands
-	while(!is_terminated)
-	{
-		terminate_prev = true;
-		ros::Duration(0.05).sleep();
-	}
-	terminate_prev = false;
-	std::thread(trajCb, coefficients, waypoints).detach();
-	
-	// ros::Duration(3).sleep();
-	
-}
+    // The acceleration constraints
+    if(ENFORCE_ACC)
+    {
+        for(int k = 0; k < segment_num ; k ++ )
+        {
+            for(int i = 0; i < 3; i++)
+            { 
+                for(int p = 0; p < traj_order - 1; p++)
+                {    
+                    int nzi = 3;
+                    MSKint32t asub[nzi];
+                    double aval[nzi];
 
-int main(int argc, char **argv)
-{
-	ros::init(argc, argv, "trajectory_generator");
-	ros::NodeHandle n;
-	ros::Subscriber planner_sub = n.subscribe("/waypoints",1, plannerCb);
-	vis_pub = n.advertise<visualization_msgs::Marker>( "visualization_marker_jerk", 0 );
-	traj_pub = n.advertise<trajectory_msgs::MultiDOFJointTrajectory>("/bebop2/command/trajectory",10);
-	start_pub = n.advertise<geometry_msgs::PointStamped>("/start/clicked_point", 10);
-	ros::spin();
+                    aval[0] =  1.0 * traj_order * (traj_order - 1) / corridor[k].t;
+                    aval[1] = -2.0 * traj_order * (traj_order - 1) / corridor[k].t;
+                    aval[2] =  1.0 * traj_order * (traj_order - 1) / corridor[k].t;
+                    asub[0] = k * s1CtrlP_num + i * s1d1CtrlP_num + p;    
+                    asub[1] = k * s1CtrlP_num + i * s1d1CtrlP_num + p + 1;    
+                    asub[2] = k * s1CtrlP_num + i * s1d1CtrlP_num + p + 2;    
+                    
+                    r = MSK_putarow(task, row_idx, nzi, asub, aval);    
+                    row_idx ++;
+                }
+            }
+        }
+    }
+    /*   Start position  */
+    {
+        // position :
+        for(int i = 0; i < 3; i++)
+        {  // loop for x, y, z       
+            int nzi = 1;
+            MSKint32t asub[nzi];
+            double aval[nzi];
+            aval[0] = 1.0 * initScale;
+            asub[0] = i * s1d1CtrlP_num;
+            r = MSK_putarow(task, row_idx, nzi, asub, aval);    
+            row_idx ++;
+        }
+        // velocity :
+        for(int i = 0; i < 3; i++)
+        {  // loop for x, y, z       
+            int nzi = 2;
+            MSKint32t asub[nzi];
+            double aval[nzi];
+            aval[0] = - 1.0 * traj_order;
+            aval[1] =   1.0 * traj_order;
+            asub[0] = i * s1d1CtrlP_num;
+            asub[1] = i * s1d1CtrlP_num + 1;
+            r = MSK_putarow(task, row_idx, nzi, asub, aval);   
+            row_idx ++;
+        }
+        // acceleration : 
+        for(int i = 0; i < 3; i++)
+        {  // loop for x, y, z       
+            int nzi = 3;
+            MSKint32t asub[nzi];
+            double aval[nzi];
+            aval[0] =   1.0 * traj_order * (traj_order - 1) / initScale;
+            aval[1] = - 2.0 * traj_order * (traj_order - 1) / initScale;
+            aval[2] =   1.0 * traj_order * (traj_order - 1) / initScale;
+            asub[0] = i * s1d1CtrlP_num;
+            asub[1] = i * s1d1CtrlP_num + 1;
+            asub[2] = i * s1d1CtrlP_num + 2;
+            r = MSK_putarow(task, row_idx, nzi, asub, aval);    
+            row_idx ++;
+        }
+    }      
+
+    /*   End position  */
+    //ROS_WARN(" end position");
+    {   
+        // position :
+        for(int i = 0; i < 3; i++)
+        {  // loop for x, y, z       
+            int nzi = 1;
+            MSKint32t asub[nzi];
+            double aval[nzi];
+            asub[0] = ctrlP_num - 1 - (2 - i) * s1d1CtrlP_num;
+            aval[0] = 1.0 * lstScale;
+            r = MSK_putarow(task, row_idx, nzi, asub, aval);    
+            row_idx ++;
+        }
+        // velocity :
+        for(int i = 0; i < 3; i++)
+        { 
+            int nzi = 2;
+            MSKint32t asub[nzi];
+            double aval[nzi];
+            asub[0] = ctrlP_num - 1 - (2 - i) * s1d1CtrlP_num - 1;
+            asub[1] = ctrlP_num - 1 - (2 - i) * s1d1CtrlP_num;
+            aval[0] = - 1.0;
+            aval[1] =   1.0;
+            r = MSK_putarow(task, row_idx, nzi, asub, aval);    
+            row_idx ++;
+        }
+        // acceleration : 
+        for(int i = 0; i < 3; i++)
+        { 
+            int nzi = 3;
+            MSKint32t asub[nzi];
+            double aval[nzi];
+            asub[0] = ctrlP_num - 1 - (2 - i) * s1d1CtrlP_num - 2;
+            asub[1] = ctrlP_num - 1 - (2 - i) * s1d1CtrlP_num - 1;
+            asub[2] = ctrlP_num - 1 - (2 - i) * s1d1CtrlP_num;
+            aval[0] =   1.0 / lstScale;
+            aval[1] = - 2.0 / lstScale;
+            aval[2] =   1.0 / lstScale;
+            r = MSK_putarow(task, row_idx, nzi, asub, aval);    
+            row_idx ++;
+        }
+    }
+
+    /*   joint points  */
+    //ROS_WARN(" joint position");
+    {
+        int sub_shift = 0;
+        double val0, val1;
+        for(int k = 0; k < (segment_num - 1); k ++ )
+        {   
+            double scale_k = corridor[k].t;
+            double scale_n = corridor[k+1].t;
+            // position :
+            val0 = scale_k;
+            val1 = scale_n;
+            for(int i = 0; i < 3; i++)
+            {  // loop for x, y, z
+                int nzi = 2;
+                MSKint32t asub[nzi];
+                double aval[nzi];
+
+                // This segment's last control point
+                aval[0] = 1.0 * val0;
+                asub[0] = sub_shift + (i+1) * s1d1CtrlP_num - 1;
+
+                // Next segment's first control point
+                aval[1] = -1.0 * val1;
+                asub[1] = sub_shift + s1CtrlP_num + i * s1d1CtrlP_num;
+                r = MSK_putarow(task, row_idx, nzi, asub, aval);    
+                row_idx ++;
+            }
+            
+            for(int i = 0; i < 3; i++)
+            {  
+                int nzi = 4;
+                MSKint32t asub[nzi];
+                double aval[nzi];
+                
+                // This segment's last velocity control point
+                aval[0] = -1.0;
+                aval[1] =  1.0;
+                asub[0] = sub_shift + (i+1) * s1d1CtrlP_num - 2;    
+                asub[1] = sub_shift + (i+1) * s1d1CtrlP_num - 1;   
+                // Next segment's first velocity control point
+                aval[2] =  1.0;
+                aval[3] = -1.0;
+
+                asub[2] = sub_shift + s1CtrlP_num + i * s1d1CtrlP_num;    
+                asub[3] = sub_shift + s1CtrlP_num + i * s1d1CtrlP_num + 1;
+
+                r = MSK_putarow(task, row_idx, nzi, asub, aval);    
+                row_idx ++;
+            }
+            // acceleration :
+            val0 = 1.0 / scale_k;
+            val1 = 1.0 / scale_n;
+            for(int i = 0; i < 3; i++)
+            {  
+                int nzi = 6;
+                MSKint32t asub[nzi];
+                double aval[nzi];
+                
+                // This segment's last velocity control point
+                aval[0] =  1.0  * val0;
+                aval[1] = -2.0  * val0;
+                aval[2] =  1.0  * val0;
+                asub[0] = sub_shift + (i+1) * s1d1CtrlP_num - 3;    
+                asub[1] = sub_shift + (i+1) * s1d1CtrlP_num - 2;   
+                asub[2] = sub_shift + (i+1) * s1d1CtrlP_num - 1;   
+                // Next segment's first velocity control point
+                aval[3] =  -1.0  * val1;
+                aval[4] =   2.0  * val1;
+                aval[5] =  -1.0  * val1;
+                asub[3] = sub_shift + s1CtrlP_num + i * s1d1CtrlP_num;    
+                asub[4] = sub_shift + s1CtrlP_num + i * s1d1CtrlP_num + 1;
+                asub[5] = sub_shift + s1CtrlP_num + i * s1d1CtrlP_num + 2;
+
+                r = MSK_putarow(task, row_idx, nzi, asub, aval);    
+                row_idx ++;
+            }
+
+            sub_shift += s1CtrlP_num;
+        }
+    }
+
+    //ROS_WARN("[Bezier Trajectory] Start stacking the objective");
+    
+    int min_order_l = floor(minimize_order);
+    int min_order_u = ceil (minimize_order);
+
+    int NUMQNZ = 0;
+    for(int i = 0; i < segment_num; i ++)
+    {   
+        int NUMQ_blk = (traj_order + 1);                       // default minimize the jerk and minimize_order = 3
+        NUMQNZ      += 3 * NUMQ_blk * (NUMQ_blk + 1) / 2;
+    }
+    MSKint32t  qsubi[NUMQNZ], qsubj[NUMQNZ];
+    double     qval[NUMQNZ];
+    
+    {    
+        int sub_shift = 0;
+        int idx = 0;
+        for(int k = 0; k < segment_num; k ++)
+        {
+            double scale_k = corridor[k].t;
+            for(int p = 0; p < 3; p ++ )
+                for( int i = 0; i < s1d1CtrlP_num; i ++ )
+                    for( int j = 0; j < s1d1CtrlP_num; j ++ )
+                        if( i >= j )
+                        {
+                            qsubi[idx] = sub_shift + p * s1d1CtrlP_num + i;   
+                            qsubj[idx] = sub_shift + p * s1d1CtrlP_num + j;  
+                            //qval[idx]  = MQM(i, j) /(double)pow(scale_k, 3);
+                            if(min_order_l == min_order_u)
+                                qval[idx]  = MQM(i, j) /(double)pow(scale_k, 2 * min_order_u - 3);
+                            else
+                                qval[idx] = ( (minimize_order - min_order_l) / (double)pow(scale_k, 2 * min_order_u - 3)
+                                            + (min_order_u - minimize_order) / (double)pow(scale_k, 2 * min_order_l - 3) ) * MQM(i, j);
+                            idx ++ ;
+                        }
+
+            sub_shift += s1CtrlP_num;
+        }
+    }
+         
+    ros::Time time_end1 = ros::Time::now();
+
+    if ( r== MSK_RES_OK )
+         r = MSK_putqobj(task,NUMQNZ,qsubi,qsubj,qval); 
+    
+    if ( r==MSK_RES_OK ) 
+         r = MSK_putobjsense(task, MSK_OBJECTIVE_SENSE_MINIMIZE);
+    
+    //ros::Time time_opt = ros::Time::now();
+    bool solve_ok = false;
+    if ( r==MSK_RES_OK ) 
+      { 
+        //ROS_WARN("Prepare to solve the problem ===");   
+        MSKrescodee trmcode; 
+        r = MSK_optimizetrm(task,&trmcode); 
+        MSK_solutionsummary (task,MSK_STREAM_LOG); 
+          
+        if ( r==MSK_RES_OK ) 
+        { 
+          MSKsolstae solsta; 
+          MSK_getsolsta (task,MSK_SOL_ITR,&solsta); 
+           
+          switch(solsta) 
+          { 
+            case MSK_SOL_STA_OPTIMAL:    
+            case MSK_SOL_STA_NEAR_OPTIMAL: 
+              
+            
+            r = MSK_getxx(task, 
+                          MSK_SOL_ITR,    // Request the interior solution.  
+                          x_var); 
+            
+            r = MSK_getprimalobj(
+                task,
+                MSK_SOL_ITR,
+                &primalobj);
+
+            obj = primalobj;
+            solve_ok = true;
+            
+            break; 
+            
+            case MSK_SOL_STA_DUAL_INFEAS_CER: 
+            case MSK_SOL_STA_PRIM_INFEAS_CER: 
+            case MSK_SOL_STA_NEAR_DUAL_INFEAS_CER: 
+            case MSK_SOL_STA_NEAR_PRIM_INFEAS_CER:   
+              printf("Primal or dual infeasibility certificate found.\n"); 
+              break; 
+               
+            case MSK_SOL_STA_UNKNOWN: 
+              printf("The status of the solution could not be determined.\n"); 
+              //solve_ok = true; // debug
+              break; 
+            default: 
+              printf("Other solution status."); 
+              break; 
+          } 
+        } 
+        else 
+        { 
+          printf("Error while optimizing.\n"); 
+        } 
+      }
+     
+      if (r != MSK_RES_OK) 
+      { 
+        // In case of an error print error code and description. 
+        char symname[MSK_MAX_STR_LEN]; 
+        char desc[MSK_MAX_STR_LEN]; 
+         
+        printf("An error occurred while optimizing.\n");      
+        MSK_getcodedesc (r, 
+                         symname, 
+                         desc); 
+        printf("Error %s - '%s'\n",symname,desc); 
+      } 
+    
+    MSK_deletetask(&task); 
+    MSK_deleteenv(&env); 
+
+    ros::Time time_end2 = ros::Time::now();
+    ROS_WARN("time consume in optimize is :");
+    cout<<time_end2 - time_end1<<endl;
+
+    if(!solve_ok){
+      ROS_WARN("In solver, falied ");
+      return -1;
+    }
+
+    VectorXd d_var(ctrlP_num);
+    for(int i = 0; i < ctrlP_num; i++)
+        d_var(i) = x_var[i];
+    
+    PolyCoeff = MatrixXd::Zero(segment_num, 3 *(traj_order + 1) );
+
+    int var_shift = 0;
+    for(int i = 0; i < segment_num; i++ )
+    {
+        for(int j = 0; j < 3 * n_poly; j++)
+            PolyCoeff(i , j) = d_var(j + var_shift);
+
+        var_shift += 3 * n_poly;
+    }   
+
+    return 1;
 }

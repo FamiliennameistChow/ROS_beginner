@@ -5,6 +5,7 @@ project(octomap_navi)
 # add_compile_options(-std=c++11)
 add_compile_options(-std=c++11)
 set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+set(QPOASES_INLUDE_DIRS /usr/local/include/qpOASES)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -120,12 +121,20 @@ catkin_package(
 ## Build ##
 ###########
 
+link_directories( ${PROJECT_SOURCE_DIR}/third_party/mosek/lib/mosek8_1 )
+
+include_directories(
+  ${PROJECT_SOURCE_DIR}/third_party/mosek/include
+)
+
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
   include
+  third_party
   ${catkin_INCLUDE_DIRS}
   ${Eigen_INCLUDE_DIRS}
+  ${QPOASES_INLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -158,14 +167,18 @@ include_directories(
 #   ${catkin_LIBRARIES}
 # )
 
-add_executable(path_planning src/path_planning.cpp)
-target_link_libraries(path_planning  ${catkin_LIBRARIES} )
+add_executable(path_planning 
+              src/path_planning.cpp
+              src/bezier_base.cpp
+              src/trajectory_generator.cpp
+              )
+target_link_libraries(path_planning  ${catkin_LIBRARIES} mosek64 qpOASES)
 
 add_executable(path_planning_rrt src/path_planning_rrt.cpp)
 target_link_libraries(path_planning_rrt  ${catkin_LIBRARIES} )
 
-add_executable(trajectory_generator src/trajectory_generator.cpp)
-target_link_libraries(trajectory_generator  ${catkin_LIBRARIES} )
+# add_executable(trajectory_generator src/trajectory_generator.cpp)
+# target_link_libraries(trajectory_generator  ${catkin_LIBRARIES} )
 
 #############
 ## Install ##

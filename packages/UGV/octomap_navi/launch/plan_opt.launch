@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+  <node pkg="octomap_navi" type="path_planning" name="path_planning" output="screen">
+    <param name="odom_topic" value="odom" />
+    <param name="car_size_x" value="0.6" />
+    <param name="car_size_y" value="0.8" />
+    <param name="car_size_z" value="0.8" />
+
+    <param name="path_finder/search_radius" value="4.0" />
+    <param name="path_finder/th_stdev"      value="0.1" />
+    <param name="path_finder/setp_eta"      value="2.0" />
+    <param name="path_finder/max_iter"      value="10000" />
+
+    <param name="planner/max_inflate"         value="10" />
+    <param name="planner/inflate_step_length" value="1.0" />
+    <param name="planner/max_vel"             value="2.0" />
+    <param name="planner/max_acc"             value="2.0" />
+
+    <param name="bazier/poly_order"   value="5" />
+    <param name="bazier/min_order"    value="3" />
+    <param name="bazier/cube_margin"  value="0" />
+    <param name="bazier/is_limit_vel" value="true" />
+    <param name="bazier/is_limit_acc" value="false" />
+
+    <param name="vis/is_proj_corridor" value="false" />
+  </node>
+
+
+</launch>
+

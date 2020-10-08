@@ -8,6 +8,21 @@
  * 说明: 在octomap上实现rrt导航,用于小车的起伏地形导航,
  * 这里实现前端rrt 路径查找 RRTPathFinder类
  * 
+ * How to use:
+ *  
+ *  1. 申明
+ * 	RRTPathFinder *path_finder = new RRTPathFinder();
+ * 
+ *  2. 初始化变量
+ *  path_finder->initParam(search_radius_, th_stdev_, setp_eta_, max_iter_, car_body_size_, n_, true);path_finder->updateMap(map_tree_);
+ * 　
+ *  3. 路径查找
+ *  path_finder->updateMap(map_tree_);
+	path_finder->pathSearch(base_start, base_goal);
+	if(path_finder->getPath(rrt_path_)){
+		visRRTPath(rrt_path_);
+	}
+ * 
  ******************************************************/
 // #include <Eigen/Dense>
 #include <octomap_msgs/Octomap.h>
@@ -19,6 +34,8 @@
 #include "data_type.h"
 #include <unordered_map>
 #include "tictoc.h"
+
+// #define DEBUG true;
 
 struct rrtNode{
     octomap::point3d father_node;
@@ -217,9 +234,11 @@ void RRTPathFinder::pathSearch(octomap::point3d start_pt, octomap::point3d end_p
 		// 	cout <<"[rrt path finder]: input any to continue: " << endl;
         //     int a = cin.get();  
         // }
-	
+
+		#ifdef DEBUG
         cout << "[rrt path finder]-----------------------"<< endl;
 		cout << "[rrt path finder]: rand smaple a point " << endl;
+		#endif
 
         if (rrt_count_ % 8 == 0)
 		{
@@ -231,12 +250,21 @@ void RRTPathFinder::pathSearch(octomap::point3d start_pt, octomap::point3d end_p
 			rand_pt_(1) = getRandData(minY, maxY);
 		}
 
+		#ifdef DEBUG
 		cout << "[rrt path finder]: rand_pt_ " << rand_pt_(0) <<" " << rand_pt_(1) << " " << rand_pt_(2) << endl;
+		#endif
+
         nearest_pt_ = Near(rrt_tree_set_, rand_pt_);
+
+		#ifdef DEBUG
 		cout << "[rrt path finder]: nearest_pt_ " << nearest_pt_(0) <<" " << nearest_pt_(1) << " " << nearest_pt_(2) << endl;
+		#endif
 
         new_pt_ = Steer(nearest_pt_, rand_pt_, eta_);
+		#ifdef DEBUG
 		cout << "[rrt path finder]: new_pt_ " << new_pt_(0) <<" " << new_pt_(1) << " " << new_pt_(2) << endl;
+		#endif
+
         new_pt_(2) = 5;
 		// cout << validGround(p_new, mean) << endl;
 		if(validGround(new_pt_, mean, th_stdev_)){
@@ -245,23 +273,31 @@ void RRTPathFinder::pathSearch(octomap::point3d start_pt, octomap::point3d end_p
 		{
 			new_pt_(2) = nearest_pt_(2);
 		}
+
+		#ifdef DEBUG
 		cout << "[rrt path finder]: new_pt_ after " << new_pt_(0) <<" " << new_pt_(1) << " " << new_pt_(2) << endl;
-
+		#endif
 		
-
         checking = collisionFree(nearest_pt_, new_pt_);
+
+		#ifdef DEBUG
 		cout << "checking..." << checking << endl;
+		#endif
 
         if (checking == 0)
         {
+			#ifdef DEBUG
             cout<<"[rrt path finder]: collosion" << endl;
+			#endif
 
 			vis_block_pt_set_.push_back(new_pt_); // 阻断的节点, 用于显示
         }
 
         if (checking == 1)
         {
+			#ifdef DEBUG
             cout <<"[rrt path finder]: rrt tree add new point " <<endl;
+			#endif
 
 			vis_new_pt_set_.push_back(new_pt_); // 加入八叉树的节点, 用于显示
 			vis_rrt_tree_set_.push_back(make_pair(new_pt_, nearest_pt_)); //八叉树，用于显示
@@ -292,7 +328,7 @@ void RRTPathFinder::pathSearch(octomap::point3d start_pt, octomap::point3d end_p
     
     }
 
-	cout <<"[rrt path finder]: NO path finded" << endl;
+	// cout <<"[rrt path finder]: NO path finded" << endl;
     
 }
 
