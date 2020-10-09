@@ -1,0 +1,58 @@
+<?xml version='1.0'?>
+<sdf version='1.5'>
+  <model name='iris_kinect'>
+
+    <include>
+      <uri>model://iris</uri>
+    </include>
+
+    <include>
+      <uri>model://kinect_ros</uri>
+      <pose>0 0 0 0 0 0</pose>
+    </include>
+    <joint name="kinect_ros_joint" type="fixed">
+      <child>kinect_ros::link</child>
+      <parent>iris::base_link</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <upper>0</upper>
+          <lower>0</lower>
+        </limit>
+      </axis>
+    </joint>
+
+    <include>
+      <uri>model://fpv_cam</uri>
+      <pose>0 0 0 0 0 0</pose>
+    </include>
+    <joint name="fpv_cam_joint" type="fixed">
+      <child>fpv_cam::link</child>
+      <parent>iris::base_link</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <upper>0</upper>
+          <lower>0</lower>
+        </limit>
+      </axis>
+    </joint>
+
+    <include>
+      <uri>model://fpv_cam2</uri>
+      <pose>0 0 0 0 1.57 0</pose>
+    </include>
+    <joint name="fpv_cam2_joint" type="fixed">
+      <child>fpv_cam2::link</child>
+      <parent>iris::base_link</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <upper>0</upper>
+          <lower>0</lower>
+        </limit>
+      </axis>
+    </joint>
+
+  </model>
+</sdf>

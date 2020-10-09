@@ -1,0 +1,87 @@
+<?xml version='1.0'?>
+<sdf version='1.4'>
+  <model name="mark_ring_2">
+    <link name='link1'>
+      <pose>0 0 0 1.57 -1.57 0</pose>
+      <inertial>
+        <mass>0.490</mass>
+        <inertia>
+          <ixx>0</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0</iyy>
+          <iyz>0</iyz>
+          <izz>0</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <geometry>
+                <box>
+                  <size>.496 .496 .01</size>
+                </box>
+        </geometry>
+      </collision>
+
+      <visual name='visual'>
+        <geometry>
+                <box>
+                  <size>.496 .496 .01</size>
+                </box>
+        </geometry>
+
+        <material>
+          <script>
+            <uri>model://mark_ring_2/materials/scripts</uri>
+            <uri>model://mark_ring_2/materials/textures</uri>
+            <name>Mark/Diffuse_2</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+  <link name='link2'>
+        <inertial>
+          <pose>-1.1e-05 -0.004833 0.61243 0 -0 0</pose>
+          <mass>8.6055</mass>
+          <inertia>
+            <ixx>2.3731</ixx>
+            <ixy>-1.4724e-06</ixy>
+            <ixz>-1.6338e-05</ixz>
+            <iyy>3.0442</iyy>
+            <iyz>0.012591</iyz>
+            <izz>0.73145</izz>
+          </inertia>
+        </inertial>
+        <collision name='link2_collision'>
+          <pose>0 0 0 1.5708 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>model://mark_ring_2/materials/mark.STL</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='link2_visual'>
+          <pose>0 0 0 1.5708 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>model://mark_ring_2/materials/mark.STL</uri>
+            </mesh>
+          </geometry>
+        </visual>
+      </link>
+  </model>
+</sdf>

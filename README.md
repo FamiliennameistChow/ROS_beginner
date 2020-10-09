@@ -202,3 +202,6 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 
 20201008 zb
 * 更新了`octomap_navi`包，实现mini-jerk轨迹优化
+
+20201009 zwl
+* 更新了`sjtu_game`包，存放交大无人机比赛代码。同时增加了gazebo文件夹中所需的models和world文件
