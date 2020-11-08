@@ -63,6 +63,14 @@
 * [grad_traj_optimization包]()  
 此功能包为香港科技大学git上的轨迹生成和优化包。[github地址](http://github.com/HKUST-Aerial-Robotics/grad_traj_optimization)
 
+* [sjtu_game](./UAV/sjtu_game)  
+交大比赛仿真，使用`Ｆast_Planner`做路径规划, yolo做识别
+    * 依赖:
+        - Fast_Planner  
+         1. 安装参考　https://github.com/HKUST-Aerial-Robotics/Fast-Planner  
+        
+        - YOLO darknet_ros
+
 ## packages for UGV
 * [test_octomap包](./UGV/test_octomap)  
     测试点云数据转octomap，并进行拼接的算法

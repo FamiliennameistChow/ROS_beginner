@@ -4,7 +4,7 @@
     <!-- launches MAVROS, PX4 SITL, Gazebo environment, and spawns vehicle -->
     <!-- vehicle pose -->
     <arg name="x" default="0"/>
-    <arg name="y" default="-25"/>
+    <arg name="y" default="0"/>  <!-- -25-->
     <arg name="z" default="0.7"/>
     <arg name="R" default="0"/>
     <arg name="P" default="0"/>
@@ -14,7 +14,7 @@
     <arg name="vehicle" default="iris"/>
     <arg name="my_model" default="iris_kinect"/>
     <arg name="world" default="$(find sjtu_game)/worlds/sjtu_game.world"/>
-    <!--arg name="sdf" default="$(find mavlink_sitl_gazebo)/models/$(arg vehicle)/$(arg vehicle).sdf"/-->
+    <!-- <arg name="sdf" default="$(find mavlink_sitl_gazebo)/models/$(arg vehicle)/$(arg vehicle).sdf"/> -->
     <arg name="sdf" default="$(find mavlink_sitl_gazebo)/models/$(arg my_model)/$(arg my_model).sdf"/>
 
     <!-- gazebo configs -->

@@ -10,6 +10,7 @@
     <!-- A ground plane -->
     <include>
       <uri>model://ground_plane</uri>
+      <scale>2 2 2</scale>
     </include>
     <include>
       <uri>model://asphalt_plane</uri>
@@ -17,40 +18,46 @@
     
 
     <include>
-    <name>mark_label_0_0</name>
+    <name>mark_label_0</name>
       <uri>model://mark_label_0</uri>
-      <pose>0 22 -0.110001 0 7e-06 -1.57041</pose>
+      <pose>0.0 17 0.0 0 0 1.57063</pose>
     </include>
+
 
     <include>
     <name>mark_ring_1</name>
       <uri>model://mark_ring_1</uri>
-      <pose>-1 2.5 0.248 1e-06 -0.000796 -0.000121</pose>
+      <pose>-1e-06 -19.9999 0.298 -5e-06 -0.000796 -0.001336</pose>
     </include>
     <include>
     <name>mark_ring_2</name>
       <uri>model://mark_ring_2</uri>
-      <pose>-2.5 5.20004 0.248 2e-06 -0.000796 6e-06</pose>
+      <pose>3.63838 -16.9694 0.298001 -2e-05 -0.000798 -0.00021</pose>
     </include>
     <include>
     <name>mark_ring_3</name>
       <uri>model://mark_ring_3</uri>
-      <pose>-1.50001 7.20004 0.248005 7e-06 -0.000816 -1e-06</pose>
+      <pose>-2.4207 -11.6105 0.298 5e-06 -0.000798 -0.000199</pose>
     </include>
     <include>
     <name>mark_ring_4</name>
       <uri>model://mark_ring_4</uri>
-      <pose>2.5 9.50004 0.248 0 -0.000796 -2e-06</pose>
+      <pose>2.05148 -5.32637 0.298 -2e-06 -0.000796 -0.000215</pose>
     </include>
     <include>
     <name>mark_ring_5</name>
       <uri>model://mark_ring_5</uri>
-      <pose>2.00001 13.5 0.248 2e-05 -0.000796 -0.52333</pose>
+      <pose>-2.14613 0.846429 0.298 -7e-06 -0.000798 -0.000204</pose>
     </include>
     <include>
     <name>mark_ring_6</name>
       <uri>model://mark_ring_6</uri>
-      <pose>-2.80001 18 0.248 -5e-06 -0.000796 0.262</pose>
+      <pose>2.97881 5.54566 0.298 -2e-06 -0.000797 0.499803</pose>
+    </include>
+    <include>
+    <name>mark_ring_7</name>
+      <uri>model://mark_ring_7</uri>
+      <pose>-2.44766 11.3051 0.297999 -1.1e-05 -0.000799 -0.450211</pose>
     </include>
 
     <include>
@@ -84,3 +91,5 @@
     </physics>
   </world>
 </sdf>
+
+

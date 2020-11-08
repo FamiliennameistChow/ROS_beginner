@@ -1,0 +1,944 @@
+... logging to /home/bornchow/.ros/log/3976c33e-21b8-11eb-9ba4-b42e9967c261/roslaunch-bornchow-Z370-HD3-22359.log
+Checking log directory for disk usage. This may take awhile.
+Press Ctrl-C to interrupt
+]2;/home/bornchow/ROS_WS/px4_ws/src/sjtu_game/launch/kino_replan.launch
+[1mstarted roslaunch server http://bornchow-Z370-HD3:46479/[0m
+
+SUMMARY
+========
+
+PARAMETERS
+ * /camera_pc_preprocess/pointcloud_in_topic: /kinect/depth/points
+ * /fast_planner_node/bspline/limit_acc: 1.0
+ * /fast_planner_node/bspline/limit_ratio: 1.1
+ * /fast_planner_node/bspline/limit_vel: 2.0
+ * /fast_planner_node/fsm/flight_type: 1
+ * /fast_planner_node/fsm/thresh_no_replan: 2.0
+ * /fast_planner_node/fsm/thresh_replan: 1.5
+ * /fast_planner_node/fsm/waypoint0_x: 19.0
+ * /fast_planner_node/fsm/waypoint0_y: 0.0
+ * /fast_planner_node/fsm/waypoint0_z: 1.0
+ * /fast_planner_node/fsm/waypoint1_x: -19.0
+ * /fast_planner_node/fsm/waypoint1_y: 0.0
+ * /fast_planner_node/fsm/waypoint1_z: 1.0
+ * /fast_planner_node/fsm/waypoint2_x: 0.0
+ * /fast_planner_node/fsm/waypoint2_y: 19.0
+ * /fast_planner_node/fsm/waypoint2_z: 1.0
+ * /fast_planner_node/fsm/waypoint_num: 2
+ * /fast_planner_node/manager/clearance_threshold: 0.2
+ * /fast_planner_node/manager/control_points_distance: 0.5
+ * /fast_planner_node/manager/dynamic_environment: 0
+ * /fast_planner_node/manager/local_segment_length: 6.0
+ * /fast_planner_node/manager/max_acc: 1.0
+ * /fast_planner_node/manager/max_jerk: 4.0
+ * /fast_planner_node/manager/max_vel: 2.0
+ * /fast_planner_node/manager/use_geometric_path: False
+ * /fast_planner_node/manager/use_kinodynamic_path: True
+ * /fast_planner_node/manager/use_optimization: True
+ * /fast_planner_node/manager/use_topo_path: False
+ * /fast_planner_node/optimization/algorithm1: 15
+ * /fast_planner_node/optimization/algorithm2: 11
+ * /fast_planner_node/optimization/dist0: 0.4
+ * /fast_planner_node/optimization/lambda1: 10.0
+ * /fast_planner_node/optimization/lambda2: 5.0
+ * /fast_planner_node/optimization/lambda3: 1e-05
+ * /fast_planner_node/optimization/lambda4: 0.01
+ * /fast_planner_node/optimization/lambda7: 100.0
+ * /fast_planner_node/optimization/max_acc: 1.0
+ * /fast_planner_node/optimization/max_iteration_num1: 2
+ * /fast_planner_node/optimization/max_iteration_num2: 300
+ * /fast_planner_node/optimization/max_iteration_num3: 200
+ * /fast_planner_node/optimization/max_iteration_num4: 200
+ * /fast_planner_node/optimization/max_iteration_time1: 0.0001
+ * /fast_planner_node/optimization/max_iteration_time2: 0.005
+ * /fast_planner_node/optimization/max_iteration_time3: 0.003
+ * /fast_planner_node/optimization/max_iteration_time4: 0.003
+ * /fast_planner_node/optimization/max_vel: 2.0
+ * /fast_planner_node/optimization/order: 3
+ * /fast_planner_node/planner_node/planner: 1
+ * /fast_planner_node/sdf_map/cx: 321.046386719
+ * /fast_planner_node/sdf_map/cy: 243.449691772
+ * /fast_planner_node/sdf_map/depth_filter_margin: 2
+ * /fast_planner_node/sdf_map/depth_filter_maxdist: 5.0
+ * /fast_planner_node/sdf_map/depth_filter_mindist: 0.2
+ * /fast_planner_node/sdf_map/depth_filter_tolerance: 0.15
+ * /fast_planner_node/sdf_map/esdf_slice_height: 0.3
+ * /fast_planner_node/sdf_map/frame_id: world
+ * /fast_planner_node/sdf_map/fx: 387.229248047
+ * /fast_planner_node/sdf_map/fy: 387.229248047
+ * /fast_planner_node/sdf_map/ground_height: 0.1
+ * /fast_planner_node/sdf_map/k_depth_scaling_factor: 1000.0
+ * /fast_planner_node/sdf_map/local_bound_inflate: 0.0
+ * /fast_planner_node/sdf_map/local_map_margin: 50
+ * /fast_planner_node/sdf_map/local_update_range_x: 10
+ * /fast_planner_node/sdf_map/local_update_range_y: 10
+ * /fast_planner_node/sdf_map/local_update_range_z: 10
+ * /fast_planner_node/sdf_map/map_size_x: 70.0
+ * /fast_planner_node/sdf_map/map_size_y: 60.0
+ * /fast_planner_node/sdf_map/map_size_z: 20.0
+ * /fast_planner_node/sdf_map/max_ray_length: 4.5
+ * /fast_planner_node/sdf_map/min_ray_length: 0.5
+ * /fast_planner_node/sdf_map/obstacles_inflation: 0.1
+ * /fast_planner_node/sdf_map/p_hit: 0.65
+ * /fast_planner_node/sdf_map/p_max: 0.9
+ * /fast_planner_node/sdf_map/p_min: 0.12
+ * /fashit: 0.619039
+miss: -0.619039
+min log: -1.99243
+max: 2.19722
+thresh log: 1.38629
+margin:0.2
+origin_: -35 -30 0.1
+map size: 70 60 20
+[FSM]: from INIT to WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+Triggered!
+[TRIG]: from WAIT_TARGET to GEN_NEW_TRAJ
+[kino replan]: -----------------------
+start:    0.010892 -0.00748145  -0.0482918, -0.00104688  -0.0127448  -0.0296875, 0 0 0
+goal: -1 0.5   1, 0 0 0
+open set empty, no path!
+use node num: 1
+iter num: 1
+[kino replan]: kinodynamic search fail!
+[Kino Astar]:---------------------- 17
+use node num: 17
+iter num: 1
+[Kino Astar]: near end.
+[kino replan]: retry search success.
+[0m[ INFO] [1604836128.725207267, 48.420000000]: cost func: smooth | dist  | feasi |[0m
+[0m[ INFO] [1604836128.725447571, 48.420000000]: iter num: 24[0m
+[kino replan]: Reallocate ratio: 1.14741
+[kino replan]: time: 0.004, search: 0.004, optimize: 0, adjust time:0
+[0m[ INFO] [1604836128.725502876, 48.420000000]: plan yaw[0m
+[0m[ INFO] [1604836128.725527625, 48.420000000]: cost func: smooth | waypt |[0m
+[0m[ INFO] [1604836128.725550296, 48.420000000]: iter num: 29[0m
+plan heading: 0
+[FSM]: from GEN_NEW_TRAJ to EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: from EXEC_TRAJ to WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+Triggered!
+[TRIG]: from WAIT_TARGET to GEN_NEW_TRAJ
+[kino replan]: -----------------------
+start: -1.03313 0.428986  1.00999,  0.0464222 -0.0150428 -0.0145384, 0 0 0
+goal:-1.07091  1.42869        1, 0 0 0
+[Kino Astar]:---------------------- 1
+use node num: 1
+iter num: 0
+[Kino Astar]: near end.
+[kino replan]: kinodynamic search success.
+[0m[ INFO] [1604836334.790935455, 225.628000000]: cost func: smooth | dist  | feasi |[0m
+[0m[ INFO] [1604836334.791124545, 225.628000000]: iter num: 16[0m
+[kino replan]: Reallocate ratio: 1.50001
+[kino replan]: time: 0, search: 0, optimize: 0, adjust time:0
+[0m[ INFO] [1604836334.791216997, 225.628000000]: plan yaw[0m
+[0m[ INFO] [1604836334.791274289, 225.628000000]: cost func: smooth | waypt |[0m
+[0m[ INFO] [1604836334.791334844, 225.628000000]: iter num: 23[0m
+plan heading: 0
+[FSM]: from GEN_NEW_TRAJ to EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: from EXEC_TRAJ to WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+Triggered!
+[TRIG]: from WAIT_TARGET to GEN_NEW_TRAJ
+[kino replan]: -----------------------
+start: -1.13865  1.50445 0.969564, -0.0459734 -0.0585608  0.0297581, 0 0 0
+goal:-2.5  3.2    1, 0 0 0
+[Kino Astar]:---------------------- 292
+use node num: 292
+iter num: 4
+[Kino Astar]: near end.
+[kino replan]: kinodynamic search success.
+[0m[ INFO] [1604836347.760007408, 236.872000000]: cost func: smooth | dist  | feasi |[0m
+[0m[ INFO] [1604836347.760304921, 236.872000000]: iter num: 48[0m
+[kino replan]: Reallocate ratio: 1.216
+[kino replan]: time: 0, search: 0, optimize: 0, adjust time:0
+[0m[ INFO] [1604836347.760374348, 236.872000000]: plan yaw[0m
+[0m[ INFO] [1604836347.760426172, 236.872000000]: cost func: smooth | waypt |[0m
+[0m[ INFO] [1604836347.760483128, 236.872000000]: iter num: 34[0m
+plan heading: 0
+[FSM]: from GEN_NEW_TRAJ to EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: from EXEC_TRAJ to WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+Triggered!
+[TRIG]: from WAIT_TARGET to GEN_NEW_TRAJ
+[kino replan]: -----------------------
+start: -2.49236  3.27285 0.980267, -0.0413855 0.00886393  0.0175189, 0 0 0
+goal:-2.51216  6.15087        1, 0 0 0
+[Kino Astar]:---------------------- 333
+use node num: 333
+iter num: 5
+[Kino Astar]: near end.
+[kino replan]: kinodynamic search success.
+[0m[ INFO] [1604836366.773094760, 253.372000000]: cost func: smooth | dist  | feasi |[0m
+[0m[ INFO] [1604836366.773486114, 253.372000000]: iter num: 65[0m
+[kino replan]: Reallocate ratio: 1.20062
+[kino replan]: time: 0, search: 0, optimize: 0, adjust time:0
+[0m[ INFO] [1604836366.773537725, 253.372000000]: plan yaw[0m
+[0m[ INFO] [1604836366.773571176, 253.372000000]: cost func: smooth | waypt |[0m
+[0m[ INFO] [1604836366.773609720, 253.372000000]: iter num: 34[0m
+plan heading: 0
+[FSM]: from GEN_NEW_TRAJ to EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: from EXEC_TRAJ to WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+Triggered!
+[TRIG]: from WAIT_TARGET to GEN_NEW_TRAJ
+[kino replan]: -----------------------
+start: -2.56511  6.15249 0.975655, 0.00291301 -0.0277985  0.0251849, 0 0 0
+goal:-1.5    5    1, 0 0 0
+open set empty, no path!
+use node num: 1
+iter num: 1
+[kino replan]: kinodynamic search fail!
+[Kino Astar]:---------------------- 100
+use node num: 100
+iter num: 1
+[Kino Astar]: near end.
+[kino replan]: retry search success.
+[0m[ INFO] [1604836395.396776213, 277.932000000]: cost func: smooth | dist  | feasi |[0m
+[33m[ WARN] [1604836395.397043408, 277.932000000]: [Optimization]: nlopt exception[0m
+NULL args to nlopt_optimize_
+[0m[ INFO] [1604836395.397122911, 277.932000000]: iter num: 0[0m
+[kino replan]: Reallocate ratio: 1
+[kino replan]: time: 0, search: 0, optimize: 0, adjust time:0
+[0m[ INFO] [1604836395.397190004, 277.932000000]: plan yaw[0m
+[0m[ INFO] [1604836395.397241500, 277.932000000]: cost func: smooth | waypt |[0m
+[33m[ WARN] [1604836395.397290847, 277.932000000]: [Optimization]: nlopt exception[0m
+NULL args to nlopt_optimize_
+[0m[ INFO] [1604836395.397843768, 277.932000000]: iter num: 0[0m
+plan heading: 0
+[FSM]: from GEN_NEW_TRAJ to EXEC_TRAJ
+[FSM]: from EXEC_TRAJ to WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+Triggered!
+[TRIG]: from WAIT_TARGET to GEN_NEW_TRAJ
+[kino replan]: -----------------------
+start: -2.40275   6.0011  1.00689,  -0.0352915 -0.00187003  -0.0150182, 0 0 0
+goal:-1.77242  8.22183        1, 0 0 0
+[Kino Astar]:---------------------- 245
+use node num: 245
+iter num: 26
+[Kino Astar]: near end.
+[kino replan]: kinodynamic search success.
+[0m[ INFO] [1604836421.297471297, 300.176000000]: cost func: smooth | dist  | feasi |[0m
+[0m[ INFO] [1604836421.299110388, 300.176000000]: iter num: 110[0m
+[kino replan]: Reallocate ratio: 1.03731
+[kino replan]: time: 0.004, search: 0, optimize: 0.004, adjust time:0
+[0m[ INFO] [1604836421.299179529, 300.180000000]: plan yaw[0m
+[0m[ INFO] [1604836421.299216647, 300.180000000]: cost func: smooth | waypt |[0m
+[0m[ INFO] [1604836421.299519778, 300.180000000]: iter num: 36[0m
+plan heading: 0
+[FSM]: from GEN_NEW_TRAJ to EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: from EXEC_TRAJ to WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+Triggered!
+[TRIG]: from WAIT_TARGET to GEN_NEW_TRAJ
+[kino replan]: -----------------------
+start: -1.71883  8.25257 0.971986,  0.0296187 0.00914966  0.0317288, 0 0 0
+goal:2.4 7.5   1, 0 0 0
+[Kino Astar]:---------------------- 415
+use node num: 415
+iter num: 6
+[Kino Astar]: near end.
+[kino replan]: kinodynamic search success.
+[0m[ INFO] [1604836429.388112261, 307.196000000]: cost func: smooth | dist  | feasi |[0m
+[0m[ INFO] [1604836429.388986868, 307.196000000]: iter num: 73[0m
+[kino replan]: Reallocate ratio: 1.09131
+[kino replan]: time: 0, search: 0, optimize: 0, adjust time:0
+[0m[ INFO] [1604836429.389120315, 307.196000000]: plan yaw[0m
+[0m[ INFO] [1604836429.389193310, 307.196000000]: cost func: smooth | waypt |[0m
+[0m[ INFO] [1604836429.389272291, 307.196000000]: iter num: 43[0m
+plan heading: 0
+[FSM]: from GEN_NEW_TRAJ to EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: from EXEC_TRAJ to REPLAN_TRAJ
+[kino replan]: -----------------------
+start: -0.346066   7.46124  0.739336,   1.45565 -0.499815 -0.113176, 0.635817 0.378138 0.232684
+goal:2.4 7.5   1, 0 0 0
+[Kino Astar]:---------------------- 84
+use node num: 84
+iter num: 2
+[Kino Astar]: near end.
+[kino replan]: kinodynamic search success.
+[0m[ INFO] [1604836431.848552509, 309.404000000]: cost func: smooth | dist  | feasi |[0m
+[0m[ INFO] [1604836431.848772859, 309.404000000]: iter num: 25[0m
+[kino replan]: Reallocate ratio: 1.26417
+[kino replan]: time: 0.004, search: 0, optimize: 0.004, adjust time:0
+[0m[ INFO] [1604836431.848839923, 309.404000000]: plan yaw[0m
+[0m[ INFO] [1604836431.848877246, 309.404000000]: cost func: smooth | waypt |[0m
+[0m[ INFO] [1604836431.848918551, 309.404000000]: iter num: 32[0m
+plan heading: 0
+[FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: from EXEC_TRAJ to WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+Triggered!
+[TRIG]: from WAIT_TARGET to GEN_NEW_TRAJ
+[kino replan]: -----------------------
+start: 2.38529 7.51365 1.01817, -0.00394468  -0.0496097  -0.0186188, 0 0 0
+goal:2.58237 10.5369       1, 0 0 0
+[Kino Astar]:---------------------- 373
+use node num: 373
+iter num: 5
+[Kino Astar]: near end.
+[kino replan]: kinodynamic search success.
+[0m[ INFO] [1604836449.708072493, 324.976000000]: cost func: smooth | dist  | feasi |[0m
+[0m[ INFO] [1604836449.708932090, 324.976000000]: iter num: 90[0m
+[kino replan]: Reallocate ratio: 1.16493
+[kino replan]: time: 0, search: 0, optimize: 0, adjust time:0
+[0m[ INFO] [1604836449.708987150, 324.976000000]: plan yaw[0m
+[0m[ INFO] [1604836449.709036191, 324.976000000]: cost func: smooth | waypt |[0m
+[0m[ INFO] [1604836449.709088590, 324.976000000]: iter num: 34[0m
+plan heading: 0
+[FSM]: from GEN_NEW_TRAJ to EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: from EXEC_TRAJ to WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+Triggered!
+[TRIG]: from WAIT_TARGET to GEN_NEW_TRAJ
+[kino replan]: -----------------------
+start:  2.56334  10.6384 0.977392, -0.0293497 -0.0306434  0.0219208, 0 0 0
+goal: 1.8 11.5    1, 0 0 0
+[Kino Astar]:---------------------- 1
+use node num: 1
+iter num: 0
+[Kino Astar]: near end.
+[kino replan]: kinodynamic search success.
+[0m[ INFO] [1604836462.952835793, 336.268000000]: cost func: smooth | dist  | feasi |[0m
+[0m[ INFO] [1604836462.952997345, 336.268000000]: iter num: 15[0m
+[kino replan]: Reallocate ratio: 1.3974
+[kino replan]: time: 0, search: 0, optimize: 0, adjust time:0
+[0m[ INFO] [1604836462.953083075, 336.268000000]: plan yaw[0m
+[0m[ INFO] [1604836462.953134441, 336.268000000]: cost func: smooth | waypt |[0m
+[0m[ INFO] [1604836462.953184913, 336.268000000]: iter num: 19[0m
+plan heading: 0
+[FSM]: from GEN_NEW_TRAJ to EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: from EXEC_TRAJ to WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+Triggered!
+[TRIG]: from WAIT_TARGET to GEN_NEW_TRAJ
+[FSM]: state: GEN_NEW_TRAJ
+[kino replan]: -----------------------
+start:  1.80291  11.5561 0.954187, -0.00967193   0.0102125   0.0469969, 0 0 0
+goal:2.04099 14.4696       1, 0 0 0
+[Kino Astar]:---------------------- 300
+use node num: 300
+iter num: 6
+[Kino Astar]: near end.
+[kino replan]: kinodynamic search success.
+[0m[ INFO] [1604836475.080241156, 346.836000000]: cost func: smooth | dist  | feasi |[0m
+[0m[ INFO] [1604836475.081554184, 346.836000000]: iter num: 138[0m
+[kino replan]: Reallocate ratio: 1.15796
+[kino replan]: time: 0, search: 0, optimize: 0, adjust time:0
+[0m[ INFO] [1604836475.081759568, 346.836000000]: plan yaw[0m
+[0m[ INFO] [1604836475.081838684, 346.836000000]: cost func: smooth | waypt |[0m
+[0m[ INFO] [1604836475.081918647, 346.836000000]: iter num: 34[0m
+plan heading: 0
+[FSM]: from GEN_NEW_TRAJ to EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: from EXEC_TRAJ to WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+Triggered!
+[TRIG]: from WAIT_TARGET to GEN_NEW_TRAJ
+[kino replan]: -----------------------
+start:  2.11233  14.5043 0.968189, -0.0209453  0.0412709  0.0299327, 0 0 0
+goal:-2.8   16    1, 0 0 0
+[Kino Astar]:---------------------- 415
+use node num: 415
+iter num: 6
+[Kino Astar]: near end.
+[kino replan]: kinodynamic search success.
+[0m[ INFO] [1604836522.296988050, 387.348000000]: cost func: smooth | dist  | feasi |[0m
+[0m[ INFO] [1604836522.297358403, 387.348000000]: iter num: 40[0m
+[kino replan]: Reallocate ratio: 1.11026
+[kino replan]: time: 0, search: 0, optimize: 0, adjust time:0
+[0m[ INFO] [1604836522.297405441, 387.348000000]: plan yaw[0m
+[0m[ INFO] [1604836522.297438747, 387.348000000]: cost func: smooth | waypt |[0m
+[0m[ INFO] [1604836522.297480774, 387.348000000]: iter num: 34[0m
+plan heading: 0
+[FSM]: from GEN_NEW_TRAJ to EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: from EXEC_TRAJ to REPLAN_TRAJ
+[kino replan]: -----------------------
+start: 0.739304  15.3077  1.03542,  -1.57888  0.496009 0.0447509,  -0.883014 -0.0962379  0.0329134
+goal:-2.8   16    1, 0 0 0
+[Kino Astar]:---------------------- 103
+use node num: 103
+iter num: 3
+[Kino Astar]: near end.
+[kino replan]: kinodynamic search success.
+[0m[ INFO] [1604836524.972844885, 389.604000000]: cost func: smooth | dist  | feasi |[0m
+[0m[ INFO] [1604836524.973110412, 389.604000000]: iter num: 62[0m
+[kino replan]: Reallocate ratio: 1.22684
+[kino replan]: time: 0, search: 0, optimize: 0, adjust time:0
+[0m[ INFO] [1604836524.973159994, 389.604000000]: plan yaw[0m
+[0m[ INFO] [1604836524.973187429, 389.604000000]: cost func: smooth | waypt |[0m
+[0m[ INFO] [1604836524.973217025, 389.604000000]: iter num: 28[0m
+plan heading: 0
+[FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: from EXEC_TRAJ to REPLAN_TRAJ
+[kino replan]: -----------------------
+start: -0.746571   15.6049   1.08202,    -1.96741    0.335359 -0.00404012,  0.313713  0.133808 -0.295047
+goal:-2.8   16    1, 0 0 0
+[Kino Astar]:---------------------- 9
+use node num: 9
+iter num: 1
+[Kino Astar]: near end.
+[kino replan]: kinodynamic search success.
+[0m[ INFO] [1604836525.870868274, 390.408000000]: cost func: smooth | dist  | feasi |[0m
+[0m[ INFO] [1604836525.871008682, 390.408000000]: iter num: 15[0m
+[kino replan]: Reallocate ratio: 1.392
+[kino replan]: time: 0, search: 0, optimize: 0, adjust time:0
+[0m[ INFO] [1604836525.871044777, 390.408000000]: plan yaw[0m
+[0m[ INFO] [1604836525.871066985, 390.408000000]: cost func: smooth | waypt |[0m
+[0m[ INFO] [1604836525.871090486, 390.408000000]: iter num: 23[0m
+plan heading: 0
+[FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: from EXEC_TRAJ to WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+Triggered!
+[TRIG]: from WAIT_TARGET to GEN_NEW_TRAJ
+[kino replan]: -----------------------
+start: -2.83713   16.019 0.993236, -0.00140896 -0.00887399  0.00773216, 0 0 0
+goal:-2.91476  19.0535        1, 0 0 0
+open set empty, no path!
+use node num: 1
+iter num: 1
+[kino replan]: kinodynamic search fail!
+[Kino Astar]:---------------------- 280
+use node num: 280
+iter num: 4
+[Kino Astar]: near end.
+[kino replan]: retry search success.
+[0m[ INFO] [1604836545.510129650, 407.016000000]: cost func: smooth | dist  | feasi |[0m
+[0m[ INFO] [1604836545.510667934, 407.016000000]: iter num: 70[0m
+[kino replan]: Reallocate ratio: 1.13792
+[kino replan]: time: 0, search: 0, optimize: 0, adjust time:0
+[0m[ INFO] [1604836545.510714254, 407.016000000]: plan yaw[0m
+[0m[ INFO] [1604836545.510742690, 407.016000000]: cost func: smooth | waypt |[0m
+[0m[ INFO] [1604836545.510780577, 407.016000000]: iter num: 40[0m
+plan heading: 0
+[FSM]: from GEN_NEW_TRAJ to EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: from EXEC_TRAJ to WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+Triggered!
+[TRIG]: from WAIT_TARGET to GEN_NEW_TRAJ
+[kino replan]: -----------------------
+start: -2.79522   19.088 0.977181, 0.0265896 0.0910342 0.0234855, 0 0 0
+goal: 0 22  1, 0 0 0
+[Kino Astar]:---------------------- 453
+use node num: 453
+iter num: 9
+[Kino Astar]: near end.
+[kino replan]: kinodynamic search success.
+[0m[ INFO] [1604836558.209054964, 418.196000000]: cost func: smooth | dist  | feasi |[0m
+[0m[ INFO] [1604836558.210665650, 418.196000000]: iter num: 104[0m
+[kino replan]: Reallocate ratio: 1.09175
+[kino replan]: time: 0, search: 0, optimize: 0, adjust time:0
+[0m[ INFO] [1604836558.210920724, 418.196000000]: plan yaw[0m
+[0m[ INFO] [1604836558.210957982, 418.196000000]: cost func: smooth | waypt |[0m
+[0m[ INFO] [1604836558.211016119, 418.196000000]: iter num: 33[0m
+plan heading: 0
+[FSM]: from GEN_NEW_TRAJ to EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[33m[ WARN] [1604836559.438498264, 419.260000000]: current traj in collision.[0m
+[SAFETY]: from EXEC_TRAJ to REPLAN_TRAJ
+[kino replan]: -----------------------
+start: -2.4285 19.2267 1.03807, 0.822462 0.263892 0.107308,   0.91598  0.482395 0.0840724
+goal: 0 22  1, 0 0 0
+open set empty, no path!
+use node num: 4
+iter num: 4
+[kino replan]: kinodynamic search fail!
+[Kino Astar]:---------------------- 697
+use node num: 697
+iter num: 36
+[Kino Astar]: near end.
+[kino replan]: retry search success.
+[0m[ INFO] [1604836559.441215635, 419.268000000]: cost func: smooth | dist  | feasi |[0m
+[0m[ INFO] [1604836559.443219817, 419.268000000]: iter num: 105[0m
+[kino replan]: Reallocate ratio: 1.18588
+[kino replan]: time: 0.008, search: 0.008, optimize: 0, adjust time:0
+[0m[ INFO] [1604836559.443375094, 419.268000000]: plan yaw[0m
+[0m[ INFO] [1604836559.443419537, 419.268000000]: cost func: smooth | waypt |[0m
+[0m[ INFO] [1604836559.443676349, 419.268000000]: iter num: 36[0m
+plan heading: 0
+[FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[33m[ WARN] [1604836560.996019163, 420.496000000]: current traj in collision.[0m
+[SAFETY]: from EXEC_TRAJ to REPLAN_TRAJ
+[kino replan]: -----------------------
+start: -2.10202  19.1361  1.72113,  0.154198 0.0165601  0.771574,  0.393799  0.851573 -0.469592
+goal: 0 22  1, 0 0 0
+[Kino Astar]:---------------------- 307
+use node num: 307
+iter num: 7
+[Kino Astar]: near end.
+[kino replan]: kinodynamic search success.
+[0m[ INFO] [1604836560.996838961, 420.496000000]: cost func: smooth | dist  | feasi |[0m
+[0m[ INFO] [1604836560.998353356, 420.496000000]: iter num: 100[0m
+[kino replan]: Reallocate ratio: 1.1065
+[kino replan]: time: 0, search: 0, optimize: 0, adjust time:0
+[0m[ INFO] [1604836560.998476011, 420.496000000]: plan yaw[0m
+[0m[ INFO] [1604836560.998520016, 420.496000000]: cost func: smooth | waypt |[0m
+[0m[ INFO] [1604836560.998569761, 420.496000000]: iter num: 35[0m
+plan heading: 0
+[FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: from EXEC_TRAJ to REPLAN_TRAJ
+[kino replan]: -----------------------
+start: -1.67869  19.9524  2.91748, 0.477736 0.919082 0.355878,  0.306363   0.21148 -0.947075
+goal: 0 22  1, 0 0 0
+[Kino Astar]:---------------------- 209
+use node num: 209
+iter num: 3
+[Kino Astar]: near end.
+[kino replan]: kinodynamic search success.
+[0m[ INFO] [1604836562.814126273, 422.132000000]: cost func: smooth | dist  | feasi |[0m
+[0m[ INFO] [1604836562.814335113, 422.132000000]: iter num: 38[0m
+[kino replan]: Reallocate ratio: 1.10886
+[kino replan]: time: 0, search: 0, optimize: 0, adjust time:0
+[0m[ INFO] [1604836562.814369840, 422.132000000]: plan yaw[0m
+[0m[ INFO] [1604836562.814395812, 422.132000000]: cost func: smooth | waypt |[0m
+[0m[ INFO] [1604836562.814465982, 422.132000000]: iter num: 30[0m
+plan heading: 0
+[FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: state: EXEC_TRAJ
+[FSM]: from EXEC_TRAJ to WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[FSM]: state: WAIT_TARGET
+[33m[ WARN] [1604836074.531734430, 2.024000000]: [Traj server]: ready.[0m
+des manager
+[0m[ INFO] [1604836073.377096419]: rviz version 1.12.17[0m
+[0m[ INFO] [1604836073.377132097]: compiled against Qt version 5.5.1[0m
+[0m[ INFO] [1604836073.377136774]: compiled against OGRE version 1.9.0 (Ghadamon)[0m
+[0m[ INFO] [1604836074.210458775, 1.720000000]: Stereo is NOT SUPPORTED[0m
+[0m[ INFO] [1604836074.210599364, 1.724000000]: OpenGl version: 4.6 (GLSL 4.6).[0m
+t_planner_node/sdf_map/p_miss: 0.35
+ * /fast_planner_node/sdf_map/p_occ: 0.8
+ * /fast_planner_node/sdf_map/pose_type: 1
+ * /fast_planner_node/sdf_map/resolution: 0.1
+ * /fast_planner_node/sdf_map/show_esdf_time: False
+ * /fast_planner_node/sdf_map/show_occ_time: False
+ * /fast_planner_node/sdf_map/skip_pixel: 2
+ * /fast_planner_node/sdf_map/use_depth_filter: True
+ * /fast_planner_node/sdf_map/virtual_ceil_height: 2.5
+ * /fast_planner_node/sdf_map/visualization_truncate_height: 2.49
+ * /fast_planner_node/search/allocate_num: 100000
+ * /fast_planner_node/search/check_num: 5
+ * /fast_planner_node/search/horizon: 7.0
+ * /fast_planner_node/search/init_max_tau: 0.8
+ * /fast_planner_node/search/lambda_heu: 5.0
+ * /fast_planner_node/search/margin: 0.2
+ * /fast_planner_node/search/max_acc: 1.0
+ * /fast_planner_node/search/max_tau: 0.6
+ * /fast_planner_node/search/max_vel: 2.0
+ * /fast_planner_node/search/resolution_astar: 0.1
+ * /fast_planner_node/search/time_resolution: 0.8
+ * /fast_planner_node/search/w_time: 10.0
+ * /rosdistro: kinetic
+ * /rosversion: 1.12.14
+ * /traj_server/traj_server/time_forward: 1.5
+ * /use_sim_time: True
+ * /waypoint_generator/waypoint_type: manual-lonely-way...
+
+NODES
+  /
+    camera_pc_preprocess (sjtu_game/camera_pc_preprocess)
+    command_trans (sjtu_game/command_trans)
+    fast_planner_node (plan_manage/fast_planner_node)
+    rviz (rviz/rviz)
+    tf_uav2map (sjtu_game/tf_uav2map)
+    tf_world2map (tf/static_transform_publisher)
+    traj_server (plan_manage/traj_server)
+    waypoint_generator (waypoint_generator/waypoint_generator)
+
+[1mROS_MASTER_URI=http://localhost:11311[0m
+]2;/home/bornchow/ROS_WS/px4_ws/src/sjtu_game/launch/kino_replan.launch http://localhost:11311
+[1mprocess[tf_world2map-1]: started with pid [22485][0m
+[1mprocess[fast_planner_node-2]: started with pid [22486][0m
+[1mprocess[traj_server-3]: started with pid [22506][0m
+[1mprocess[waypoint_generator-4]: started with pid [22518][0m
+[1mprocess[command_trans-5]: started with pid [22536][0m
+[1mprocess[tf_uav2map-6]: started with pid [22555][0m
+[1mprocess[camera_pc_preprocess-7]: started with pid [22582][0m
+[1mprocess[rviz-8]: started with pid [22602][0m
+[rviz-8] killing on exit
+[camera_pc_preprocess-7] killing on exit
+[tf_uav2map-6] killing on exit
+[waypoint_generator-4] killing on exit
+[command_trans-5] killing on exit
+[traj_server-3] killing on exit
+[fast_planner_node-2] killing on exit
+[tf_world2map-1] killing on exit
+shutting down processing monitor...
+... shutting down processing monitor complete
+[1mdone[0m

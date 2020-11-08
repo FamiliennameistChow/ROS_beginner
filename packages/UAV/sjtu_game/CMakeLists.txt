@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(sjtu_game)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -15,9 +15,18 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   sensor_msgs
   tf
+  pcl_ros
+  pcl_conversions
+  cmake_modules
+  darknet_ros_msgs
+  cv_bridge
+  image_transport
 )
 find_package(Boost REQUIRED COMPONENTS system)
 find_package(Boost REQUIRED COMPONENTS thread)
+find_package(PCL REQUIRED)
+find_package(Eigen REQUIRED) 
+find_package(OpenCV REQUIRED)
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -111,7 +120,8 @@ catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES sjtu_game
 #  CATKIN_DEPENDS roscpp rospy std_msgs
-#  DEPENDS system_lib
+  DEPENDS system_lib PCL
+  
 )
 
 ###########
@@ -123,6 +133,9 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
+  ${Eigen_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -163,6 +176,17 @@ target_link_libraries(command_trans ${catkin_LIBRARIES})
 add_executable(tf_uav2map  src/tf_uav_to_map.cpp)
 target_link_libraries(tf_uav2map  ${catkin_LIBRARIES})
 
+add_executable(camera_pc_preprocess src/camera_pc_preprocess.cpp)
+target_link_libraries(camera_pc_preprocess ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+add_executable(uav_control src/uav_control.cpp)
+target_link_libraries(uav_control ${catkin_LIBRARIES})
+
+add_executable(find_circle src/find_circle.cpp)
+target_link_libraries(find_circle ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+
+add_executable(find_circle_real src/find_circle_real.cpp)
+target_link_libraries(find_circle_real ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 
 #############
 ## Install ##

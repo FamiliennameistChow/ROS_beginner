@@ -14,6 +14,8 @@ void commandCB(const quadrotor_msgs::PositionCommand::ConstPtr& msg){
     pose.coordinate_frame = mavros_msgs::PositionTarget::FRAME_BODY_NED;
     pose.type_mask = mavros_msgs::PositionTarget::FORCE;
 
+
+    
     pose.position.x = msg->position.x;
     pose.position.y = msg->position.y;
     pose.position.z = msg->position.z;
@@ -23,11 +25,17 @@ void commandCB(const quadrotor_msgs::PositionCommand::ConstPtr& msg){
     pose.velocity.z = msg->velocity.z;
 
     pose.acceleration_or_force.x = msg->acceleration.x;
-    pose.acceleration_or_force.x = msg->acceleration.x;
-    pose.acceleration_or_force.x = msg->acceleration.x;
+    pose.acceleration_or_force.y = msg->acceleration.y;
+    pose.acceleration_or_force.z = msg->acceleration.z;
 
     pose.yaw = msg->yaw;
     pose.yaw_rate = msg->yaw_dot;
+
+    if (msg->velocity.x == 0 && msg->velocity.y == 0 && msg->velocity.z == 0 && 
+        msg->acceleration.x == 0 && msg->acceleration.y == 0 && msg->acceleration.z == 0)
+    {
+        pose.yaw = 1.57;
+    }
 
     command_pub.publish(pose);
 }

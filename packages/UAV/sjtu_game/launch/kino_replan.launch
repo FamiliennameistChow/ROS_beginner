@@ -1,15 +1,22 @@
 <launch>
+  <!--- Sim Time -->
+  <param name="/use_sim_time" value="true" />
+  
   <!-- size of map, change the size in x, y, z according to your application -->
-  <arg name="map_size_x" value="20.0"/>
-  <arg name="map_size_y" value="20.0"/>
-  <arg name="map_size_z" value="10.0"/>
+  <arg name="map_size_x" value="70.0"/>
+  <arg name="map_size_y" value="60.0"/>
+  <arg name="map_size_z" value="20.0"/>
 
   <!-- topic of your odometry such as VIO or LIO -->
   <!--<arg name="odom_topic" value="/state_ukf/odom" />-->
   <arg name="odom_topic" value="/mavros/local_position/odom" />
 
+  <!-- topic of your pointcloud in uav camrea -->
+  <arg name="pointcloud_topic" value="/kinect/depth/points" />
 
-  <node pkg="tf" type="static_transform_publisher" name="tf_world2map" args="0.0 0.0 0.0 -1.57 0.0 -1.57 /map /world 30"/>
+
+  <node pkg="tf" type="static_transform_publisher" name="tf_world2map" args="0.0 0.0 0.0 0.0 0.0 0.0 /world /map 30"/>
+  <!-- <node pkg="tf" type="static_transform_publisher" name="tf_world2map" args="0.0 0.0 0.0 -1.57 0.0 -1.57 /map /world 30"/> -->
 
 
   <!-- main algorithm params -->
@@ -25,12 +32,12 @@
     <!-- don't set cloud_topic if you already set these ones! -->
     <!--<arg name="camera_pose_topic" value="/pcl_render_node/camera_pose"/>
     <arg name="depth_topic" value="/pcl_render_node/depth"/>-->
-    <arg name="camera_pose_topic" value="/mavros/local_position/pose"/>
-    <arg name="depth_topic" value="/kinect/depth/image_raw"/>
+    <arg name="camera_pose_topic" value="/mavros/local_position/pose1"/>
+    <arg name="depth_topic" value="/camera/depth/image_raw"/>
 
     <!-- topic of point cloud measurement, such as from LIDAR  -->
     <!-- don't set camera pose and depth, if you already set this one! -->
-    <arg name="cloud_topic" value="/camera/depth/points"/>
+    <arg name="cloud_topic" value="/kinect/depth/points_global"/>
 
     <!-- intrinsic params of the depth camera -->
     <arg name="cx" value="321.04638671875"/>
@@ -39,8 +46,8 @@
     <arg name="fy" value="387.229248046875"/>
 
     <!-- maximum velocity and acceleration the drone will reach -->
-    <arg name="max_vel" value="3.0" />
-    <arg name="max_acc" value="2.0" />
+    <arg name="max_vel" value="2.0" />
+    <arg name="max_acc" value="1.0" />
 
     <!-- 1: use 2D Nav Goal to select goal  -->
     <!-- 2: use global waypoints below  -->
@@ -80,10 +87,15 @@
     <param name="waypoint_type" value="manual-lonely-waypoint"/>    
   </node>
 
-  <node pkg="sjtu_game" name="command_trans" type="command_trans" output="screen">   
+  <node pkg="sjtu_game" name="command_trans" type="command_trans" >   
   </node>
 
-  <node pkg="sjtu_game" name="tf_uav2map" type="tf_uav2map" output="screen">   
+  <node pkg="sjtu_game" name="tf_uav2map" type="tf_uav2map" > 
+    <!-- <param name="map_frame" value="world" />   -->
+  </node>
+
+  <node pkg="sjtu_game" name="camera_pc_preprocess" type="camera_pc_preprocess"  >
+    <param name="pointcloud_in_topic" value="$(arg pointcloud_topic)" />
   </node>
 
   <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find sjtu_game)/rviz/sjtu_game.rviz" />

@@ -208,3 +208,6 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 
 20201010 
 * 修改了gazebo文件夹中models文件里环的颜色
+
+20201108 zb
+* 更新了`sjtu_game`包，增加识别，控制，与路径规划

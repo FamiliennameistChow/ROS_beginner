@@ -1,0 +1,32 @@
+<launch>
+
+    <!-- uav img process -->
+    <node pkg="sjtu_game" type="find_circle_real" name="find_circle_real" output="screen">
+        <param name="finding_method"    value="0" type="int"/>
+        <param name="front_rgb_topic"   value="/D435i/color/image_raw"      type="string"/>
+        <param name="front_depth_topic" value="/D435i/depth/image_rect_raw" type="string"/>
+        <param name="bottom_rgb_topic"  value="/iris/usb_cam2/image_raw"    type="string"/>
+
+        <param name="depth_camera/fx"  value="383.87774658203125"   />
+        <param name="depth_camera/fy"  value="383.87774658203125"   />
+        <param name="depth_camera/cx"  value="326.1387634277344"    />
+        <param name="depth_camera/cy"  value="240.718505859375"     />
+        
+        <param name="rgb_camera/fx"  value="612.21240234375"       />
+        <param name="rgb_camera/fy"  value="612.273681640625"      />
+        <param name="rgb_camera/cx"  value="311.83062744140625"    />
+        <param name="rgb_camera/cy"  value="241.10853576660156"    />
+
+        <!-- <param name="bottom_camera/fx"  value="387.229248046875"   type="float"/>
+        <param name="bottom_camera/fy"  value="387.229248046875"   type="float"/>
+        <param name="bottom_camera/cx"  value="321.04638671875"    type="float"/>
+        <param name="bottom_camera/cy"  value="243.44969177246094" type="float"/> -->
+        
+    </node>
+
+    <!-- uav control noe -->
+    <!-- <node pkg="sjtu_game" type="uav_control" name="uav_control" output="screen"> 
+
+    </node> -->
+
+</launch>

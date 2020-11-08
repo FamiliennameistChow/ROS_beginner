@@ -1,0 +1,17 @@
+<launch>
+
+    <!-- uav img process -->
+    <node pkg="sjtu_game" type="find_circle" name="find_circle" output="screen">
+        <param name="finding_method"   value="0" type="int"/>
+        <param name="front_rgb_topic"   value="/kinect/rgb/image_raw" type="string"/>
+        <param name="front_depth_topic" value="/kinect/depth/image_raw" type="string"/>
+        <param name="bottom_rgb_topic"  value="/iris/usb_cam2/image_raw" type="string"/>
+
+    </node>
+
+    <!-- uav control noe -->
+    <node pkg="sjtu_game" type="uav_control" name="uav_control" output="screen"> 
+
+    </node>
+
+</launch>

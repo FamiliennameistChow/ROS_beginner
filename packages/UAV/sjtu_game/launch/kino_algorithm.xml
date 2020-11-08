@@ -60,13 +60,13 @@
     <param name="sdf_map/map_size_x"   value="$(arg map_size_x_)" /> 
     <param name="sdf_map/map_size_y"   value="$(arg map_size_y_)" /> 
     <param name="sdf_map/map_size_z"   value="$(arg map_size_z_)" /> 
-    <param name="sdf_map/local_update_range_x"  value="5.5" /> 
-    <param name="sdf_map/local_update_range_y"  value="5.5" /> 
-    <param name="sdf_map/local_update_range_z"  value="4.5" /> 
-    <param name="sdf_map/obstacles_inflation"     value="0.099" /> 
-    <param name="sdf_map/local_bound_inflate"    value="0.0"/>
+    <param name="sdf_map/local_update_range_x"  value="10" /> <!-- 5.5-->
+    <param name="sdf_map/local_update_range_y"  value="10" /> <!-- 5.5-->
+    <param name="sdf_map/local_update_range_z"  value="10" /> <!-- 4.5-->
+    <param name="sdf_map/obstacles_inflation"   value=" 0.1" />  <!-- 0.0999-->
+    <param name="sdf_map/local_bound_inflate"   value="0.0"/>
     <param name="sdf_map/local_map_margin" value="50"/>
-    <param name="sdf_map/ground_height"        value="-1.0"/>
+    <param name="sdf_map/ground_height"        value="0.1"/> <!-- -1.0 -->
     <!-- camera parameter -->
     <param name="sdf_map/cx" value="$(arg cx)"/>
     <param name="sdf_map/cy" value="$(arg cy)"/>
