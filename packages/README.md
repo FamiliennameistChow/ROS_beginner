@@ -199,6 +199,16 @@
         - [x] 实现八叉树上的通行走廊生成
         - [x] 基于贝塞尔曲线的mini-jerk轨迹优化
 
+* [target_tracking](./UAV/target_tracking)
+此功能包是为了后面做目标追踪的功能包,目前只加入了初步场景,添加了scout_uav_sim.launch文件用来启动场景.
+    * 依赖/配置
+
+        参考UGV里的Scout_ros配置,安装相应依赖,就可以启动scout_uav_sim.launch了,中间要去安装一个激光雷达的包.
+        
+        找到小车的配置文件在:./UGV/scout_ros/scout_description/urdf/scout_v2.xacro
+        
+        添加标靶信息:将./UAV/urdf/model.urdf文件内容复制到小车配置文件,就可以看到一个小车上顶着一个白板了
+        
 
 
 
