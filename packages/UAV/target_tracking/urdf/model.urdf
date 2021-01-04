@@ -1,20 +1,25 @@
-  <link name="mark_label_1__link">
+  <link name="mark_label_1_link">
     <inertial>
       <mass value="0.390"/>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <inertia ixx="0.00058" ixy="0" ixz="0" iyy="0.00058" iyz="0" izz="0.00019"/>
     </inertial>
-    <collision name="mark_label_1__collision">
-      <origin rpy="0 0 0" xyz="0 0 0.115"/>
+    <collision>
+      <origin xyz="0 0 0.5707" rpy="0 0 0"/>
       <geometry>
-        <box size=".5 .5 .0001"/>
+        <mesh filename="package://target_tracking/models/box_target_green/meshes/mesh.dae" scale="0.2 0.2 0.04"/>
       </geometry>
     </collision>
-    <visual name="mark_label_1__visual">
-      <origin rpy="0 0 0" xyz="0 0 0.115"/>
+    <visual>
+      <origin xyz="0 0 0.5707" rpy="0 0 0"/>
       <geometry>
-        <box size=".5 .5 .001"/>
+        <mesh filename="package://target_tracking/models/box_target_green/meshes/mesh.dae" scale="0.2 0.2 0.04"/>       
       </geometry>
     </visual>
   </link>
-
+   
+    <joint name="mark_label_1_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <parent link="base_link" />
+        <child link="mark_label_1_link" />
+    </joint>

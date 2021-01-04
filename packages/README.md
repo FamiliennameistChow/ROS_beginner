@@ -207,7 +207,7 @@
         
         找到小车的配置文件在:./UGV/scout_ros/scout_description/urdf/scout_v2.xacro
         
-        添加标靶信息:将./UAV/urdf/model.urdf文件内容复制到小车配置文件,就可以看到一个小车上顶着一个白板了
+        添加标靶信息:将./UAV/urdf/model.urdf文件内容复制到小车配置文件,就可以看到一个小车上顶着一个图片(/ROS_beginner/packages/UAV/target_tracking/models/box_target_green/materials/textures/start_pad3.png)
         
 
 
