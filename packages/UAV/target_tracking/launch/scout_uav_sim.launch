@@ -1,7 +1,9 @@
 <launch>
     <!-- <env name="GAZEBO_MODEL_PATH" value="$(find octomap_scout)/models/Amy_terrain"/> -->
     <arg name="robot_namespace" default="/"/>
-    <arg name="world_name" default="$(find target_tracking)/worlds/empty.world"/>
+    <!-- <arg name="world_name" default="$(find target_tracking)/worlds/empty.world"/> -->
+    <arg name="world_name" default="$(find scout_gazebo_sim)worlds/weston_robot_empty.world"/>
+
     <arg name="x" default="18.0"/>
     <arg name="y" default="-0.3"/>
     <arg name="z" default="1.56"/>
@@ -27,7 +29,7 @@
         <arg name="yaw" value="$(arg yaw)"/>
     </include>
 
-    <include file="$(find scout_base)/launch/scout_base_sim.launch" />
+    <!-- <include file="$(find scout_base)/launch/scout_base_sim.launch" /> -->
         
     <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find scout_description)/rviz/navigation.rviz" /> -->
 </launch>

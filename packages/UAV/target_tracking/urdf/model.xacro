@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<robot name="mark_label_1" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <link name="mark_label_1__link">
+    <inertial>
+      <mass value="0.390"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.00058" ixy="0" ixz="0" iyy="0.00058" iyz="0" izz="0.00019"/>
+    </inertial>
+    <collision name="mark_label_1__collision">
+      <origin rpy="0 0 0" xyz="0    0    0.115"/>
+      <geometry>
+        <box size=".05 .05 .0001"/>
+      </geometry>
+    </collision>
+    <visual name="mark_label_1__visual">
+      <origin rpy="0 0 0" xyz="0    0    0.115"/>
+      <geometry>
+        <box size=".05 .05 .001"/>
+      </geometry>
+    </visual>
+  </link>
+</robot>
