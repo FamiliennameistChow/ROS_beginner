@@ -97,7 +97,7 @@
     <xacro:include filename="$(arg urdf_extras)" />
 
     <!-- Gazebo definitions  -->
-    <xacro:include filename="$(find target_tracking)/urdf/scout_v2.gazebo" />
+    <xacro:include filename="$(find target_tracking)/models/scout_v2.gazebo" />
 
     <!-- VLP-16 -->
     <!-- <xacro:include filename="$(find velodyne_description)/urdf/VLP-16.urdf.xacro"/>
@@ -112,7 +112,7 @@
   	</HDL-32E>  -->
       
     <!-- kinect link config -->
-    <xacro:include filename="$(find target_tracking)/urdf/sensors/kinect.urdf.xacro"/>
+    <xacro:include filename="$(find target_tracking)/models/sensors/kinect.urdf.xacro"/>
     <sensor_kinect  parent="base_link">
         <!--origin xyz="0 0 0" rpy="0 0 0" /-->
     </sensor_kinect>

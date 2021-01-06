@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot name="sensor_kinect" xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:include filename="$(find target_tracking)/urdf/sensors/kinect_gazebo.urdf.xacro"/>
-  <xacro:include filename="$(find target_tracking)/urdf/sensors/kinect_properties.urdf.xacro"/>
+  <xacro:include filename="$(find target_tracking)/models/sensors/kinect_gazebo.urdf.xacro"/>
+  <xacro:include filename="$(find target_tracking)/models/sensors/kinect_properties.urdf.xacro"/>
   
   <xacro:property name="kinect_cam_py" value="-0.0125"/>
   <!-- Parameterised in part by the values in turtlebot_properties.urdf.xacro -->
@@ -30,7 +30,7 @@
        <origin xyz="0 0 0" rpy="0 0 ${M_PI/2}"/>
         <geometry>
          <!-- <mesh filename="package://turtlebot_description/meshes/sensors/kinect.dae"/> -->
-         <mesh filename="package://target_tracking/meshes/sensors/kinect.dae"/>
+         <mesh filename="package://target_tracking/models/sensors/meshes/sensors/kinect.dae"/>
         </geometry>
       </visual>
   	  <collision>

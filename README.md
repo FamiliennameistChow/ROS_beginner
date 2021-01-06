@@ -18,7 +18,7 @@ guide to learning ros
 
 * [gazebo环境配置](https://github.com/FamiliennameistChow/ROS_beginner/blob/master/note/installtion/gazebo_simulation.md)
 	* [gazebo中给无人机添加单目相机](https://zhuanlan.zhihu.com/p/91692124)
-	* [gazebo中给无人机添加双目相机(TO DO)]
+	* [gazebo中给无人机添加双目相机](https://zhuanlan.zhihu.com/p/92282738)
     * [gazebo_添加降落地标](https://github.com/FamiliennameistChow/ROS_beginner/blob/master/note/simulation/gazebo_add_landmark.md)
 
 * [ROS功能包(可复用)](./packages)
@@ -214,3 +214,6 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 
 20201231 xhj
 * 新增了`target_tracking`包,用于后续目标跟踪仿真实验
+
+20201231 zb
+* 更新了`target_tracking`包,简化文件目录
