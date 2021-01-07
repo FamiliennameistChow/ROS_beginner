@@ -84,6 +84,8 @@
 
         ![pic](./UAV/target_tracking/models/box_target_green/materials/textures/start_pad3.png)
 
+        无人机和无人车的模型都加载到一个world里去,并且利用键盘控制都可以操控两个vehicle
+
 
 -----
 

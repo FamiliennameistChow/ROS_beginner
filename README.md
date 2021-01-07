@@ -217,3 +217,6 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 
 20201231 zb
 * 更新了`target_tracking`包,简化文件目录
+
+20200107 xhj
+* 更新了`target_tracking`包,合并了了无人机和无人车仿真环境
