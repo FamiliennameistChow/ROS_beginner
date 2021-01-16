@@ -132,8 +132,10 @@ int main(int argc, char **argv) {
                         if(err_x > 0) vel_y = 0.5;
                         else vel_y = -0.5;
 
-                        if(err_y > 0) vel_x = 0.5;
-                        else vel_x = -0.5;
+                        // if(err_y > 0) vel_x = 0.5;
+                        // else vel_x = -0.5;
+                        if(err_y > 0) vel_x = abs(vel_y) * (err_y / err_x);
+                        else vel_x = -abs(vel_y) * (err_y / err_x);
 
                         myDrone.setVelocityBody(vel_x, vel_y, -1, 0);
 

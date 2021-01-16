@@ -193,6 +193,7 @@ target_link_libraries(pointcloud_to_gridmap_uav
   ${PROJECT_NAME}
   ${catkin_LIBRARIES}
   ${OpenMP_CXX_LIBRARIES}
+  ${OpenCV_LIBRARIES}
 )
 
 target_link_libraries(tf_sensor2map 

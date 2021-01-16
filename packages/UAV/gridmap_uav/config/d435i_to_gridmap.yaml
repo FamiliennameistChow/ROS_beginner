@@ -1,29 +1,13 @@
-tf_sensor2map:
-  sensor_frame: "camera_link"
-  robot_frame: "base_link"
-  map_frame: "map"
-  robot_attitude_topic: "/mavros/local_position/pose"
-  sensor_transform_from_robot:
-    translation:
-      x: 0.0
-      y: 0.0
-      z: 0.0
-    rotation: #intrinsic rotation X-Y-Z (r-p-y)sequence
-      r: 0.0
-      p: 3.1415926
-      y: 1.5707963
-
-
 pointcloud_to_gridmap:
-  pointcloud_topic: "/camera/depth/points"
-  pointcloud_frame: "camera_link"
-  map_frame: "map"
-  resolution: 0.1    # global_map的分辨率，需要和local_map同步
-  safe_distance: 0.5 # 降落点距离障碍的安全距离
-  UAV_radius: 0.5 # 无人机的占地半径
+  pointcloud_topic: "/points2"  # "/camera/depth/color/points"
+  pointcloud_frame: "rgb_camera_link" #"/camera_depth_optical_frame"
+  map_frame: "rgb_camera_link" #"/camera_depth_optical_frame"
+  resolution: 0.01    # global_map的分辨率，需要和local_map同步
+  safe_distance: 0.05 # 降落点距离障碍的安全距离
+  UAV_radius: 0.2 # 无人机的占地半径
   output_local_map_topic: /pointcloud_to_gridmap/local_grid_map
   output_global_map_topic: /pointcloud_to_gridmap/global_grid_map
-  parameters_file: pointcloud_to_gridmap.yaml
+  parameters_file: d435i_to_gridmap.yaml
 
   folder_path: "$(find gridmap_uav)/data"  # 要加载的pcd文件所在的目录
   pcd_filename: "plane_noisy.pcd"  # 加载pcd文件的名字
@@ -55,12 +39,12 @@ pcl_grid_map_extraction:
   downsampling:
     is_downsample_cloud: true
     voxel_size:
-      x: 0.02
-      y: 0.02
-      z: 0.02
+      x: 0.003
+      y: 0.003
+      z: 0.003
   grid_map:
     min_num_points_per_cell: 4
-    resolution: 0.1  # local_map的分辨率，需要和global_map同步
+    resolution: 0.01  # local_map的分辨率，需要和global_map同步
 
 
 # grid_map可视化配置

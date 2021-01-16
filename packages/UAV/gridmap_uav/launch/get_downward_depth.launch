@@ -2,9 +2,9 @@
 <launch>
     <!-- MAVROS posix SITL environment launch script -->
     <!-- launches MAVROS, PX4 SITL, Gazebo environment, and spawns vehicle -->
-    <!-- vehicle pose -->
-    <arg name="x" default="8.66"/>
-    <arg name="y" default="-4.77"/>
+    <!-- vehicle pose  x:8.66 y:-4.77 z:1-->
+    <arg name="x" default="15"/>
+    <arg name="y" default="-1.5"/>
     <arg name="z" default="1"/>
     <arg name="R" default="0"/>
     <arg name="P" default="0"/>

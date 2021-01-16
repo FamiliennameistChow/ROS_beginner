@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+  <rosparam file="$(find gridmap_uav)/config/d435i_to_gridmap.yaml" command="load"/>
+
+  <arg name="prefix"       default=""/>
+  <node pkg="gridmap_uav" name="pointcloud_to_gridmap" type="pointcloud_to_gridmap_uav" 
+        output="screen"  launch-prefix="$(arg prefix)">
+    <rosparam command="load" file="$(find gridmap_uav)/config/d435i_filter_chain.yaml" />
+  </node>
+
+  <!-- Launch the grid map visualizer -->
+  <node pkg="grid_map_visualization" type="grid_map_visualization" name="grid_map_visualization" output="screen" />
+
+  <!-- Launch RViz with the demo configuration -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find gridmap_uav)/rviz/grid_map_d435i.rviz" />
+</launch>

@@ -10,7 +10,7 @@
     <remap from="/imu" to="/mavros/imu/data"/>
     </node>
 
-     <node pkg="tf" type="static_transform_publisher" name="tf_laserOdom_baselink" args="0.0 0.0 0.0 0.0 0.0 0.0 /imu /base_link 50"/>
+    <node pkg="tf" type="static_transform_publisher" name="tf_laserOdom_baselink" args="0.0 0.0 0.0 0.0 0.0 0.0 /imu /base_link 50"/>
 
     <!-- Launch RViz with the demo configuration -->
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find moon_landing)/rviz/rvio_rviz.rviz" />

@@ -4,8 +4,7 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /PointCloud21
-        - /PointStamped1/Status1
+        - /Global Options1
       Splitter Ratio: 0.611464977
     Tree Height: 502
   - Class: rviz/Selection
@@ -33,14 +32,14 @@ Visualization Manager:
   Class: ""
   Displays:
     - Class: rviz/Axes
-      Enabled: false
-      Length: 1.5
+      Enabled: true
+      Length: 0.5
       Name: Axes
-      Radius: 0.100000001
-      Reference Frame: <Fixed Frame>
-      Value: false
+      Radius: 0.0500000007
+      Reference Frame: camera_depth_optical_frame
+      Value: true
     - Alpha: 0.5
-      Cell Size: 1
+      Cell Size: 0.0500000007
       Class: rviz/Grid
       Color: 160; 160; 164
       Enabled: true
@@ -164,7 +163,7 @@ Visualization Manager:
       Axes Radius: 0.100000001
       Class: rviz/Pose
       Color: 255; 25; 0
-      Enabled: true
+      Enabled: false
       Head Length: 0.800000012
       Head Radius: 0.400000006
       Name: Pose
@@ -173,7 +172,7 @@ Visualization Manager:
       Shape: Arrow
       Topic: /mavros/local_position/pose
       Unreliable: false
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Class: grid_map_rviz_plugin/GridMap
@@ -283,7 +282,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.100000001
       Style: Points
-      Topic: /camera/depth/points
+      Topic: /camera/depth/color/points
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -306,7 +305,7 @@ Visualization Manager:
       Enabled: true
       History Length: 1
       Name: PointStamped
-      Radius: 0.699999988
+      Radius: 0.0799999982
       Topic: /landing_site
       Unreliable: false
       Value: true
@@ -314,7 +313,7 @@ Visualization Manager:
   Global Options:
     Background Color: 255; 255; 255
     Default Light: true
-    Fixed Frame: map
+    Fixed Frame: camera_link
     Frame Rate: 30
   Name: root
   Tools:
@@ -335,25 +334,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 30.0393028
+      Distance: 3.37621903
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -7.72419214
-        Y: -0.62925446
-        Z: -3.4341135
+        X: 0.239768267
+        Y: -0.112165011
+        Z: 0.000534729974
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.744796097
+      Pitch: 0.0752032101
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.6312294
+      Yaw: 3.07128429
     Saved: ~
 Window Geometry:
   Displays:
@@ -373,5 +372,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1187
-  X: 2655
-  Y: 458
+  X: 712
+  Y: 198
