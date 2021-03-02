@@ -1,0 +1,32 @@
+material Land/Diffuse_3
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture Land.png
+        filtering anistropic
+        max_anisotropy 16
+      }
+    }
+  }
+}
+
+material Mark/Diffuse_3
+{
+  receive_shadows off
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture 3.png
+        filtering anistropic
+        max_anisotropy 16
+      }
+    }
+  }
+}

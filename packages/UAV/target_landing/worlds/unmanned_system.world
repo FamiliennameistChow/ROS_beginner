@@ -1,0 +1,220 @@
+<?xml version="1.0" ?>
+<sdf version='1.6'>
+  <world name='default'>
+    <!-- A global light source -->
+    <include>
+      <uri>model://sun</uri>
+      <pose>0 0 10 0 -0 0</pose>
+    </include>
+    <!-- A ground plane -->
+    <include>
+      <uri>model://ground_plane</uri>
+      <pose>0 0 0 0 -0 0</pose>
+    </include>
+    <!-- A asphalt plane -->
+    <model name='asphalt_plane'>
+      <static>1</static>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry>
+            <box>
+              <size>70 20 0.1</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <cast_shadows>0</cast_shadows>
+          <geometry>
+            <box>
+              <size>70 20 0.1</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>model://asphalt_plane/materials/scripts</uri>
+              <uri>model://asphalt_plane/materials/textures</uri>
+              <name>vrc/asphalt</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <state world_name='default'>
+      <sim_time>2361 209000000</sim_time>
+      <real_time>1088 988725944</real_time>
+      <wall_time>1612148351 853766278</wall_time>
+      <iterations>269839</iterations>
+      <model name='asphalt_plane'>
+        <pose frame=''>20 0 0 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>20 0 0 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <light name='sun'>
+        <pose frame=''>0 0 10 0 -0 0</pose>
+      </light>
+    </state>
+    <!-- Element -->
+    <include>
+      <name>frame</name>
+      <uri>model://frame</uri>
+      <pose>-5 0 0 0 0 1.56561</pose>
+    </include>
+    <include>
+      <name>landmark_1_1</name>
+      <uri>model://landmark_1</uri>
+      <pose>19.635 5.74933 0.06 0 -0 0.049151</pose>
+    </include>
+    <include>
+      <name>landmark_1_2</name>
+      <uri>model://landmark_1</uri>
+      <pose>7.58402 4.25658 0.06 0 0 -0.865947</pose>
+    </include>
+    <include>
+      <name>landmark_1_3</name>
+      <uri>model://landmark_1</uri>
+      <pose>42.6658 6.06562 0.06 0 0 -1.15239</pose>
+    </include>
+    <include>
+      <name>landmark_1_4</name>
+      <uri>model://landmark_1</uri>
+      <pose>44.5288 -3.29928 0.059996 -7e-06 -6e-06 1.29099</pose>
+    </include>
+    <include>
+      <name>landmark_2</name>
+      <uri>model://landmark_2</uri>
+      <pose>25.1113 -6.41431 0.06 0 -0 2.11537</pose>
+    </include>
+    <include>
+      <name>landmark_3_1</name>
+      <uri>model://landmark_3</uri>
+      <pose>32.2909 5.65871 0.06 0 -0 0.676559</pose>
+    </include>
+    <include>
+      <name>landmark_3_2</name>
+      <uri>model://landmark_3</uri>
+      <pose>12.6589 -5.77184 0.05999 0 -0 2.60971</pose>
+    </include>
+    <include>
+      <name>oak_tree_1</name>
+      <uri>model://oak_tree</uri>
+      <pose>34.4356 -4.33964 0 0 -0 0</pose>
+    </include>
+    <include>
+      <name>oak_tree_2</name>
+      <uri>model://oak_tree</uri>
+      <pose>17.022 -0.15021 0 0 -0 0</pose>
+    </include>
+    <include>
+      <name>pine_tree_1</name>
+      <uri>model://pine_tree</uri>
+      <pose>30 -10 0 0 -0 0</pose>
+    </include>
+    <include>
+      <name>pine_tree_2</name>
+      <uri>model://pine_tree</uri>
+      <pose>30 10 0 0 -0 0</pose>
+    </include>
+    <include>
+      <name>pine_tree_3</name>
+      <uri>model://pine_tree</uri>
+      <pose>40 -10 0 0 -0 0</pose>
+    </include>
+    <include>
+      <name>pine_tree_4</name>
+      <uri>model://pine_tree</uri>
+      <pose>10 10 0 0 -0 0</pose>
+    </include>
+    <include>
+      <name>pine_tree_5</name>
+      <uri>model://pine_tree</uri>
+      <pose>10 -10 0 0 -0 0</pose>
+    </include>
+    <include>
+      <name>pine_tree_6</name>
+      <uri>model://pine_tree</uri>
+      <pose>40 10 0 0 -0 0</pose>
+    </include>
+    <include>
+      <name>pine_tree_7</name>
+      <uri>model://pine_tree</uri>
+      <pose>20 10 0 0 -0 0</pose>
+    </include>
+    <include>
+      <name>pine_tree_8</name>
+      <uri>model://pine_tree</uri>
+      <pose>50 10 0 0 -0 0</pose>
+    </include>
+    <include>
+      <name>pine_tree_9</name>
+      <uri>model://pine_tree</uri>
+      <pose>50 -10 0 0 -0 0</pose>
+    </include>
+    <include>
+      <name>pine_tree_10</name>
+      <uri>model://pine_tree</uri>
+      <pose>20 -10 0 0 -0 0</pose>
+    </include>
+    
+    <physics name='default_physics' default='0' type='ode'>
+      <ode>
+        <solver>
+          <type>quick</type>
+          <iters>10</iters>
+          <sor>1.3</sor>
+          <use_dynamic_moi_rescaling>0</use_dynamic_moi_rescaling>
+        </solver>
+        <constraints>
+          <cfm>0</cfm>
+          <erp>0.2</erp>
+          <contact_max_correcting_vel>100</contact_max_correcting_vel>
+          <contact_surface_layer>0.001</contact_surface_layer>
+        </constraints>
+      </ode>
+      <max_step_size>0.004</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>250</real_time_update_rate>
+    </physics>
+    <gravity>0 0 -9.8066</gravity>
+    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+    <atmosphere type='adiabatic'/>
+    <scene>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.7 0.7 0.7 1</background>
+      <shadows>1</shadows>
+    </scene>
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <latitude_deg>0</latitude_deg>
+      <longitude_deg>0</longitude_deg>
+      <elevation>0</elevation>
+      <heading_deg>0</heading_deg>
+    </spherical_coordinates>
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose frame=''>-42.4783 0.796276 26.0645 0 0.493798 -0.055764</pose>
+        <view_controller>orbit</view_controller>
+        <projection_type>perspective</projection_type>
+      </camera>
+    </gui>
+  </world>
+</sdf>

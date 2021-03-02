@@ -86,6 +86,11 @@
 
         无人机和无人车的模型都加载到一个world里去,并且利用键盘控制都可以操控两个vehicle
 
+* [target_landing](./UAV/target_landing)
+此功能包在添加了多加无人机（3架/9架）、无人车、地面靶标，分别通过scout_land_sim_3.launch和scout_land_sim_9.launch来启动场景。
+    * 依赖/配置
+
+        参考UAV里的Target_tracking（需配置Scout_ros，安装相应依赖）。场景模型可在gazebo/models/target_landing文件夹下找到。
 
 -----
 

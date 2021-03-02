@@ -1,0 +1,16 @@
+material Mark/Diffuse_1
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture /home/funny/catkin_ws/src/target_tracking/models/mark_label_1/materials/textures/1.png
+				filtering anistropic
+				max_anisotropy 16
+			}
+		}
+	}
+}

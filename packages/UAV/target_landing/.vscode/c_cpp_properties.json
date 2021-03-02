@@ -1,0 +1,29 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/home/funny/catkin_ws/devel/include/**",
+                "/opt/ros/kinetic/include/**",
+                "/home/funny/catkin_ws/src/fly/include/**",
+                "/home/funny/catkin_ws/src/missionplan/include/**",
+                "/home/funny/catkin_ws/src/px4_mavros/include/**",
+                "/home/funny/catkin_ws/src/scout_ros/scout_base/include/**",
+                "/home/funny/catkin_ws/src/scout_ros/scout_gazebo_sim/include/**",
+                "/home/funny/catkin_ws/src/scout_ros/scout_sdk/include/**",
+                "/home/funny/catkin_ws/src/scout_ros/scout_webots_sim/include/**",
+                "/home/funny/catkin_ws/src/target_tracking/include/**",
+                "/usr/include/**"
+            ],
+            "name": "ROS",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}
