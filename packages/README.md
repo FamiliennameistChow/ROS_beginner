@@ -92,6 +92,12 @@
 
         参考UAV里的Target_tracking（需配置Scout_ros，安装相应依赖）。场景模型可在gazebo/models/target_landing文件夹下找到。
 
+* [riverdetect](./UAV/riverdetect)
+此功能包用于河道巡检，运行riverdetect.sh文件即可启动。启动后在gazebo界面左侧World竖框内找到Models/iris_rplidar，右键选择Move To即可找到飞机。
+    * gazebo环境配置
+
+        打开gazebo/models/river_simulation_config文件夹，按照config.md文件配置方针环境。
+
 -----
 
 

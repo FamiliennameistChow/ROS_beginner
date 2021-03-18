@@ -223,3 +223,6 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 
 20210302 fj
 * 新增了`target_landing`包,添加了多无人机和无人车仿真环境
+
+20210318 fj
+* 新增了`riverdetect`包,用于河道检测
