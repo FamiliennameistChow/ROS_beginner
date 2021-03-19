@@ -226,3 +226,6 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 
 20210318 fj
 * 新增了`riverdetect`包,用于河道检测
+
+20210319 fj
+* 更新了`target_landing`包,无人机均添加了相机

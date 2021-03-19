@@ -87,16 +87,37 @@
         无人机和无人车的模型都加载到一个world里去,并且利用键盘控制都可以操控两个vehicle
 
 * [target_landing](./UAV/target_landing)
-此功能包在添加了多加无人机（3架/9架）、无人车、地面靶标，分别通过scout_land_sim_3.launch和scout_land_sim_9.launch来启动场景。
+此功能包用于集群仿真，添加了无人车、多架无人机（3架/9架）、地面靶标，分别通过scout_land_sim_3.launch 和scout_land_sim_9.launch 来启动场景。
+
     * 依赖/配置
 
-        参考UAV里的Target_tracking（需配置Scout_ros，安装相应依赖）。场景模型可在gazebo/models/target_landing文件夹下找到。
+        * 配置Scout_ros，安装相应依赖，参考UAV 里的Target_tracking。
+
+        * gazebo 模型
+        
+            可在本Git 的gazebo/models/target_landing 文件夹下找到，放入`~/.gazebo/models/`目录。
+
+        * `安装xmlstarlet`
+            
+            px4/Firmware的版本在1.10.2及以上提供了以sdf文件为模型的多机启动文件（之前版本使用urdf文件添加），依赖xmlstarlet 工具。
+
+                sudo apt update
+                sudo apt install xmlstarlet
+        
+        * `添加相机`
+        
+            将本Git 的gazebo/models/target_landing 文件夹下的iris_cam 和kinect_self 模型文件夹复制到px4 模型目录下`～/px4/Firmware/Tools/sitl_gazebo/models`。
+
+            * iris_cam 模型的sdf 文件用于加载无人机和所需要的相机，相机可以根据任务需要自己修改。
+            
+            * kinect_self 模型即为波波教程中添加的双目相机的模型，为多机修改了部分细节。
 
 * [riverdetect](./UAV/riverdetect)
-此功能包用于河道巡检，运行riverdetect.sh文件即可启动。启动后在gazebo界面左侧World竖框内找到Models/iris_rplidar，右键选择Move To即可找到飞机。
-    * gazebo环境配置
+此功能包用于河道巡检，运行riverdetect.sh文件即可启动。启动后在gazebo界面左侧World 竖框内找到Models/iris_rplidar，右键选择Move To 即可找到飞机。
+   
+   * gazebo环境配置
 
-        打开gazebo/models/river_simulation_config文件夹，按照config.md文件配置方针环境。
+        打开gazebo/models/river_simulation_config 文件夹，按照config.md文件配置方针环境。
 
 -----
 

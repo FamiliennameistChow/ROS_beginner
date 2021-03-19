@@ -1,0 +1,29 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "",
+        "limitSymbolsToIncludedHeaders": true
+      },
+      "includePath": [
+        "/home/pangzi/catkin_ws/devel/include/**",
+        "/opt/ros/kinetic/include/**",
+        "/home/pangzi/catkin_ws/src/avoidance/avoidance/include/**",
+        "/home/pangzi/catkin_ws/src/avoidance/global_planner/include/**",
+        "/home/pangzi/catkin_ws/src/avoidance/local_planner/include/**",
+        "/home/pangzi/catkin_ws/src/polygon_demo/include/**",
+        "/home/pangzi/catkin_ws/src/px4_mavros/include/**",
+        "/home/pangzi/catkin_ws/src/riverdetect/include/**",
+        "/home/pangzi/catkin_ws/src/avoidance/safe_landing_planner/include/**",
+        "/home/pangzi/catkin_ws/src/scout_ros/scout_base/include/**",
+        "/home/pangzi/catkin_ws/src/scout_ros/scout_gazebo_sim/include/**",
+        "/home/pangzi/catkin_ws/src/scout_ros/scout_sdk/include/**",
+        "/home/pangzi/catkin_ws/src/scout_ros/scout_webots_sim/include/**",
+        "/home/pangzi/catkin_ws/src/target_landing/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS"
+    }
+  ],
+  "version": 4
+}
