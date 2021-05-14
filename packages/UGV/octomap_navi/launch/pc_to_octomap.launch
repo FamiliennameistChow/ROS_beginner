@@ -5,7 +5,7 @@
   <arg name="mapFrame" default="map"/> 
   <arg name="baseFrame" default="base_link"/> 
 
-  <node pkg="pcl_ros" type="pcd_to_pointcloud" name="pcd_to_pointcloud" args="$(find octomap_navi)/maps/map_full.pcd 0.1 _frame_id:=$(arg mapFrame)" />
+  <node pkg="pcl_ros" type="pcd_to_pointcloud" name="pcd_to_pointcloud" args="$(find octomap_navi)/maps/result_cm_surface.pcd 0.1 _frame_id:=$(arg mapFrame)" />
 
   <!-- <node pkg="octomap_scout" type="octomap_server_multilayer" name="octomap_server" output="screen"> -->
   <node pkg="octomap_server" type="octomap_server_node" name="octomap_server" output="screen">

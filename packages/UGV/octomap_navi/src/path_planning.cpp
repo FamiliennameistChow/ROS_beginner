@@ -22,6 +22,7 @@
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/Pose.h>
 #include <octomap/math/Utils.h>
+#include <std_msgs/Float32.h>
 
 #include <iostream>
 #include <vector> 
@@ -50,6 +51,7 @@ private:
 	ros::Subscriber octree_sub_;
 	ros::Subscriber odom_sub_;
 	ros::Subscriber goal_sub_;
+	ros::Subscriber track_state_sub_;
 	//ROS publishers
 	ros::Publisher traj_pub_;
 	ros::Publisher rrt_tree_pub_;
@@ -72,6 +74,7 @@ private:
 	float inflate_step_length_; //每次膨胀步长
 	double MAX_Vel_; //用于时间分配计算
 	double MAX_Acc_; //用于时间分配计算
+	float th_stdev_bis_;
 
 	// bazier相关
 	int traj_order_;
@@ -87,10 +90,16 @@ private:
 
 	// 流程相关
 	bool set_start_ = false;
+	bool set_goal_ = false;
 	shared_ptr<octomap::OcTree> map_tree_;
 	double map_resolution_;
 	geometry_msgs::Point start_point_, goal_point_, pre_goal_point_;
 	Eigen::Vector3d start_vel_, start_acc_;
+
+
+	//traj track
+	float traj_track_state_;
+	bool traj_gen_flag_;
 	
 	// >>>>>>>>>>>>>>>vis for rrt
 	visualization_msgs::MarkerArray node_vis_;
@@ -123,6 +132,7 @@ private:
 	void odomCb(const nav_msgs::Odometry::ConstPtr &msg);
 	void startCb(const geometry_msgs::PointStamped::ConstPtr &msg);
 	void goalCb(const geometry_msgs::PointStamped::ConstPtr &msg);
+	void trackCb(const std_msgs::Float32::ConstPtr &msg);
 	// rrt 相关显示
 	void visRRTFlow();
 	void visRRTPath(vector<octomap::point3d> path);
@@ -167,11 +177,14 @@ public:
 	void replan(void);
 
 	void visualizeRRTThread();
+
 	void visCorridor(vector<Cube> corridor);
 	
 };
 
-planner::planner(ros::NodeHandle &nh, ros::NodeHandle &private_nh) : n_(nh)
+planner::planner(ros::NodeHandle &nh, ros::NodeHandle &private_nh) : 
+n_(nh), 
+traj_track_state_(0.0)
 {
 	//init start_point
 	start_point_.x = 0;
@@ -213,13 +226,15 @@ planner::planner(ros::NodeHandle &nh, ros::NodeHandle &private_nh) : n_(nh)
 	private_nh.param<bool>  ("bazier/is_limit_vel",  is_limit_vel_,  true);
     private_nh.param<bool>  ("bazier/is_limit_acc",  is_limit_acc_,  false);
 
+	private_nh.param<float>("corridor/th_stdev_bis", th_stdev_bis_, 0.05);
+
 	private_nh.param<bool> ("vis/is_proj_corridor", is_proj_cube_, false);
 
 
 	octree_sub_ = n_.subscribe<octomap_msgs::Octomap>("/octomap_binary", 1, &planner::octomapCallback, this);
  	odom_sub_ = n_.subscribe<nav_msgs::Odometry>(odom_topic_, 1, &planner::odomCb, this);
 	goal_sub_ = n_.subscribe<geometry_msgs::PointStamped>("/clicked_point", 1, &planner::goalCb, this);
-
+	track_state_sub_= n_.subscribe<std_msgs::Float32>("/traj_track_state", 1, &planner::trackCb, this);
 	
 	traj_pub_ = n_.advertise<trajectory_msgs::MultiDOFJointTrajectory>("waypoints",10);  // 发布最终轨迹,用于控制
 
@@ -322,6 +337,11 @@ void planner::setGoal(double x, double y, double z){
 		vis_goal_pub_.publish(marker);
 		// vis
 
+		if(!set_goal_) // 设置目标标识符，防止replan()模块自行启动
+			std::cout << "[planner] Start point set " << std::endl;
+		set_goal_ = true;
+
+
 		cout << "[planner] Goal point set to: " << x << " " << y << " " << z << std::endl;
 		if(set_start_){
 			plan();
@@ -341,6 +361,7 @@ void planner::plan(void){
 	// 步骤一: rrt 前端　路径搜索
 	octomap::point3d base_start(start_point_.x, start_point_.y, start_point_.z);
 	octomap::point3d base_goal(goal_point_.x, goal_point_.y, goal_point_.z);
+	traj_gen_flag_ = true; //重置轨迹生成成功标识符
 
 	// >>>>>>>>清空显示数据
 	nu = 2;
@@ -377,6 +398,8 @@ void planner::plan(void){
 	TicToc time_corridor_gen;
 	corridor = corridorGeneration(rrt_path_);
 	time_corridor_gen.toc("time time corridor gen: ");
+
+	int origin_corridor_size = corridor.size();
 	cout << "corridor size: " << corridor.size()<< endl;
 
 	timeAllocation(corridor);
@@ -389,6 +412,7 @@ void planner::plan(void){
 	vector<Eigen::Vector3d> eigen_path;
 	Eigen::Vector3d p;
 	// 将path从octomap 数据格式转为 Eigen模式, 以便矩阵操作
+	int path_size = rrt_path_.size();
 	for (int i = 0; i < (int)rrt_path_.size(); i++)
 	{
 		p(0) = rrt_path_[i](0);
@@ -415,11 +439,44 @@ void planner::plan(void){
 	// cout << "traj_order: " << traj_order_ << endl;
 	qp_slover->initParam(traj_order_, minimize_order_, corridor, eigen_path, vel, acc);
 	
-	if (!qp_slover->solve())
+	// if (!qp_slover->solve())
+	// {
+	// 	cout << "!!!ERROR:: qpOASES slover failed 1" << endl;
+	// 	for (int i = 0; i < origin_corridor_size/2; i++)
+	// 	{
+	// 		corridor.pop_back();
+	// 	}
+		
+	// 	qp_slover->initParam(traj_order_, minimize_order_, corridor, eigen_path, vel, acc);
+	// 	if (!qp_slover->solve())
+	// 	{
+	// 		cout << "!!!ERROR:: qpOASES slover failed 2" << endl;
+	// 		return;
+	// 	}
+			
+	// }
+
+	while (!qp_slover->solve())
 	{
-		cout << "!!!ERROR:: qpOASES slover failed" << endl;
-		return;
+		traj_gen_flag_ = false;
+		for (int i = 0; i < origin_corridor_size/2; i++)
+		{
+			corridor.pop_back();
+		}
+
+		for (int i = 0; i < path_size/2; i++)
+		{
+			eigen_path.pop_back();
+		}
+		
+		origin_corridor_size = corridor.size();
+		path_size = eigen_path.size();
+		qp_slover->initParam(traj_order_, minimize_order_, corridor, eigen_path, vel, acc);
+
 	}
+	
+
+
 	Eigen::MatrixXd result = qp_slover->getResultP();
 
 	cout << "result: \n" << result << endl;
@@ -427,19 +484,22 @@ void planner::plan(void){
 	vector<double> time_list = qp_slover->getTimeList();
 
 	visTraj(result, time_list);
+	traj_track_state_ =1.0;
 
-	
-	
-
-
-
-
-
-	
 }
 
 void planner::replan(void){
 	// plan();
+
+	// replan 1.path_finder 没有查找到最终轨迹;  2. 轨迹生成失败
+	cout << "[replan]: traj_gen_flag_: " << traj_gen_flag_ << endl; //轨迹生成失败
+	cout << "[replan]: path_finder: " << path_finder->getSearchState() << endl; //没有查找到最终轨迹
+	cout << "[replan]: traj_track_state " << traj_track_state_ << endl;
+	if ((!path_finder->getSearchState() || !traj_gen_flag_) && set_goal_ && traj_track_state_ < 0.5 )
+	{ 
+		plan();
+	}
+	
 }
 
 std::vector<Cube> planner::corridorGeneration(vector<octomap::point3d> path){
@@ -564,7 +624,7 @@ pair<Cube, bool> planner::inflateCube(Cube cube, Cube lstcube){
 				id_z = vertex_idx(0, 2); 
 
 				octomap::point3d p(id_x, id_y, id_z);
-				if (!path_finder->validGround(p, th_stdev_+0.1))
+				if (!path_finder->validGround(p, th_stdev_+th_stdev_bis_))
 				{
 					collide = true;
 					break;
@@ -601,7 +661,7 @@ pair<Cube, bool> planner::inflateCube(Cube cube, Cube lstcube){
 				id_z = vertex_idx(1, 2);
 
 				octomap::point3d p(id_x, id_y, id_z);
-				if (!path_finder->validGround(p, th_stdev_+0.1))
+				if (!path_finder->validGround(p, th_stdev_+th_stdev_bis_))
 				{
 					collide = true;
 					break;
@@ -638,7 +698,7 @@ pair<Cube, bool> planner::inflateCube(Cube cube, Cube lstcube){
 				id_z = vertex_idx(0, 2);
 
 				octomap::point3d p(id_x, id_y, id_z);
-				if (!path_finder->validGround(p, th_stdev_+0.1))
+				if (!path_finder->validGround(p, th_stdev_+th_stdev_bis_))
 				{
 					collide = true;
 					break;
@@ -674,7 +734,7 @@ pair<Cube, bool> planner::inflateCube(Cube cube, Cube lstcube){
 				id_z = vertex_idx(3, 2);
 
 				octomap::point3d p(id_x, id_y, id_z);
-				if (!path_finder->validGround(p, th_stdev_+0.1))
+				if (!path_finder->validGround(p, th_stdev_+th_stdev_bis_))
 				{
 					collide = true;
 					break;
@@ -836,6 +896,8 @@ void planner::visualizeRRTThread(){
 	
 }
 
+
+
 void planner::visRRTPath(vector<octomap::point3d> path){
 
 	octomap::point3d p_pub;
@@ -846,17 +908,17 @@ void planner::visRRTPath(vector<octomap::point3d> path){
 		cout<<"[rrt plan]: path size: " << i  <<"--> " << path.size() << endl;
 		cout<<"rrt path point: " << p_pub <<endl;
 		// trajectory pub
-		point_msg.time_from_start.fromSec(ros::Time::now().toSec());
-		point_msg.transforms.resize(1);
-		point_msg.transforms[0].translation.x = p_pub(0);
-		point_msg.transforms[0].translation.y = p_pub(1);
-		point_msg.transforms[0].translation.z = p_pub(2);
+		// point_msg.time_from_start.fromSec(ros::Time::now().toSec());
+		// point_msg.transforms.resize(1);
+		// point_msg.transforms[0].translation.x = p_pub(0);
+		// point_msg.transforms[0].translation.y = p_pub(1);
+		// point_msg.transforms[0].translation.z = p_pub(2);
 
-		point_msg.transforms[0].rotation.x = 0;
-		point_msg.transforms[0].rotation.y = 0;
-		point_msg.transforms[0].rotation.z = 0;
-		point_msg.transforms[0].rotation.w = 1;
-		msg.points.push_back(point_msg);
+		// point_msg.transforms[0].rotation.x = 0;
+		// point_msg.transforms[0].rotation.y = 0;
+		// point_msg.transforms[0].rotation.z = 0;
+		// point_msg.transforms[0].rotation.w = 1;
+		// msg.points.push_back(point_msg);
 		// trajectory pub 
 
 		//vis
@@ -881,7 +943,7 @@ void planner::visRRTPath(vector<octomap::point3d> path){
 		//vis
 	}
 
-	traj_pub_.publish(msg);
+	// traj_pub_.publish(msg);
 	
 }
 
@@ -942,6 +1004,8 @@ void planner::visCorridor(vector<Cube> corridor)
     vis_corridor_pub_.publish(cube_vis_);
 }
 
+
+// 显示并发布轨迹
 void planner::visTraj(MatrixXd ploy_coeff, vector<double> time){
 	visualization_msgs::Marker traj_vis;
 
@@ -970,6 +1034,7 @@ void planner::visTraj(MatrixXd ploy_coeff, vector<double> time){
     // Vector3d cur, pre;
     // cur.setZero();
     // pre.setZero();
+	msg.points.clear();
 
 	int segment_num  = time.size()-1;
 	Eigen::MatrixXd time_vector; // 1 X (n+1) 
@@ -991,10 +1056,28 @@ void planner::visTraj(MatrixXd ploy_coeff, vector<double> time){
 			pt.y = traj_pos(1);
 			pt.z = traj_pos(2);
 			traj_vis.points.push_back(pt);
+
+			// ********traj pub for control
+			point_msg.time_from_start.fromSec(ros::Time::now().toSec());
+			point_msg.transforms.resize(1);
+			point_msg.transforms[0].translation.x = traj_pos(0);
+			point_msg.transforms[0].translation.y = traj_pos(1);
+			point_msg.transforms[0].translation.z = traj_pos(2);
+
+			point_msg.transforms[0].rotation.x = 0;
+			point_msg.transforms[0].rotation.y = 0;
+			point_msg.transforms[0].rotation.z = 0;
+			point_msg.transforms[0].rotation.w = 1;
+
+			msg.points.push_back(point_msg);
+			// ********traj pub for control
+
 		}
 		vis_opt_traj_pub_.publish(traj_vis);
 	}
-	
+
+	traj_pub_.publish(msg);
+
 
 }
 
@@ -1084,7 +1167,8 @@ void planner::octomapCallback(const octomap_msgs::Octomap::ConstPtr &msg)
 	octomap::OcTree* tree_oct = dynamic_cast<octomap::OcTree*>(octomap_msgs::msgToMap(*msg));
 	map_tree_ = shared_ptr<octomap::OcTree>(tree_oct);
 	map_resolution_ = map_tree_->getResolution();
-	cout<<"map Resolution: "<< map_resolution_ <<endl;
+	cout << "map Resolution: "<< map_resolution_ <<endl;
+	
 	replan();
 }
 
@@ -1107,6 +1191,11 @@ void planner::startCb(const geometry_msgs::PointStamped::ConstPtr &msg)
 void planner::goalCb(const geometry_msgs::PointStamped::ConstPtr &msg)
 {
 	setGoal(msg->point.x, msg->point.y, msg->point.z);
+}
+
+void planner::trackCb(const std_msgs::Float32::ConstPtr &msg)
+{
+	traj_track_state_ = msg->data;
 }
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>class end<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

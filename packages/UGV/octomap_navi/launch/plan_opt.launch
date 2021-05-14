@@ -2,7 +2,7 @@
 <launch>
 
   <node pkg="octomap_navi" type="path_planning" name="path_planning" output="screen">
-    <param name="odom_topic" value="odom" />
+    <param name="odom_topic" value="/integrated_to_init" /> <!--/integrated_to_init-->
     <param name="car_size_x" value="0.6" />
     <param name="car_size_y" value="0.8" />
     <param name="car_size_z" value="0.8" />
@@ -22,6 +22,8 @@
     <param name="bazier/cube_margin"  value="0" />
     <param name="bazier/is_limit_vel" value="true" />
     <param name="bazier/is_limit_acc" value="false" />
+
+    <param name="corridor/th_stdev_bis" value="0.05" />  <!-- inflateCube th: th_stdev +  th_stdev_bis -->
 
     <param name="vis/is_proj_corridor" value="false" />
   </node>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <!-- /laser_cloud_surround for lego ** /laser_cloud_map  /laser_cloud_map_local for aloam ** /velodyne_cloud_registered  for loam -->
+  <arg name="pointcloudTopic" default="/laser_cloud_map"/>  
+  <arg name="mapFrame" default="map"/> 
+  <arg name="pointcloudFrame" default="base_link"/> 
+
+  <!-- <local map 以小车为中心的> -->
+  <node pkg="octomap_scout" type="crop_global_map" name="crop_global_map" output="screen" >
+    <param name="local_map_x" value="20.0" />   <!--40.0 -->
+    <param name="local_map_y" value="20.0" />   <!--40.0 -->
+    <param name="local_map_z" value="10.0" />
+    <param name="global_map_load_thre" value="20" />
+  </node>
+
+  <!-- <node pkg="octomap_scout" type="octomap_server_multilayer" name="octomap_server" output="screen"> -->
+  <node pkg="octomap_scout" type="octomap_server_node" name="octomap_server" output="screen">
+    <!-- resolution in meters per pixel -->
+    <param name="resolution" value="0.15" />
+
+    <!-- name of the fixed frame, needs to be "/map" for SLAM -->
+    <param name="frame_id" type="string" value="$(arg mapFrame)" />
+    <param name="base_frame_id" type="string" value="$(arg pointcloudFrame)" />
+
+    <!-- max range / depth resolution of the kinect in meter -->
+    <!-- <param name="sensor_model/max_range" value="20.0" /> -->
+    
+    <param name="latch" value="false" />
+
+    <!-- max/min height for occupancy map, should be in meters -->
+    <param name="pointcloud_max_z" value="1000" />
+    <param name="pointcloud_min_z" value="-1000" />
+
+    <!-- max/min height for occupancy map, should be in meters -->
+    <param name="occupancy_min_z" value="-1000"/>
+    <param name="occupancy_max_z" value="1000"/>
+
+    <!-- Ignore speckles in the map -->
+    <!-- <param name="filter_speckles" value="true" /> -->
+
+    <!-- filter_ground -->
+    <!-- <param name="filter_ground" value="true"/>
+    <param name="ground_filter/distance" value="-0.7"/>
+    <param name="ground_filter/angle" value="0.0"/>
+    <param name="ground_filter/plane_distance" value="0.1" /> -->
+
+    <!-- topic from where pointcloud2 messages are subscribed -->
+    <remap from="/cloud_in" to="$(arg pointcloudTopic)" />
+  </node>
+
+  <!-- RViz -->
+  <node pkg="rviz" type="rviz" name="$(anon rviz)" respawn="false" output="screen" args="-d $(find octomap_navi)/rviz/octomap_navi.rviz"/>
+
+</launch>
+

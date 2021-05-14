@@ -26,7 +26,7 @@
  ******************************************************/
 // #include <Eigen/Dense>
 #include <octomap_msgs/Octomap.h>
-#include <octomap_msgs/conversions.h>
+#include <octomap_msgs/conversions.h>  
 #include <octomap_ros/conversions.h>
 #include <octomap/octomap.h>
 #include <Eigen/Dense>
@@ -143,7 +143,7 @@ public:
 
 RRTPathFinder::RRTPathFinder()
 {
-    rrt_count_th_ = 40000;
+    rrt_count_th_ = 20000;
     eta_ = 2.0;
     search_r_ = 4.0;
 	th_stdev_ = 0.1;
@@ -329,6 +329,54 @@ void RRTPathFinder::pathSearch(octomap::point3d start_pt, octomap::point3d end_p
     }
 
 	// cout <<"[rrt path finder]: NO path finded" << endl;
+	// 如果没有查找到路径，则返回离终点与起点最近的一个节点，做局部规划
+	if (!search_Finished_)
+	{		
+		// float temp;
+		// float min = 9999999.0;
+
+		// for (auto &it : rrt_tree_set_)
+		// {
+		// 	temp = Norm(it.first, end_pt_) + Norm(it.first, start_pt);
+		// 	cout << "[rrt path finder] temp======: " << temp << endl;
+		// 	if (temp <= min)
+		// 	{
+		// 		min = temp;
+		// 		nearest_pt_ = it.first;
+		// 	}
+	
+		// }
+		cout <<"[rrt path finder]: NOT get goal" << endl;
+		// cout << "[rrt path finder] min======: " << min << endl;
+		nearest_pt_ = Near(rrt_tree_set_, end_pt_);
+
+		double dis = Norm(nearest_pt_, start_pt_);
+		float temp, dis1;
+		float min = 99999.0;
+
+		for (auto it : rrt_tree_set_) 
+		{
+			dis1 = Norm(it.first, start_pt);
+			if ( dis1 < 0.8*dis)
+			{
+				continue;
+			}
+			
+			temp = Norm(it.first, end_pt_) + dis1;
+			// cout << "[rrt path finder] temp======: " << temp << endl;
+			if (temp <= min)
+			{
+				min = temp;
+				nearest_pt_ = it.first;
+			}
+			
+		}
+		// cout << "[rrt path finder] min======: " << min << endl;
+		
+		backTree(nearest_pt_, start_pt_, rrt_path_);
+		reverse(rrt_path_.begin(), rrt_path_.end()); //反转vector
+	}
+
     
 }
 
@@ -653,15 +701,16 @@ void RRTPathFinder::updateMap(shared_ptr<octomap::OcTree> map){
 
 
 bool RRTPathFinder::getPath(vector<octomap::point3d> &path){
-	if (search_Finished_)
-	{
-		path = rrt_path_;
-		return true;
-	}else
-	{
-		cout << "[rrt path finder] finding......... Pealse wait" <<endl;
-		return false;
-	}
+	// if (search_Finished_)
+	// {
+	// 	path = rrt_path_;
+	// 	return true;
+	// }else
+	// {
+	// 	cout << "[rrt path finder] finding......... Pealse wait" <<endl;
+	// 	return false;
+	// }
+	path = rrt_path_;
 }
 
 void RRTPathFinder::getVisNode(vector<octomap::point3d> &vis_new_pt_set, 

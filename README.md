@@ -229,3 +229,6 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 
 20210319 fj
 * 更新了`target_landing`包,无人机均添加了相机
+
+20210514 zb
+* 更新`octomap_navi`包, 新增纯跟踪轨迹跟踪器,　结合`octomap_scout`可以实现gazbeo中小车实时规划与移动，导航新增无地图导航模式
