@@ -87,7 +87,7 @@
     <include>
       <name>landmark_1_2</name>
       <uri>model://landmark_1</uri>
-      <pose>7.58402 4.25658 0.06 0 0 -0.865947</pose>
+      <pose>8.58402 5.55658 0.06 0 0 -0.865947</pose>
     </include>
     <include>
       <name>landmark_1_3</name>
@@ -97,12 +97,12 @@
     <include>
       <name>landmark_1_4</name>
       <uri>model://landmark_1</uri>
-      <pose>44.5288 -3.29928 0.059996 -7e-06 -6e-06 1.29099</pose>
+      <pose>44.5288 -2.29928 0.059996 -7e-06 -6e-06 1.29099</pose>
     </include>
     <include>
       <name>landmark_2</name>
       <uri>model://landmark_2</uri>
-      <pose>25.1113 -6.41431 0.06 0 -0 2.11537</pose>
+      <pose>13.1113 -6.41431 0.06 0 -0 2.11537</pose>
     </include>
     <include>
       <name>landmark_3_1</name>
@@ -112,7 +112,7 @@
     <include>
       <name>landmark_3_2</name>
       <uri>model://landmark_3</uri>
-      <pose>12.6589 -5.77184 0.05999 0 -0 2.60971</pose>
+      <pose>5.6589 -5.77184 0.05999 0 -0 2.60971</pose>
     </include>
     <include>
       <name>oak_tree_1</name>

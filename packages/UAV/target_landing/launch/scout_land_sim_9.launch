@@ -7,8 +7,8 @@
     <!-- <arg name="world_name" default="$(find target_landing)/worlds/empty.world"/> -->
     <arg name="world_name" default="$(find scout_gazebo_sim)worlds/weston_robot_empty.world"/>
 
-    <arg name="ugv_x" default="8.0"/>
-    <arg name="ugv_y" default="-0.3"/>
+    <arg name="ugv_x" default="28.0"/>
+    <arg name="ugv_y" default="3.3"/>
     <arg name="ugv_z" default="0"/>
     <arg name="ugv_yaw" default="0"/>
 

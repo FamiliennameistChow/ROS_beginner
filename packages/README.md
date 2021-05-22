@@ -112,6 +112,40 @@
             
             * kinect_self 模型即为波波教程中添加的双目相机的模型，为多机修改了部分细节。
 
+        * 安装darknet_ros包
+    
+    * TODO List:
+        - [x] 单侦察机代码逻辑 `attacker.cpp`
+        - [x] 攻击机代码逻辑 `scout_plane1.cpp`
+        - [ ] 多侦查机代码逻辑
+
+    * 侦察机攻击机协同侦打
+        1. 启动场景与攻击机  
+            进入sh目录
+
+            ```
+                --sh
+                    -- arm_7_attacker.sh 启动场景并所有攻击机进入待命状态
+                    -- arm_7_attacker_withou_gazebo.sh　所有攻击机进入待命状态(需要先自动启动场景)
+            ```
+
+            ```
+                ./arm_7_attacker.sh
+            ```
+
+            等待场景启动，并看到七架飞机take-off
+        2. 启动侦察机
+
+            ```
+                roslaunch target_landing uav_scout_plane.launch
+            ```
+        
+        3. 启动识别节点
+
+            ```
+                
+            ```
+
 * [riverdetect](./UAV/riverdetect)
 此功能包用于河道巡检，运行riverdetect.sh文件即可启动。启动后在gazebo界面左侧World 竖框内找到Models/iris_rplidar，右键选择Move To 即可找到飞机。
    
