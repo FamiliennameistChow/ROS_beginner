@@ -91,7 +91,7 @@
 
     * 依赖/配置
 
-        * 配置Scout_ros，安装相应依赖，参考UAV 里的Target_tracking。
+        * 配置Scout_ros，安装相应依赖，参考UAV 里的Target_tracking / 参考官方scout_ros包的melodic分支，安装参考<https://github.com/westonrobot/scout_ros/tree/melodic>
 
         * gazebo 模型
         
@@ -113,6 +113,15 @@
             * kinect_self 模型即为波波教程中添加的双目相机的模型，为多机修改了部分细节。
 
         * 安装darknet_ros包
+            - 安装darknet_ros包
+
+            - 配置
+                在本项目下`third_party\darknet_ros_simulation_config`找到配置文件  
+
+                1. 将`car123.yaml` 和 `ros.yaml` 放在　`darknet_ros\config`下  
+                2. 将`darknet_ros.launch` 放在　`darknet_ros\launch`下  
+                3. 将`yolov3_tiny_123car.cfg` 放在　`darknet_ros\yolo_network_config\cfg`下
+                4. 将`yolov3_tiny_mulitUAV_40000.weights` 放在　`darknet_ros\yolo_network_config\weights`下
     
     * TODO List:
         - [x] 单侦察机代码逻辑 `attacker.cpp`
@@ -143,7 +152,7 @@
         3. 启动识别节点
 
             ```
-                
+                roslaunch darknet_ros darknet_ros.launc
             ```
 
 * [riverdetect](./UAV/riverdetect)
