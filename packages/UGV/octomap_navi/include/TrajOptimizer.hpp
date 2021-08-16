@@ -834,6 +834,7 @@ vector<double> QPOASESSlover::getTimeList(){
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>class end<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+// 测试TrajOptimizer.hpp
 // int main()
 // {
 //     // use test 

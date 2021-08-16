@@ -187,9 +187,9 @@ n_(nh),
 traj_track_state_(0.0)
 {
 	//init start_point
-	start_point_.x = 0;
-	start_point_.y = 0;
-	start_point_.z = 0;
+	start_point_.x = 2.0; //2.0
+	start_point_.y = -1.2;  //-1.2
+	start_point_.z = 1.0;
 
 	start_vel_(0) = 0;
 	start_vel_(1) = 0;
@@ -484,7 +484,7 @@ void planner::plan(void){
 	vector<double> time_list = qp_slover->getTimeList();
 
 	visTraj(result, time_list);
-	traj_track_state_ =1.0;
+	// traj_track_state_ =1.0;
 
 }
 

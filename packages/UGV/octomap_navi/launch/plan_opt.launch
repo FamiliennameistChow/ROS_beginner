@@ -8,7 +8,7 @@
     <param name="car_size_z" value="0.8" />
 
     <param name="path_finder/search_radius" value="4.0" />
-    <param name="path_finder/th_stdev"      value="0.1" />
+    <param name="path_finder/th_stdev"      value="0.1" /> <!--0.1-->
     <param name="path_finder/setp_eta"      value="2.0" />
     <param name="path_finder/max_iter"      value="10000" />
 

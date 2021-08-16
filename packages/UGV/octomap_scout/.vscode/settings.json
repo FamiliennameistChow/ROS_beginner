@@ -67,5 +67,12 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "valarray": "cpp"
-    }
+    },
+    "python.analysis.extraPaths": [
+        "/home/bornchow/AMOV_WORKSPACE/moon_ws/devel/lib/python2.7/dist-packages",
+        "/home/bornchow/turtlebot_ws/devel/lib/python2.7/dist-packages",
+        "/home/bornchow/carto_ws/install_isolated/lib/python2.7/dist-packages",
+        "/home/bornchow/AMOV_WORKSPACE/px4_ws/devel/lib/python2.7/dist-packages",
+        "/opt/ros/kinetic/lib/python2.7/dist-packages"
+    ]
 }
