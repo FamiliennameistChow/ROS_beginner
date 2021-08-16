@@ -232,3 +232,9 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 
 20210514 zb
 * 更新`octomap_navi`包, 新增纯跟踪轨迹跟踪器,　结合`octomap_scout`可以实现gazbeo中小车实时规划与移动，导航新增无地图导航模式
+
+20210522 zb
+* 更新`target_landing`包, 完成无人机任务协同
+
+20210522 zb
+* 更新`target_landing`包, 更新`darknet_ros`配置文件

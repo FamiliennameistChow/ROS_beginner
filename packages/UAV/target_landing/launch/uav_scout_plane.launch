@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<launch>
+    <node name="scout_plane1" pkg="target_landing" type="scout_plane1" output="screen">
+    
+        <param name="target_GPS_topic_" value="scout_biding_msg"/>
+
+        <param name="target_GPS_list_topic_" value="mission_perform_list"/>
+
+        <param name="target_Dronenum_topic_" value="scout_biding_confirm_msg"/>
+
+        <param name="attacker_cost_status_dronenum_topic_" value="attacker_cost"/>
+
+        <param name="scout_plane_GPSpos_topic_" value="/uav1/mavros/global_position/global"/>
+
+        <param name="target_postion_from_image_topic_" value="/darknet_ros/bounding_boxes"/>
+        
+        <param name="target_count_from_image_topic_" value="/darknet_ros/found_object"/>
+
+        <param name="uav_num" value= "1"/>
+    </node>
+</launch>
