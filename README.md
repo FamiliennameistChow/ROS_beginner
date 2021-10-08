@@ -241,3 +241,6 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 
 20211008 zb
 * 更新`octomap_scout`包
+
+20211008 zb
+* 更新`octomap_navi`包 增加对lio-sam的兼容

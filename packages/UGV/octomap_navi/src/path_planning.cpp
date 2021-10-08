@@ -206,7 +206,7 @@ traj_track_state_(0.0)
 
 	init_start(); //测试用
 
-	private_nh.param<string>("odom_topic", odom_topic_, "odom");
+	n_.param<string>("/laser_odom_potic", odom_topic_, "/integrated_to_init"); //这个是全局参数,在config文件中修改
 	private_nh.param<double>("car_size_x", car_body_size_(0), 0.6);
 	private_nh.param<double>("car_size_y", car_body_size_(1), 0.8);
 	private_nh.param<double>("car_size_z", car_body_size_(2), 0.8);
@@ -299,6 +299,7 @@ traj_track_state_(0.0)
 
  
 	std::cout<<"[planner] Initialized"<<std::endl;
+	std::cout<<"[planner] odom | " << odom_topic_ << endl;
 
 }
 

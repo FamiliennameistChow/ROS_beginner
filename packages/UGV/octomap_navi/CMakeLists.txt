@@ -19,12 +19,14 @@ find_package(catkin REQUIRED COMPONENTS
   octomap_msgs
   cmake_modules
   pcl_conversions
+  pcl_ros
 
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 find_package(Eigen REQUIRED) 
+find_package(PCL REQUIRED )
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -116,7 +118,7 @@ catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES octomap_navi
 #  CATKIN_DEPENDS roscpp rospy std_msgs
-#  DEPENDS system_lib
+ DEPENDS system_lib PCL
 )
 
 ###########
@@ -124,6 +126,10 @@ catkin_package(
 ###########
 
 link_directories( ${PROJECT_SOURCE_DIR}/third_party/mosek/lib/mosek8_1 )
+link_directories(
+	include
+  ${PCL_LIBRARY_DIRS}
+)
 
 include_directories(
   ${PROJECT_SOURCE_DIR}/third_party/mosek/include
@@ -137,6 +143,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${Eigen_INCLUDE_DIRS}
   ${QPOASES_INLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -185,6 +192,10 @@ target_link_libraries(trajectory_server  ${catkin_LIBRARIES} )
 
 add_executable(cul_traj_len src/cul_traj_len.cpp)
 target_link_libraries(cul_traj_len  ${catkin_LIBRARIES} )
+
+
+add_executable(process_pc_map src/process_pc_map.cpp)
+target_link_libraries(process_pc_map  ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 # add_executable(trajectory_generator src/trajectory_generator.cpp)
 # target_link_libraries(trajectory_generator  ${catkin_LIBRARIES} )

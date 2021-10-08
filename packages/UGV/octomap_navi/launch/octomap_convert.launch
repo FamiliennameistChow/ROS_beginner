@@ -1,18 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
-  <!-- /laser_cloud_surround for lego ** /laser_cloud_map  /laser_cloud_map_local for aloam ** /velodyne_cloud_registered  for loam -->
-  <arg name="pointcloudTopic" default="/laser_cloud_map"/>  
+  
   <arg name="mapFrame" default="map"/> 
   <arg name="pointcloudFrame" default="base_link"/> 
 
-  <!-- <local map 以小车为中心的> -->
-  <node pkg="octomap_scout" type="crop_global_map" name="crop_global_map" output="screen" >
-    <param name="local_map_x" value="20.0" />   <!--40.0 -->
-    <param name="local_map_y" value="20.0" />   <!--40.0 -->
+  <!-- 加载全局参数-->
+  <arg name="slamType" default="aloam" />
+  <group if="$(eval arg('slamType') == 'lio-sam')">
+    <rosparam file="$(find octomap_navi)/config/lio-sam.yaml" command="load"/>
+  </group>
+
+  <group if="$(eval arg('slamType') == 'aloam')">
+    <rosparam file="$(find octomap_navi)/config/aloam.yaml" command="load"/>
+  </group>
+
+  <!-- <pc map 预处理,获取稠密点云，　获得小车为中心局部地图>  需要从config的yaml文件中获取参数-->
+  <node pkg="octomap_navi" type="process_pc_map" name="process_pc_map" output="screen" >
+    <param name="local_map_x" value="20.0" />   
+    <param name="local_map_y" value="20.0" />   
     <param name="local_map_z" value="10.0" />
-    <param name="global_map_load_thre" value="20" />
+    <param name="global_map_load_thre" value="2" />
   </node>
 
+ 
   <!-- <node pkg="octomap_scout" type="octomap_server_multilayer" name="octomap_server" output="screen"> -->
   <node pkg="octomap_scout" type="octomap_server_node" name="octomap_server" output="screen">
     <!-- resolution in meters per pixel -->
@@ -45,7 +55,7 @@
     <param name="ground_filter/plane_distance" value="0.1" /> -->
 
     <!-- topic from where pointcloud2 messages are subscribed -->
-    <remap from="/cloud_in" to="$(arg pointcloudTopic)" />
+    <remap from="/cloud_in" to="/laser_cloud_map_preprocess" />
   </node>
 
   <!-- RViz -->

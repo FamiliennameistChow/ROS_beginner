@@ -1,0 +1,4 @@
+slam_algorithm: aloam
+pc_topic: /laser_cloud_map
+laser_odom_potic: /integrated_to_init
+imu_potic: imu

@@ -87,14 +87,14 @@ public:
     #ifdef SHOW_GT_TRAJ
     void visualizeGTtrajThread();
     #endif
-    ~TrajectoryServer();
+    ~TrajectoryServer(); 
 };
 
 TrajectoryServer::TrajectoryServer(ros::NodeHandle& nh, ros::NodeHandle &private_nh):
 n_(nh)
 {
     // 读取参数服务器
-    private_nh.param<string>("odom_topic", odom_topic_, "/integrated_to_init");
+    n_.param<string>("/laser_odom_potic", odom_topic_, "/integrated_to_init"); //这个是全局参数,在config文件中修改
     private_nh.param<double>("Vel", vehicle_vel_, 1.0);
     private_nh.param<double>("Length", vehicle_length_, 1.0);
     private_nh.param<double>("ld_k", ld_k_, 1.0);  // 　前视距离　ld = ld_k_ * vehicle_vel_ + ld_c_
@@ -140,6 +140,9 @@ n_(nh)
     traj_vis_.color.g = 1.0;
     traj_vis_.color.b = 0.0;
     traj_vis_.color.a = 1.0;
+
+
+    std::cout<<"[traj server] odom | " << odom_topic_ << endl;
 
 }
 
@@ -360,10 +363,10 @@ void TrajectoryServer::TrajFollow(){
         // double delta = atan2(2.0 * vehicle_length_ * sin(theta) / ld, 1.0);
 
         // tan(delta) = Vy / V --> Vy = tan(theta)*V
-        // Vy = omega * vehicle_length_ --> omega(角速度) = tan(theta)*V / vehicle_length_
+        // Vy = omega * ld --> omega(角速度) = tan(theta)*V / ld
         // double omega = tan(delta) * vehicle_vel_ / vehicle_length_;
 
-        double omega = 2.0 * vehicle_length_ * sin(theta) * vehicle_vel_ / (vehicle_length_ * ld);
+        double omega = 2.0 * vehicle_length_ * sin(theta) * vehicle_vel_ / (ld * ld);
 
         // 发布控制命令
         geometry_msgs::Twist cmd;

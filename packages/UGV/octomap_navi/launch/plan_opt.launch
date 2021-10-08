@@ -2,7 +2,6 @@
 <launch>
 
   <node pkg="octomap_navi" type="path_planning" name="path_planning" output="screen">
-    <param name="odom_topic" value="/integrated_to_init" /> <!--/integrated_to_init-->
     <param name="car_size_x" value="0.6" />
     <param name="car_size_y" value="0.8" />
     <param name="car_size_z" value="0.8" />

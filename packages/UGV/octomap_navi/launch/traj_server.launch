@@ -2,7 +2,6 @@
 <launch>
 
   <node pkg="octomap_navi" type="trajectory_server" name="trajectory_server" output="screen">
-    <param name="odom_topic" value="/integrated_to_init" /> <!--/integrated_to_init-->
     <param name="Vel" value="1.1" />
     <param name="Length" value="1.0" />
     <param name="ld_k" value="1.0" />
