@@ -2,13 +2,13 @@
     <env name="GAZEBO_MODEL_PATH" value="$(find octomap_scout)/models/Amy_terrain"/>
     <arg name="robot_namespace" default="/"/>
     <arg name="world_name" default="$(find octomap_scout)/worlds/moon.world"/>
-    <arg name="x" default="18.0"/>
-    <arg name="y" default="-0.3"/>
+    <arg name="x" default="3.9"/> 
+    <arg name="y" default="-2.0"/>  
+    <arg name="z" default="3"/>  
+    <arg name="yaw" default="2.74"/>   
+    <!-- <arg name="x" default="18.0"/>
+    <arg name="y" default="1.0"/>
     <arg name="z" default="1.56"/>
-    <arg name="yaw" default="3.14"/>
-    <!-- <arg name="x" default="5.16"/>
-    <arg name="y" default="-15.20"/>
-    <arg name="z" default="1.72"/>
     <arg name="yaw" default="3.14"/> -->
 
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -26,6 +26,8 @@
         <arg name="z" value="$(arg z)"/>
         <arg name="yaw" value="$(arg yaw)"/>
     </include>
+
+    <node pkg="tf" type="static_transform_publisher" name="map_to_wolrd" args="$(arg x) $(arg y) $(arg z) $(arg yaw) 0.0 0.0 /world /map 50"/>
 
     <!-- <include file="$(find scout_base)/launch/scout_base_sim.launch" /> -->
         

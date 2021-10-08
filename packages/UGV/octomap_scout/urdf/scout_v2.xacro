@@ -100,16 +100,16 @@
     <xacro:include filename="$(find octomap_scout)/urdf/scout_v2.gazebo" />
 
     <!-- VLP-16 -->
-    <xacro:include filename="$(find velodyne_description)/urdf/VLP-16.urdf.xacro"/>
-    <VLP-16 parent="base_link" name="velodyne" topic="/velodyne_points" hz="10" samples="1024" gpu="true" lasers="16" max_range="50">
+    <!-- <xacro:include filename="$(find velodyne_description)/urdf/VLP-16.urdf.xacro"/> -->
+    <!-- <VLP-16 parent="base_link" name="velodyne" topic="/velodyne_points" hz="10" samples="1024" gpu="true" lasers="16" max_range="80">
         <origin xyz="0 0 0.4" rpy="0 0 0" />
-    </VLP-16>
+    </VLP-16> -->
 
     <!-- VHDL-32E -->
-    <!-- <xacro:include filename="$(find velodyne_description)/urdf/HDL-32E.urdf.xacro"/>
-  	<HDL-32E parent="base_link" name="velodyne" topic="/velodyne_points" hz="10" samples="1024" gpu="true" lasers="32" max_range="20">
+    <xacro:include filename="$(find velodyne_description)/urdf/HDL-32E.urdf.xacro"/>
+  	<HDL-32E parent="base_link" name="velodyne" topic="/velodyne_points" hz="10" samples="1024" gpu="true" lasers="32" max_range="80">
         <origin xyz="0 0 0.4" rpy="0 0 0" />
-  	</HDL-32E>  -->
+  	</HDL-32E> 
       
     <!-- kinect link config -->
     <xacro:include filename="$(find octomap_scout)/urdf/sensors/kinect.urdf.xacro"/>

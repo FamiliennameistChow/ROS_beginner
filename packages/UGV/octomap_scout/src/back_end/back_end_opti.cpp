@@ -656,7 +656,7 @@ bool BackEndOpti::detectLoopClosure(){
     // }
 
     // 
-    if (abs(RSclosestHistoryFrameID - (cloudKeyPoses3D->points.size() - 1)) < 10)
+    if (abs(RSclosestHistoryFrameID - ((int)cloudKeyPoses3D->points.size() - 1)) < 10)
     {
         RSclosestHistoryFrameID = -1;
     }

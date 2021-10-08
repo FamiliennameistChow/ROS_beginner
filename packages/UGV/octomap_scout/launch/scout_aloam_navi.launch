@@ -11,7 +11,7 @@
     <param name="local_map_x" value="20.0" />   <!--40.0 -->
     <param name="local_map_y" value="20.0" />   <!--40.0 -->
     <param name="local_map_z" value="10.0" />
-    <param name="global_map_load_thre" value="50" />
+    <param name="global_map_load_thre" value="20" />  <!--50-->
   </node>
 
   <!-- <node pkg="octomap_scout" type="octomap_server_multilayer" name="octomap_server" output="screen"> -->

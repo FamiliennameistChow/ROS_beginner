@@ -10,7 +10,8 @@
 
 # include <pcl/point_types.h>
 #include <pcl/filters/statistical_outlier_removal.h>
-#include <pcl/keypoints/uniform_sampling.h>
+//#include <pcl/keypoints/uniform_sampling.h>
+# include <pcl/filters/uniform_sampling.h>
 # include <pcl/filters/passthrough.h>
 
 using namespace std;
@@ -95,9 +96,12 @@ void ProcessKinectPC::pointcloud_cb(const sensor_msgs::PointCloud2ConstPtr &msg)
     filter.setInputCloud(pointcloud_data_sub_);
     filter.setRadiusSearch(0.03);
     // We need an additional object to store the indices of surviving points.
-    pcl::PointCloud<int> keypointIndices;
-    filter.compute(keypointIndices);
-    pcl::copyPointCloud(*pointcloud_data_sub_, keypointIndices.points, *cloud_uniformsampled_);
+
+    // pcl::PointCloud<int> keypointIndices;
+    // filter.compute(keypointIndices);
+    // pcl::copyPointCloud(*pointcloud_data_sub_, keypointIndices.points, *cloud_uniformsampled_);
+
+    filter.filter(*cloud_uniformsampled_);
     std::cerr << "Cloud after uniformSampling: " << std::endl;
     std::cerr << *cloud_uniformsampled_ << std::endl;
 

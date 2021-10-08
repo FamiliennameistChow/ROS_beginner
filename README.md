@@ -238,3 +238,6 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 
 20210522 zb
 * 更新`target_landing`包, 更新`darknet_ros`配置文件
+
+20211008 zb
+* 更新`octomap_scout`包

@@ -312,10 +312,6 @@ add_executable(trans_fusion src/back_end/transformFusion.cpp)
 target_link_libraries(trans_fusion ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBRARIES})
 
 
-# add_executable(scout_navi src/scout_navi.cpp)
-# target_link_libraries(scout_navi ${catkin_LIBRARIES} ${PCL_LIBRARIES})
-
-
 add_executable(process_2d_map src/process_2d_map.cpp)
 target_link_libraries(process_2d_map ${catkin_LIBRARIES} )
 
@@ -326,12 +322,8 @@ target_link_libraries(crop_global_map ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 # add_executable(process_current_pc src/test/process_current_pc.cpp)
 # target_link_libraries(process_current_pc ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
-
 # add_executable(path_planning src/test/path_planning.cpp)
 # target_link_libraries(path_planning ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES})
-
-# add_executable(traj_gen src/test/trajectory_generator.cpp)
-# target_link_libraries(traj_gen ${catkin_LIBRARIES})
 
 add_library(${PROJECT_NAME} src/octomap/OctomapServer.cpp src/octomap/OctomapServerMultilayer.cpp src/octomap/TrackingOctomapServer.cpp)
 target_link_libraries(${PROJECT_NAME} ${LINK_LIBS})
