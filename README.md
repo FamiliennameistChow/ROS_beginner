@@ -1,7 +1,7 @@
 # ROS_beginner
 这里是无人系统部分工程与代码实现，包括无人机、无人车、机械臂等无人设备的导航与控制仿真
 
-这里的[工程](./packages)都是基于 ROS 系统构建，并在 ros kinetic 与 ros melodic上进行了测试
+这里的[工程](./packages)都是基于 ROS 系统构建，并在 `ros kinetic` 与 `ros melodic`上进行了测试
 
 -----
 
