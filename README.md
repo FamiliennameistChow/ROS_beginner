@@ -1,5 +1,7 @@
 # ROS_beginner
-guide to learning ros
+这里是无人系统部分工程与代码实现，包括无人机、无人车、机械臂等无人设备的导航与控制仿真
+
+这里的[工程](./packages)都是基于 ROS 系统构建，并在 ros kinetic 与 ros melodic上进行了测试
 
 -----
 
@@ -28,6 +30,8 @@ guide to learning ros
 * [gazebo模型与场景](./gazebo/readme.md)
 
 ----
+
+# 更新日志
 
 20191115 zb
 * 添加"如何正确安装ros_px4_gazebo仿真环境"
@@ -244,3 +248,6 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 
 20211008 zb
 * 更新`octomap_navi`包 增加对lio-sam的兼容
+
+20220316 zb
+* 更新[navi_algorithm](./packages/UGV/navi_algorithm)包，重构了代码，并新增了rrt-star的实现

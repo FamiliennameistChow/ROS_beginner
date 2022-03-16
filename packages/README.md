@@ -185,7 +185,8 @@
     * TO DO List:  
         - [ ] 二维导航算法  
         - [x] rrt  
-        - [ ] rrt_connet(testing)  
+        - [x] rrt_connet
+        - [x] rrt_star
 
 * [scout_ros包](./UGV/scout_ros)  
   使用四驱小车进行导航gazebo仿真环境  

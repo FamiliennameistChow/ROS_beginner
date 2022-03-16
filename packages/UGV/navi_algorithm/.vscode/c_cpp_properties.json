@@ -24,6 +24,7 @@
                 "/home/bornchow/AMOV_WORKSPACE/px4_ws/src/rpg_vikit/vikit_common/include/**",
                 "/home/bornchow/AMOV_WORKSPACE/px4_ws/src/rpg_vikit/vikit_ros/include/**",
                 "/home/bornchow/AMOV_WORKSPACE/px4_ws/src/vision/include/**",
+                "/home/bornchow/AMOV_WORKSPACE/fast_ws/src/navi_algorithm/include/**",
                 "/usr/include/**"
             ],
             "name": "ROS",

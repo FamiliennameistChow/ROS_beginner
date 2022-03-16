@@ -14,6 +14,11 @@ int main(int argc, char * argv[]) {
     ros::NodeHandle nh_private("~");
 
     ros::Publisher pub = nh_private.advertise<nav_msgs::OccupancyGrid>("/gridMap", 1);
+
+    int obstacle_num, obstacle_len;
+    nh_private.param<int>("obstacle_num", obstacle_num, 50);
+    nh_private.param<int>("obstacle_len", obstacle_len, 30);
+
     nav_msgs::OccupancyGrid map;
 
     // 向Rviz发送的数据中一定要包含frame_id
@@ -37,21 +42,21 @@ int main(int argc, char * argv[]) {
     p[32] = -1;
 
     // rid_map  [y*map.info.width+x]生成随机障碍
-    for(int n=0; n<30;n++)
+    for(int n=0; n<obstacle_num;n++)
     {
-        int y = 20 + rand()%(map.info.height-40+1);
-        int x = 20 + rand()%(map.info.width-40+1);
+        int y = obstacle_len + rand()%(map.info.height-obstacle_len*2+1);
+        int x = obstacle_len + rand()%(map.info.width-obstacle_len*2+1);
         int xy = rand()%(2);
         if(xy == 0)
         {
-            for(int i=0; i<20; i++)
+            for(int i=0; i<obstacle_len; i++)
             {
                 p[(y+i)*map.info.width+x] = 100;
                 p[(y+i)*map.info.width+x+1] = 100;
             }
         }else
         {
-            for(int i=0; i<20; i++)
+            for(int i=0; i<obstacle_len; i++)
             {
                 p[y*map.info.width+x+i] = 100;
                 p[(y+1)*map.info.width+x+i] = 100;

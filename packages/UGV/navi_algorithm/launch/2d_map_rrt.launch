@@ -1,0 +1,22 @@
+<launch>
+    <!-- 启动二维地图 -->
+    <node pkg="navi_algorithm" type="2d_map_creater" name="map_creater_node" >
+        <param name="obstacle_num" value="60" />
+        <param name="obstacle_len" value="20" />
+    </node>
+
+    <!--rrt 算法-->
+    <!-- 0- rrt  1-rrtConnect 2-rrtStar -->
+    <node pkg="navi_algorithm" type="rrt_group_search" name="rrt_search" output="screen">
+        <param name="rrt_algorithm" value="2" /> <!--选择rrt算法-->
+        <param name="eta" value="0.3" />  <!--rrt每次扩展时，延伸的长度 -->
+        <param name="iter_step" value="3100" /> <!-- 为了更好的显示，每隔iter_step步，需要键入值以继续 -->
+        <param name="iter_max" value="3000" />  <!--最大迭代次数[rrt-star参数]-->
+        <param name="search_radius" value="2" /> <!--rewire rrt 树时的搜索半径 [rrt-star参数]-->
+    </node>
+    
+     <!-- RViz -->
+    <node pkg="rviz" type="rviz" name="$(anon rviz)" respawn="false" output="screen" args="-d $(find navi_algorithm)/rviz/2d_map.rviz"/>
+
+
+</launch>

@@ -6,11 +6,9 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /Grid1
-        - /Map1
-        - /Marker1
-        - /Marker2
-        - /Marker3
+        - /rrt_node1
+        - /rrt_tree1
+        - /rrt_final_tree1
       Splitter Ratio: 0.369565219
     Tree Height: 747
   - Class: rviz/Selection
@@ -67,25 +65,24 @@ Visualization Manager:
       Value: true
     - Class: rviz/Marker
       Enabled: true
-      Marker Topic: /node
-      Name: Marker
+      Marker Topic: /rrt_node
+      Name: rrt_node
       Namespaces:
-        points: true
         points_goal: true
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
       Enabled: true
-      Marker Topic: /lines
-      Name: Marker
+      Marker Topic: /rrt_tree
+      Name: rrt_tree
       Namespaces:
-        lines: true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
       Enabled: true
-      Marker Topic: /lines_back
-      Name: Marker
+      Marker Topic: /rrt_final_tree
+      Name: rrt_final_tree
       Namespaces:
         {}
       Queue Size: 100
@@ -115,25 +112,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 12.8022213
+      Distance: 10.9438314
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.0602156296
-        Y: 0.286861569
-        Z: 0.81561178
+        X: 0.2493743
+        Y: 0.969879389
+        Z: 0.784226775
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 1.28979623
+      Pitch: 1.52479601
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 1.6522274
+      Yaw: 1.57722747
     Saved: ~
 Window Geometry:
   Displays:

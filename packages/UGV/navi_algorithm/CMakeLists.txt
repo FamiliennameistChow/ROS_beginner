@@ -118,7 +118,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -157,17 +157,29 @@ target_link_libraries(2d_map_creater
   ${catkin_LIBRARIES}
 )
 
-add_executable(rrt src/rrt.cpp)
-add_dependencies(rrt ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(rrt
+# add_executable(rrt src/rrt.cpp)
+# add_dependencies(rrt ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# target_link_libraries(rrt
+#   ${catkin_LIBRARIES}
+# )
+
+add_executable(rrt_group_search src/rrt_group_search.cpp)
+add_dependencies(rrt_group_search ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(rrt_group_search
   ${catkin_LIBRARIES}
 )
 
-add_executable(rrt_connect src/rrt_connect.cpp)
-add_dependencies(rrt_connect ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(rrt_connect
-  ${catkin_LIBRARIES}
-)
+# add_executable(rrt_connect src/rrt_connect.cpp)
+# add_dependencies(rrt_connect ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# target_link_libraries(rrt_connect
+#   ${catkin_LIBRARIES}
+# )
+
+# add_executable(test src/test.cpp)
+# add_dependencies(test ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# target_link_libraries(test
+#   ${catkin_LIBRARIES}
+# )
 
 #############
 ## Install ##
