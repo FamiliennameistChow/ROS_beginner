@@ -30,8 +30,10 @@
 * [gazebo模型与场景](./gazebo/readme.md)
 
 ----
-
 # 更新日志
+
+<details>
+<summary>日志</summary>
 
 20191115 zb
 * 添加"如何正确安装ros_px4_gazebo仿真环境"
@@ -251,3 +253,16 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 
 20220316 zb
 * 更新[navi_algorithm](./packages/UGV/navi_algorithm)包，重构了代码，并新增了rrt-star的实现
+
+20220409 zb
+* 更新[navi_algorithm](./packages/UGV/navi_algorithm)包, 增加了A-star的实现
+
+
+
+
+</details>
+
+
+
+
+
