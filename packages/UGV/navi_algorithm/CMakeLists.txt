@@ -169,6 +169,12 @@ target_link_libraries(rrt_group_search
   ${catkin_LIBRARIES}
 )
 
+add_executable(A_star_search src/A_star_search.cpp)
+add_dependencies(A_star_search ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(A_star_search
+  ${catkin_LIBRARIES}
+)
+
 # add_executable(rrt_connect src/rrt_connect.cpp)
 # add_dependencies(rrt_connect ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 # target_link_libraries(rrt_connect
