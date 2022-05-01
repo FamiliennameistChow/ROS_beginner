@@ -1,0 +1,4 @@
+slam_algorithm: lio-sam
+pc_topic: /lvi_sam/lidar/mapping/cloud_registered
+laser_odom_potic: /lvi_sam/lidar/mapping/odometry
+imu_potic: imu/data

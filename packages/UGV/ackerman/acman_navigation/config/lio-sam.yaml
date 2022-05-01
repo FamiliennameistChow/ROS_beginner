@@ -1,0 +1,4 @@
+slam_algorithm: lio-sam
+pc_topic: /lio_sam/mapping/cloud_registered
+laser_odom_potic: /lio_sam/mapping/odometry
+imu_potic: imu/data

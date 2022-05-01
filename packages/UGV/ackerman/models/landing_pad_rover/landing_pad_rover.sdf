@@ -1,0 +1,59 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="landing_pad_rover">
+    <pose>-1.0 0.0 1.0 0.0 0.0 0.0</pose>
+    <static>true</static>
+    <link name="landing_pad_link">
+      <inertial>
+        <mass>0.5</mass>
+        <inertia>
+          <ixx>0.05</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.05</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.85 1.36 0.01</size>
+          </box>
+        </geometry>
+        <surface> <!--add friction by spx-->
+          <friction>
+            <ode>
+              <mu>1.0</mu>
+              <mu2>1.0</mu2>
+              <fdir1>0 0 1</fdir1>
+              <slip1>0.0</slip1>
+              <slip2>0.0</slip2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+              <min_depth>0.005</min_depth>
+              <kp>1e8</kp>
+            </ode>
+          </contact>
+        </surface>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.85 1.36 0.01</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://landing_pad_rover/materials/scripts</uri>
+	    <uri>model://landing_pad_rover/materials/textures</uri>
+            <name>Cube/landing_pad_rover</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+
+  </model>
+</sdf>

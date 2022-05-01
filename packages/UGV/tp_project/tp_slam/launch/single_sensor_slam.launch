@@ -1,0 +1,26 @@
+
+
+<launch>
+
+    <node name="add_g" pkg="tp_slam" type="add_imu_gravity" output="screen">
+        <remap from="imu_in" to="/imu" />
+        <remap from="imu_out" to="/slam/imu" />
+    </node>
+
+    <node name="cartographer_node" pkg="cartographer_ros"
+        type="cartographer_node" args="
+            -configuration_directory $(find tp_slam)/configs
+            -configuration_basename single_sensor.lua"
+        output="screen">
+        <remap from="scan" to="/scan/point1" />
+        <remap from="imu" to="/slam/imu" />
+    </node>
+
+    <node name="cartographer_occupancy_grid_node" pkg="cartographer_ros"
+        type="cartographer_occupancy_grid_node" args="-resolution 0.05" />
+
+    <node name="rviz" pkg="rviz" type="rviz" required="true"
+        args="-d $(find cartographer_ros)/configuration_files/demo_2d.rviz" />
+
+
+</launch>
