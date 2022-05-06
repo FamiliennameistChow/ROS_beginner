@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+
+<launch>
+    <arg name="namespace" default="/"/>
+    <!-- 模型的一些运动学限制 -->  
+    <arg name="tractor_delay" default="1"/>   <!-- 0 for true, 1 for false -->
+    <arg name="max_acceleration" default="1.0"/>
+    <arg name="max_steering_angle_velocity" default="10.0"/>
+    <arg name="max_steering_angle_scare" default="25.0"/>
+    <arg name="steering_control_mode" default="0"/>  <!-- 0：positon  和 1：velocity 速度模式模拟拖拉机-->
+
+    <!-- Vehicle pose -->
+    <arg name="vehicle" default="ackerman"/>
+    <!-- <arg name="x" default="150"/>
+    <arg name="y" default="8.3"/>
+    <arg name="z" default="0.16"/>
+    <arg name="R" default="0"/>
+    <arg name="P" default="0"/>
+    <arg name="Y" default="3.1415926"/> -->
+
+    <arg name="x" default="0"/>
+    <arg name="y" default="0"/>
+    <arg name="z" default="0.1"/>
+    <arg name="R" default="0"/>
+    <arg name="P" default="0"/>
+    <arg name="Y" default="0"/>
+
+    <arg name="sdf" default="$(find ackerman_description)/urdf/ackerman.sdf"/>
+    <arg name="urdf" default="$(find ackerman_description)/urdf/ackerman.urdf"/>
+    <param name="robot_description_sdf" textfile="$(arg sdf)" />
+    <param name="robot_description" textfile="$(arg urdf)" /> 
+
+    <!-- <arg name="world" default="$(find ackerman_sim_gazebo)/worlds/city.world"/> -->
+    <!-- <arg name="world" default="$(find ackerman_sim_gazebo)/worlds/large_city.world"/> -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="gui" value="true"/>
+        <!-- <arg name="world_name" value="$(arg world)"/> -->
+        <arg name="debug" value="false"/>
+        <arg name="verbose" value="false"/>
+        <arg name="paused" value="false"/>
+        <arg name="respawn_gazebo" value="false"/>
+    </include>
+
+    <node name="$(arg vehicle)_spawn" pkg="gazebo_ros" type="spawn_model" output="screen" 
+    args="-sdf -param robot_description_sdf -model $(arg vehicle) 
+    -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg R) -P $(arg P) -Y $(arg Y)"/>
+
+    <!-- 加载控制器 spawner -->
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" 
+    respawn="true" output="screen" 
+    args="$(find ackerman_sim_gazebo)/config/$(arg vehicle)_joint_ctrl.yaml"/>
+
+    <!-- Control the steering, axle, and shock absorber joints. -->
+    <node name="ackermann_model_driver" pkg="ackerman_sim_gazebo" type="ackermann_model_driver" output="screen">
+        <param name="tractor_delay" value="$(arg tractor_delay)" />
+        <param name="max_acceleration" value="$(arg max_acceleration)" />
+        <param name="max_steering_angle_velocity" value="$(arg max_steering_angle_velocity)" />
+        <param name="max_steering_angle_scare" value="$(arg max_steering_angle_scare)" />
+        <param name="steering_control_mode" value="$(arg steering_control_mode)" />
+        <rosparam file="$(find ackerman_sim_gazebo)/config/$(arg vehicle)_ctrlr_params.yaml" command="load"/>
+    </node>
+    
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+    <node pkg="tf" type="static_transform_publisher" name="map_to_wolrd" args="0 0 0 0 0.0 0.0 /world /map 20"/>
+
+
+    <!-- 下面这两个节点是仿真跑SLAM太卡了,直接给的真值里程计  跑SLAM的时候需要注释屏蔽掉 -->
+    <node name="tf_base2map" pkg="ackerman_sim_gazebo" type="tf_base2map"/>
+    <node name="sim_trajectory" pkg="ackerman_sim_gazebo" type="sim_trajectory"/>
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find ackerman_sim_gazebo)/rviz/sim.rviz" />
+
+</launch>

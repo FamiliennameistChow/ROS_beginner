@@ -1,0 +1,95 @@
+#!/usr/bin/env python3
+
+import rospy
+
+from ackermann_msgs.msg import AckermannDrive
+
+import sys, select, termios, tty
+
+banner = """
+1. Reading from the keyboard  
+2. Publishing to AckermannDriveStamped!
+---------------------------
+        w
+   a    s    d
+anything else : stop
+--------------------------
+  key:(speed,steer)
+  w:(0.2,0)
+  d:(0,-0.5)
+  a:(0,0.5)
+  s:(-0.2,0)
+CTRL-C to quit
+"""
+
+keyBindings = {
+  'w':(0.2,0),
+  'd':(0,-0.5),
+  'a':(0,0.5),
+  's':(-0.2,0),
+}
+
+def getKey():
+  tty.setraw(sys.stdin.fileno())
+  select.select([sys.stdin], [], [], 0)
+  key = sys.stdin.read(1)
+  termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
+  return key
+
+def vels(speed,turn):
+  return "currently:\tspeed %s\tturn %s " % (speed,turn)
+
+if __name__=="__main__":
+  settings = termios.tcgetattr(sys.stdin)
+  pub = rospy.Publisher("/cmd_vel", AckermannDrive,queue_size=1)
+  rospy.init_node('keyop')
+  print(banner)
+
+  x = 0
+  th = 0
+  status = 0
+
+  _msg = AckermannDrive()
+
+  try:
+    while(1):
+        key = getKey()
+        if key in keyBindings.keys():
+            x = keyBindings[key][0]
+            th = keyBindings[key][1]
+            _msg.acceleration = 1
+            _msg.jerk = 1
+            _msg.speed += x
+            _msg.steering_angle += th
+            _msg.steering_angle_velocity = 2
+        else:
+            _msg.speed = 0
+            _msg.acceleration = 10
+            _msg.jerk = 5
+            _msg.steering_angle = 0
+            _msg.steering_angle_velocity = 5
+            
+            if (key == '\x03'):
+              pub.publish(_msg)
+              break
+        
+        if _msg.speed > 3.0:
+          _msg.speed = 3.0
+        elif _msg.speed < -3.0:
+          _msg.speed = -3.0
+
+        if _msg.steering_angle > 25.0:
+          _msg.steering_angle = 25.0
+        elif _msg.steering_angle < -25.0:
+          _msg.steering_angle = -25.0
+          
+        pub.publish(_msg)
+       
+  except:
+    print("error")
+
+  finally:
+    _msg.speed = 0;
+    _msg.acceleration = 1;
+    _msg.jerk = 1;
+    _msg.steering_angle = 0
