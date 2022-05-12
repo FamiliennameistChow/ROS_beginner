@@ -200,8 +200,9 @@
     sudo apt install ros-kinetic-teleop-twist-keyboard
     sudo apt-get install ros-kinetic-joint-state-publisher-gui
     sudo apt install ros-kinetic-ros-controllers
-    sudo apt install ros-kinetic-webots-ros
-    sudo apt install ros-kinetic-navigation
+    sudo apt install ros-$ROS_DISTRO-webots-ros
+    sudo apt install ros-$ROS_DISTRO-navigation
+    sudo apt-get install ros-$ROS_DISTRO-velodyne*
     ```
 
     * 使用请进入`/scout_ros/navi_ros/sh`

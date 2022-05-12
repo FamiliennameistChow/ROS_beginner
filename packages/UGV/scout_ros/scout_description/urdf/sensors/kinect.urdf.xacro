@@ -72,6 +72,6 @@
   </joint> -->
 	
 	<!-- Kinect sensor for simulation -->
-	<gazebo_sim_3dsensor/>
+	<xacro:gazebo_sim_3dsensor/>
   </xacro:macro>
 </robot>
