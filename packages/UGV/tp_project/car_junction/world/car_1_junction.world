@@ -1,0 +1,584 @@
+<?xml version="1.0"?>
+<sdf version="1.5">
+  <world name="default">
+  
+    <scene>
+      <grid>false</grid>
+    </scene>
+  
+    <!-- A global light source -->
+    <include>
+      <uri>model://sun</uri>
+      <pose>1.5 -30 100 0 0 0</pose>
+    </include>
+    
+    <!-- Stop signs -->
+    <include>
+      <static>true</static>
+      <name>stop_sign_1</name>
+      <uri>model://stop_sign</uri>
+      <pose>3.5 -3.5 0 0 0 0</pose>
+    </include>
+    <include>
+      <static>true</static>
+      <name>stop_sign_2</name>
+      <uri>model://stop_sign</uri>
+      <pose>-3.5 3.5 0 0 0 3.15</pose>
+    </include>
+
+    <include>
+      <static>true</static>
+      <name>stop_sign_3</name>
+      <uri>model://stop_sign</uri>
+      <pose>103.5 -3.5 0 0 0 0</pose>
+    </include>
+    <include>
+      <static>true</static>
+      <name>stop_sign_4</name>
+      <uri>model://stop_sign</uri>
+      <pose>96.5 3.5 0 0 0 3.15</pose>
+    </include>
+
+    <include>
+      <static>true</static>
+      <name>stop_sign_5</name>
+      <uri>model://stop_sign</uri>
+      <pose>3.5 96.5 0 0 0 0</pose>
+    </include>
+    <include>
+      <static>true</static>
+      <name>stop_sign_6</name>
+      <uri>model://stop_sign</uri>
+      <pose>-3.5 103.5 0 0 0 3.15</pose>
+    </include>
+
+    <include>
+      <static>true</static>
+      <name>stop_sign_7</name>
+      <uri>model://stop_sign</uri>
+      <pose>103.5 96.5 0 0 0 0</pose>
+    </include>
+    <include>
+      <static>true</static>
+      <name>stop_sign_8</name>
+      <uri>model://stop_sign</uri>
+      <pose>96.5 103.5 0 0 0 3.15</pose>
+    </include>
+    
+    
+    <!-- Houses -->
+    <include>
+      <name>house_1</name>
+      <uri>model://house_1</uri>
+      <pose>-12 12 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>house_2</name>
+      <uri>model://house_2</uri>
+      <pose>-32 9 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>house_3</name>
+      <uri>model://house_3</uri>
+      <pose>-5.5 -7 0 0 0 1.55</pose>
+    </include>
+
+    <include>
+      <name>house_1_1</name>
+      <uri>model://house_1</uri>
+      <pose>-12 112 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>house_2_1</name>
+      <uri>model://house_2</uri>
+      <pose>-32 109 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>house_3_1</name>
+      <uri>model://house_3</uri>
+      <pose>-5.5 93 0 0 0 1.55</pose>
+    </include>
+
+    <include>
+      <name>house_1_2</name>
+      <uri>model://house_1</uri>
+      <pose>88 12 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>house_2_2</name>
+      <uri>model://house_2</uri>
+      <pose>68 9 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>house_3_2</name>
+      <uri>model://house_3</uri>
+      <pose>94.5 -7 0 0 0 1.55</pose>
+    </include>
+
+    <include>
+      <name>house_1_3</name>
+      <uri>model://house_1</uri>
+      <pose>88 112 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>house_2_3</name>
+      <uri>model://house_2</uri>
+      <pose>68 109 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>house_3_3</name>
+      <uri>model://house_3</uri>
+      <pose>94.5 93 0 0 0 1.55</pose>
+    </include>
+    
+    <!-- A gas station -->
+    <include>
+      <name>gas_station</name>
+      <uri>model://gas_station</uri>
+      <pose>10 14 0 0 0 1.55</pose>
+    </include>
+
+    <include>
+      <name>gas_station_1</name>
+      <uri>model://gas_station</uri>
+      <pose>110 114 0 0 0 1.55</pose>
+    </include>
+
+    <include>
+      <name>gas_station_2</name>
+      <uri>model://gas_station</uri>
+      <pose>110 14 0 0 0 1.55</pose>
+    </include>
+
+    <include>
+      <name>gas_station_3</name>
+      <uri>model://gas_station</uri>
+      <pose>10 114 0 0 0 1.55</pose>
+    </include>
+    
+    <!-- Lamps -->
+    <include>
+      <name>lamp_post_1</name>
+      <uri>model://lamp_post</uri>
+      <pose>-3 13 0 0 0 1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_2</name>
+      <uri>model://lamp_post</uri>
+      <pose>3 23 0 0 0 -1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_3</name>
+      <uri>model://lamp_post</uri>
+      <pose>-3 33 0 0 0 1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_4</name>
+      <uri>model://lamp_post</uri>
+      <pose>-3 -3 0 0 0 1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_5</name>
+      <uri>model://lamp_post</uri>
+      <pose>3 -13 0 0 0 -1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_6</name>
+      <uri>model://lamp_post</uri>
+      <pose>-3 -23 0 0 0 1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_7</name>
+      <uri>model://lamp_post</uri>
+      <pose>3 -33 0 0 0 -1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_8</name>
+      <uri>model://lamp_post</uri>
+      <pose>3 3 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>lamp_post_9</name>
+      <uri>model://lamp_post</uri>
+      <pose>13 -3 0 0 0 3.15</pose>
+    </include>
+    <include>
+      <name>lamp_post_10</name>
+      <uri>model://lamp_post</uri>
+      <pose>23 3 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>lamp_post_11</name>
+      <uri>model://lamp_post</uri>
+      <pose>33 -3 0 0 0 3.15</pose>
+    </include>
+    <include>
+      <name>lamp_post_12</name>
+      <uri>model://lamp_post</uri>
+      <pose>-13 3 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>lamp_post_13</name>
+      <uri>model://lamp_post</uri>
+      <pose>-23 -3 0 0 0 3.15</pose>
+    </include>
+    <include>
+      <name>lamp_post_14</name>
+      <uri>model://lamp_post</uri>
+      <pose>-33 3 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <name>lamp_post_1_1</name>
+      <uri>model://lamp_post</uri>
+      <pose>-3 113 0 0 0 1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_2_1</name>
+      <uri>model://lamp_post</uri>
+      <pose>3 123 0 0 0 -1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_3_1</name>
+      <uri>model://lamp_post</uri>
+      <pose>-3 133 0 0 0 1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_4_1</name>
+      <uri>model://lamp_post</uri>
+      <pose>-3 97 0 0 0 1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_5_1</name>
+      <uri>model://lamp_post</uri>
+      <pose>3 87 0 0 0 -1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_6_1</name>
+      <uri>model://lamp_post</uri>
+      <pose>-3 77 0 0 0 1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_7_1</name>
+      <uri>model://lamp_post</uri>
+      <pose>3 77 0 0 0 -1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_8_1</name>
+      <uri>model://lamp_post</uri>
+      <pose>3 103 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>lamp_post_9_1</name>
+      <uri>model://lamp_post</uri>
+      <pose>13 97 0 0 0 3.15</pose>
+    </include>
+    <include>
+      <name>lamp_post_10_1</name>
+      <uri>model://lamp_post</uri>
+      <pose>23 103 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>lamp_post_11_1</name>
+      <uri>model://lamp_post</uri>
+      <pose>33 97 0 0 0 3.15</pose>
+    </include>
+    <include>
+      <name>lamp_post_12_1</name>
+      <uri>model://lamp_post</uri>
+      <pose>-13 103 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>lamp_post_13_1</name>
+      <uri>model://lamp_post</uri>
+      <pose>-23 97 0 0 0 3.15</pose>
+    </include>
+    <include>
+      <name>lamp_post_14_1</name>
+      <uri>model://lamp_post</uri>
+      <pose>-33 103 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <name>lamp_post_1_2</name>
+      <uri>model://lamp_post</uri>
+      <pose>97 13 0 0 0 1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_2_2</name>
+      <uri>model://lamp_post</uri>
+      <pose>103 23 0 0 0 -1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_3_2</name>
+      <uri>model://lamp_post</uri>
+      <pose>97 33 0 0 0 1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_4_2</name>
+      <uri>model://lamp_post</uri>
+      <pose>97 -3 0 0 0 1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_5_2</name>
+      <uri>model://lamp_post</uri>
+      <pose>103 -13 0 0 0 -1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_6_2</name>
+      <uri>model://lamp_post</uri>
+      <pose>97 -23 0 0 0 1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_7_2</name>
+      <uri>model://lamp_post</uri>
+      <pose>103 -33 0 0 0 -1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_8_2</name>
+      <uri>model://lamp_post</uri>
+      <pose>103 3 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>lamp_post_9_2</name>
+      <uri>model://lamp_post</uri>
+      <pose>113 -3 0 0 0 3.15</pose>
+    </include>
+    <include>
+      <name>lamp_post_10_2</name>
+      <uri>model://lamp_post</uri>
+      <pose>123 3 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>lamp_post_11_2</name>
+      <uri>model://lamp_post</uri>
+      <pose>133 -3 0 0 0 3.15</pose>
+    </include>
+    <include>
+      <name>lamp_post_12_2</name>
+      <uri>model://lamp_post</uri>
+      <pose>87 3 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>lamp_post_13_2</name>
+      <uri>model://lamp_post</uri>
+      <pose>77 -3 0 0 0 3.15</pose>
+    </include>
+    <include>
+      <name>lamp_post_14_2</name>
+      <uri>model://lamp_post</uri>
+      <pose>67 3 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <name>lamp_post_1_3</name>
+      <uri>model://lamp_post</uri>
+      <pose>97 113 0 0 0 1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_2_3</name>
+      <uri>model://lamp_post</uri>
+      <pose>103 123 0 0 0 -1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_3_3</name>
+      <uri>model://lamp_post</uri>
+      <pose>97 133 0 0 0 1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_4_3</name>
+      <uri>model://lamp_post</uri>
+      <pose>97 97 0 0 0 1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_5_3</name>
+      <uri>model://lamp_post</uri>
+      <pose>103 87 0 0 0 -1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_6_3</name>
+      <uri>model://lamp_post</uri>
+      <pose>97 77 0 0 0 1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_7_3</name>
+      <uri>model://lamp_post</uri>
+      <pose>103 67 0 0 0 -1.55</pose>
+    </include>
+    <include>
+      <name>lamp_post_8_3</name>
+      <uri>model://lamp_post</uri>
+      <pose>103 103 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>lamp_post_9_3</name>
+      <uri>model://lamp_post</uri>
+      <pose>113 97 0 0 0 3.15</pose>
+    </include>
+    <include>
+      <name>lamp_post_10_3</name>
+      <uri>model://lamp_post</uri>
+      <pose>123 103 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>lamp_post_11_3</name>
+      <uri>model://lamp_post</uri>
+      <pose>133 97 0 0 0 3.15</pose>
+    </include>
+    <include>
+      <name>lamp_post_12_3</name>
+      <uri>model://lamp_post</uri>
+      <pose>87 103 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>lamp_post_13_3</name>
+      <uri>model://lamp_post</uri>
+      <pose>77 97 0 0 0 3.15</pose>
+    </include>
+    <include>
+      <name>lamp_post_14_3</name>
+      <uri>model://lamp_post</uri>
+      <pose>67 103 0 0 0 0</pose>
+    </include>
+    
+    <!-- School -->
+    <include>
+      <name>School_1</name>
+      <uri>model://school</uri>
+      <pose>50 -20 0 0 0 3.14</pose>
+    </include>
+    <include>
+      <name>School_2</name>
+      <uri>model://school</uri>
+      <pose>125 50 0 0 0 -1.57</pose>
+    </include>
+    <include>
+      <name>School_3</name>
+      <uri>model://school</uri>
+      <pose>50 140 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>School_4</name>
+      <uri>model://school</uri>
+      <pose>-25 50 0 0 0 1.57</pose>
+    </include>
+
+    <!-- A opel car -->
+    <!-- <include>
+      <name>opel_ROS</name>
+      <uri>model://opel_ROS</uri>
+      <pose>1.5 -30 0 0 0 3.14</pose> 
+    </include> -->
+    
+    
+    <!-- Cars -->
+    <!-- <model name="car1">
+      <pose>30 1.5 0 0 0 -1.57</pose> 
+      <static>false</static>
+      <link name="car1">
+        <gravity>false</gravity>
+        <inertial>
+          <mass>1.0</mass>
+          <inertia> 
+            <ixx>0.083</ixx>      
+            <ixy>0.0</ixy>        
+            <ixz>0.0</ixz>        
+            <iyy>0.083</iyy>      
+            <iyz>0.0</iyz>         
+            <izz>0.083</izz>      
+          </inertia>
+        </inertial>
+        <collision name="collision">
+          <geometry>
+      <mesh>
+        <uri>model://opel/meshes/model.dae</uri>
+      </mesh>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <mesh>
+              <uri>model://opel/meshes/model.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+      </link>
+          <plugin name="object_controller" filename="libcarplugin.so">
+        <robotNamespace></robotNamespace>
+        <commandTopic>dummy1/cmd_vel</commandTopic>
+        <odometryTopic>dummy1/odom</odometryTopic>
+        <odometryFrame>odom</odometryFrame>
+        <odometryRate>20.0</odometryRate>
+        <robotBaseFrame>car1</robotBaseFrame>
+      </plugin>
+    </model>
+
+    <model name="car2">
+      <pose>-30 -1.5 0 0 0 1.57</pose>
+      <static>false</static>
+      <link name="car2">
+        <gravity>false</gravity>
+          <inertial>
+          <mass>1.0</mass>
+          <inertia> 
+            <ixx>0.083</ixx>      
+            <ixy>0.0</ixy>        
+            <ixz>0.0</ixz>        
+            <iyy>0.083</iyy>      
+            <iyz>0.0</iyz>         
+            <izz>0.083</izz>      
+          </inertia>
+        </inertial>
+        <collision name="collision">
+          <geometry>
+      <mesh>
+        <uri>model://opel/meshes/model.dae</uri>
+      </mesh>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <mesh>
+              <uri>model://opel/meshes/model.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+      </link>
+          <plugin name="object_controller" filename="libcarplugin.so">
+        <robotNamespace></robotNamespace>
+        <commandTopic>dummy2/cmd_vel</commandTopic>
+        <odometryTopic>dummy2/odom</odometryTopic>
+        <odometryFrame>odom</odometryFrame>
+        <odometryRate>20.0</odometryRate>
+        <robotBaseFrame>car2</robotBaseFrame>
+      </plugin>
+    </model> -->
+    
+    
+    <!-- Roads -->
+    <include>
+      <name>stopW_1</name>
+      <uri>model://stopW</uri>
+      <pose>0 0 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <name>stopW_2</name>
+      <uri>model://stopW</uri>
+      <pose>100 0 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <name>stopW_3</name>
+      <uri>model://stopW</uri>
+      <pose>0 100 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <name>stopW_4</name>
+      <uri>model://stopW</uri>
+      <pose>100 100 0 0 0 0</pose>
+    </include>
+    
+  </world>
+</sdf>

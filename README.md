@@ -308,4 +308,8 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 
 * 上传了 ackerman 和 tp_project 两个功能包。 初步的 SLAM 仿真环境和模型。
 
+20220513 fj
+
+* 为 tp_project 功能包添加了医院地图环境
+
 </details>

@@ -18,6 +18,11 @@
 
 里面主要包含了，turtlebot的 控制接口，还有 move_base 的配置
 
+## aws-robomaker-hospital-world
+医院的模型和世界环境
+
+## car_junction
+交通道路的模型和世界环境
 
 ## 使用方法
 
@@ -36,11 +41,16 @@
 roslaunch car_sim_description turtlebot3_single_sensor.launch
 // 或者
 roslaunch car_sim_description turtlebot3_double_sensor.launch
+// 或者 打开医院仿真环境 找到模型文件位置
+export GAZEBO_MODEL_PATH=`pwd`/models:`pwd`/fuel_models
+roslaunch car_sim_description turtlebot3_single_sensor_hospital.launch
 
 // 开启 SLAM 
 roslaunch tp_slam single_sensor_slam.launch
 // 或者
 roslaunch tp_slam double_sensor_slam.launch
+// 或者 加载地图
+roslaunch tp_slam single_sensor_slam_localization.launch
 
 // 开始 move_base
 roslaunch turtlebot3_navigation move_base.launch
