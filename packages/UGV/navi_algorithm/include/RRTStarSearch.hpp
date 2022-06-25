@@ -298,6 +298,7 @@ void RRTStarSearch::search(geometry_msgs::Point p_start, geometry_msgs::Point p_
                     {
                         ROS_INFO("back tree sucess!");
                     }
+
                     vis_mut_.unlock();
                     
                 }
@@ -307,7 +308,11 @@ void RRTStarSearch::search(geometry_msgs::Point p_start, geometry_msgs::Point p_
 
     }
     
-    ROS_INFO("total time is %f", search_time.toc());
+    ROS_INFO("============= search info ================");
+    ROS_INFO("total time is %f ms", search_time.toc());
+    ROS_INFO("total sample node nu : %d", iter_);
+    ROS_INFO("rrt tree node nu     : %ld", rrt_tree_set_.size());
+    ROS_INFO("final node nu        : %ld", p_final_que_.size());
     
 }
 

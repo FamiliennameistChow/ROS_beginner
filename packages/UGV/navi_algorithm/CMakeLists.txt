@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(navi_algorithm)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+add_compile_options(-std=c++11)
 set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
 ## Find catkin macros and libraries
@@ -169,9 +169,10 @@ target_link_libraries(rrt_group_search
   ${catkin_LIBRARIES}
 )
 
-add_executable(A_star_search src/A_star_search.cpp)
-add_dependencies(A_star_search ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(A_star_search
+
+add_executable(graph_search src/graph_search.cpp)
+add_dependencies(graph_search ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(graph_search
   ${catkin_LIBRARIES}
 )
 

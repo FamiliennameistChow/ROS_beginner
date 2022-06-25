@@ -1,0 +1,21 @@
+<launch>
+    <!-- 启动二维地图 -->
+    <node pkg="navi_algorithm" type="2d_map_creater" name="map_creater_node" >
+        <param name="obstacle_num" value="50" />
+        <param name="obstacle_h" value="10" />
+        <param name="obstacle_w" value="10" />
+    </node>
+
+    <!--图搜索 算法-->
+    <!-- 0- Dijkstra  1-A-Star 2-JPS -->
+    <node pkg="navi_algorithm" type="graph_search" name="graph_search_node" output="screen">
+        <param name="graph_sreach_algorithm" value="1"/>
+        <param name="heuristic_func" value="0" />  <!--启发函数选择 0 - Manhattan Distance 1 - Diagonal distance 2 - Euclidean distance -->
+        <param name="iter_step" value="2000" /> <!-- 为了更好的显示，每隔iter_step步，需要键入值以继续 -->
+    </node>
+    
+     <!-- RViz -->
+    <node pkg="rviz" type="rviz" name="$(anon rviz)" respawn="false" output="screen" args="-d $(find navi_algorithm)/rviz/2d_map_graph.rviz"/>
+
+
+</launch>

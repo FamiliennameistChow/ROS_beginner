@@ -307,6 +307,12 @@ void RRTConnectSearch::search(geometry_msgs::Point p_start, geometry_msgs::Point
                             }
                         }
 
+                        ROS_INFO("============= search info ================");
+                        ROS_INFO("total time is %f ms", search_time.toc());
+                        ROS_INFO("total sample node nu : %d", iter_);
+                        ROS_INFO("rrt tree node nu     : %d", (int)rrt_tree_set_1_.size() + (int)rrt_tree_set_2_.size());
+                        ROS_INFO("final node nu        : %ld", p_final_que_.size());
+
                         vis_mut_.unlock();
                     }
                     

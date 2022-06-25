@@ -88,9 +88,9 @@ void RRTSearch::search(geometry_msgs::Point p_start, geometry_msgs::Point p_end)
     {
         if (iter_ != 0) // 每次迭代结束处理
         {
-            vis_mut_.lock();
+            std::lock_guard<std::mutex> mut_locker(vis_mut_);
             iter_vis_set_.insert(make_pair(iter_, vis_point_que));
-            vis_mut_.unlock();
+        
         }
         
         iter_++;
@@ -158,7 +158,7 @@ void RRTSearch::search(geometry_msgs::Point p_start, geometry_msgs::Point p_end)
                 ROS_INFO("you have got the goal!----");
 
                 // 回溯一条rrt路径
-                vis_mut_.lock();
+                std::lock_guard<std::mutex> mut_locker(vis_mut_);
                 p_final_que_.push(p_end_);
                 while (Norm(p_start_, p_final_que_.back()) > 0.05)
                 {
@@ -179,10 +179,14 @@ void RRTSearch::search(geometry_msgs::Point p_start, geometry_msgs::Point p_end)
                 {
                     ROS_INFO("back tree sucess!");
                 }
-                vis_mut_.unlock();
-
+    
                 search_finished_ = true;
-                ROS_INFO("Time : %f", search_time.toc());
+
+                ROS_INFO("============= search info ================");
+                ROS_INFO("total time is %f ms", search_time.toc());
+                ROS_INFO("total sample node nu : %d", iter_);
+                ROS_INFO("rrt tree node nu     : %ld", rrt_tree_set_.size());
+                ROS_INFO("final node nu        : %ld", p_final_que_.size());
             }
             
         }
@@ -200,7 +204,7 @@ void RRTSearch::getVisInfo(std::map<int, std::queue<geometry_msgs::Point> >& ite
                                   std::queue<geometry_msgs::Point> &p_final_q,
                                   int &iter){
     
-    vis_mut_.lock();
+    std::lock_guard<std::mutex> mut_locker(vis_mut_);
     
     if (!iter_vis_set_.empty())
     {
@@ -217,7 +221,7 @@ void RRTSearch::getVisInfo(std::map<int, std::queue<geometry_msgs::Point> >& ite
         }
     }
     
-    vis_mut_.unlock();
+    
     
     iter = iter_;
 }

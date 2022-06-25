@@ -20,101 +20,21 @@
 #include <mutex>
 #include <map>
 #include <set> 
+#include <deque>
 #include <queue>
 #include <vector>
 #include <algorithm>
 
-using namespace std;
+#include "GraphGroupSearch.hpp"
+
+
 
 // f(n) = g(n) + h(n)
-typedef struct Node
-{
-    int x;
-    int y;
-    float g;
-    float h;
-    float f;
-    Node* father_node;
-    Node(){
-
-    }
-    Node(int x, int y){
-        this->x = x;
-        this->y = y;
-        this->g = 0;
-        this->h = 0;
-        this->f = 0;
-        this->father_node = NULL;
-    }
-    Node(int x, int y, Node* father){
-        this->x = x;
-        this->y = y;
-        this->g = 0;
-        this->h = 0;
-        this->f = 0;
-        this->father_node = father;
-    }
-
-    // //重载 ==
-    // bool operator == (const Node & n) const{
-    //     if (x == n.x && y == n.y){
-    //         return true;
-    //     }else
-    //     {
-    //         return false;
-    //     }
-    // }
-    // // 重载 < 
-    // bool operator < (const Node &n) const {
-    //     if (f != n.f)
-    //     {
-    //         return f < n.f;
-    //     }else 
-    //     {
-    //         return h < n.h;
-    //     }
-
-    // }
-
-    // 重载输出函数
-    friend ostream& operator << (ostream& ostr, Node &n){
-
-        if (n.father_node == NULL)
-        {
-            cout << "[ " << n.x << " , " << n.y << " ] -- " << "GHF: " << n.g << " " << n.h << " " << n.f 
-            << " -- {  NULL  } " << std::endl;
-        }else
-        {
-            cout << "[ " << n.x << " , " << n.y << " ] -- " << "GHF: " << n.g << " " << n.h << " " << n.f 
-            << " -- { " << (n.father_node)->x<< " , " << (n.father_node)->y << " } ";
-        }
-
-        return cout;
-    } 
-
-}Node;
-
-// // 重载()运算符
-// class NodeCompare
-// {
-//     public:
-//         bool operator()(Node n1, Node n2){
-//             if (n1.f < n2.f)
-//             {
-//                 return n1.f < n2.f;
-//             }else if (n1.f = n2.f)
-//             {
-//                 return n1.h < n2.h;
-//             }
-
-//         }
-// };
-
 typedef std::vector<Node> NodeSet;
 typedef std::vector<Node>::iterator NodeSetIter;
 
 // ------------------------------ class --------------
-class AStarSearch
+class AStarSearch : public GraphGroupSearch
 {
 private:
     int heuristic_func_;
@@ -132,13 +52,10 @@ private:
     // for vis
     std::mutex vis_mut_;
     std::map<int, std::queue<geometry_msgs::Point> > iter_vis_set_;
-    std::queue<geometry_msgs::Point> p_final_que_;
+    std::deque<geometry_msgs::Point> p_final_que_;
 
 
 private:
-
-    void realCoordi2map(geometry_msgs::Point p_real, geometry_msgs::Point &p_map, nav_msgs::OccupancyGrid map_data);
-    void map2realCoordi(geometry_msgs::Point &p_real, geometry_msgs::Point p_map, nav_msgs::OccupancyGrid map_data);
     void checkNeighbor(Node node, std::vector<Node> &neiNodes);
     bool checkNode(Node this_node, 
                     Node end_node, 
@@ -220,27 +137,6 @@ bool AStarSearch::nodeCompare(Node &n1, Node &n2){
 }
 
 
-// **************************************
-// 将点的真实坐标转换为地图坐标
-// 这里的地图坐标是 A_star搜索中构建的地图，其以地图左下角(map_data.info.origin.position)为坐标原点， 地图的宽(map_data.info.width)为x方向 ，
-//                 高(map_data.info.height)为y方向， 地图的分辨率(map_data.info.resolution)为大小构建的方格地图
-//  ^ y
-//  |
-//  |
-//  -----------> xstd::cout << "in close set " << std::endl;
-void AStarSearch::realCoordi2map(geometry_msgs::Point p_real, geometry_msgs::Point & p_map, nav_msgs::OccupancyGrid map_data){
-    p_map.x = floor((p_real.x - map_data.info.origin.position.x)/map_data.info.resolution);
-    p_map.y = floor((p_real.y - map_data.info.origin.position.y)/map_data.info.resolution);
-
-}
-
-// **************************************
-// 将地图坐标点转换为真实坐标
-void AStarSearch::map2realCoordi(geometry_msgs::Point &p_real, geometry_msgs::Point p_map, nav_msgs::OccupancyGrid map_data){
-    p_real.x = p_map.x * map_data.info.resolution + map_data.info.origin.position.x + 0.5 * map_data.info.resolution;
-    p_real.y = p_map.y * map_data.info.resolution + map_data.info.origin.position.y + 0.5 * map_data.info.resolution;
-}
-
 //*******************************************
 // 返回map坐标系中 node坐标的占有状态
 // 占据状态　1:占据　0:未占据　-1:未知
@@ -276,7 +172,6 @@ int AStarSearch::CollisionFree(Node node, nav_msgs::OccupancyGrid map){
 // 搜索当前节点的临近节点
 // 这里采用八连通的搜索方式，　既是一个节点可以衍生出八个临近节点
 //【输入】node 当前节点
-//【输入】map地图信息
 //【输出】neiNodes 当前节点的临近节点 --这些节点的父节点是当前节点
 void AStarSearch::checkNeighbor(Node node, std::vector<Node> &neiNodes){
 
@@ -318,11 +213,15 @@ bool AStarSearch::checkNode(Node this_node,
                             NodeSet close_set,
                             nav_msgs::OccupancyGrid map){
     std::cout << std::endl;
+
     std::cout << "--[check node] --------[ " <<  this_node.x << " , " << this_node.y << " ]"<< std::endl;
+ 
     // 检测 node 是否在map范围内
     if (this_node.x < 0 || this_node.x > map.info.width || this_node.y < 0 || this_node.y > map.info.height)
     {
+        #ifdef DEBUG
         std::cout << "--[check node] outside map " << std::endl;
+        #endif
         return false;
     }
     
@@ -330,35 +229,47 @@ bool AStarSearch::checkNode(Node this_node,
     int checking = CollisionFree(this_node, map);
     if (checking == 1)
     {
+        #ifdef DEBUG
         std::cout << "--[check node] collision 1 " << std::endl;
+        #endif
         return false;
     }
 
     if (checking == -1)
     {
+        #ifdef DEBUG
         std::cout << "--[check node] collision -1 " << std::endl;
+        #endif
         return false;
     }
     
     if (checking == 0) //free状态
     {
+        #ifdef DEBUG
         std::cout << "--[check node] collision free " << std::endl;
+        #endif
         // 检测是否在close_set中
         if (inSet(this_node, close_set) != -1) // this_node  在 close_set中
         {
+            #ifdef DEBUG
             std::cout << "--[check node] in close set " << std::endl;
+            #endif
             return false;
         }
         
         // 计算 this_node 代价
         countCost(this_node, end_node, heuristic_func_);
+        #ifdef DEBUG
         std::cout << "--[check node] this_node-- " << this_node << std::endl;
+        #endif
         // 检测是否在open_set中
 
         int index = inSet(this_node, open_set);
         if (index != -1)
         {
+            #ifdef DEBUG
             std::cout << "--[check node] in open set " << std::endl;
+            #endif
             if (this_node.f < open_set[index].f)
             {
                 std::cout << "--[check node] rewrite node " << std::endl;
@@ -377,6 +288,8 @@ bool AStarSearch::checkNode(Node this_node,
         }
         
     }
+
+    return false;
 }
 
 
@@ -403,11 +316,17 @@ void AStarSearch::backSetNode(Node node){
         p_map.x = node.x;
         p_map.y = node.y;
         map2realCoordi(p, p_map, map_);
-        p_final_que_.push(p);
+        p_final_que_.push_back(p);
 
         backSetNode(*(node.father_node));
     }else
     {
+        std::cout << "[back set: ] " << node << std::endl;
+        geometry_msgs::Point p, p_map;
+        p_map.x = node.x;
+        p_map.y = node.y;
+        map2realCoordi(p, p_map, map_);
+        p_final_que_.push_back(p);
         return;
     }
 
@@ -483,14 +402,16 @@ void AStarSearch::search(geometry_msgs::Point p_start, geometry_msgs::Point p_en
 
     while (open_set_.size() > 0)
     {
-
+        std::this_thread::sleep_for(std::chrono::microseconds (1));
         std::cout << "************************** " << iter_ << std::endl;
         while (!vis_point_que.empty())
         {
             vis_point_que.pop();
         }
         
+        # ifdef DEBUG
         printSet(open_set_);
+        # endif
 
         iter_++;
 
@@ -509,8 +430,9 @@ void AStarSearch::search(geometry_msgs::Point p_start, geometry_msgs::Point p_en
 
         current_node = open_set_[0];
         
-
+        #ifdef DEBUG
         std::cout << "cu node: " << current_node << std::endl;
+        #endif
 
         //printSet(open_set_);
 
@@ -530,7 +452,9 @@ void AStarSearch::search(geometry_msgs::Point p_start, geometry_msgs::Point p_en
         // 检测邻域 
         std::vector<Node> neighborNodes;
         checkNeighbor(current_node, neighborNodes);
+        #ifdef DEBUG
         std::cout << " neighborNodes size: " << neighborNodes.size() << std::endl;
+        #endif
         
         //　检测current_node的邻域点
         geometry_msgs::Point p_new, p_map_new;
@@ -545,6 +469,7 @@ void AStarSearch::search(geometry_msgs::Point p_start, geometry_msgs::Point p_en
 
             if(checkNode(neighborNodes[i], end_node, open_set_, close_set_, map_)){
                 
+                // 将新节点保存以显示
                 p_map_new.x = neighborNodes[i].x;
                 p_map_new.y = neighborNodes[i].y;
 
@@ -597,8 +522,8 @@ void AStarSearch::getVisInfo(std::map<int, std::queue<geometry_msgs::Point> >& i
     {
         while (!p_final_que_.empty())
         {
-            p_final_q.push(p_final_que_.front());
-            p_final_que_.pop();
+            p_final_q.push(p_final_que_.back()); //因为p_final_que_是从终点往起点储存的，所以这里要从后往前读，p_final_q才是从起点往终点储存
+            p_final_que_.pop_back();
         }
     }
 

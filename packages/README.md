@@ -187,6 +187,9 @@
         - [x] rrt  
         - [x] rrt_connet
         - [x] rrt_star
+        - [x] A-star
+        - [x] Dijkstra
+        - [x] JPS
 
 * [scout_ros包](./UGV/scout_ros)  
   使用四驱小车进行导航gazebo仿真环境  

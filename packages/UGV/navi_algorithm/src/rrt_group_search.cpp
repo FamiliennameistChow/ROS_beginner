@@ -72,8 +72,8 @@ n_(nh_)
     nh_.param<float>("search_radius", search_radius_, 2); //rewire rrt 树时的搜索半径 [rrt-star参数]
 
     // ros订阅与发布
-    global_map_sub_ = n.subscribe("/gridMap", 100, &RRTStart::mapCallBack, this);
-    goal_sub_ = n.subscribe("/clicked_point", 100, &RRTStart::goalCallBack, this);
+    global_map_sub_ = n.subscribe("/gridMap", 10, &RRTStart::mapCallBack, this);
+    goal_sub_ = n.subscribe("/clicked_point", 10, &RRTStart::goalCallBack, this);
 
     rrt_node_pub_ = nh.advertise<visualization_msgs::Marker>("rrt_node", 10);
     rrt_tree_pub_ = nh.advertise<visualization_msgs::Marker>("rrt_tree", 10);
@@ -180,7 +180,7 @@ RRTStart::~RRTStart()
 
 void RRTStart::visRRTProcessThread(){
 
-    ros::Rate rate(10); 
+    ros::Rate rate(20); 
     geometry_msgs::Point p_temp;
     
     std::map<int, std::queue<geometry_msgs::Point> > iter_vis_info;
@@ -190,6 +190,7 @@ void RRTStart::visRRTProcessThread(){
 
     while (ros::ok())
     {
+        std::cout << " in vis..." << std::endl;
         rrt_group_search_->getVisInfo(iter_vis_info, p_final_que, count);
 
         if (count > iter_max_ - 2)
@@ -200,6 +201,8 @@ void RRTStart::visRRTProcessThread(){
 
         if (count == 0) //迭代未开始
         {
+            ros::spinOnce();
+            rate.sleep();
             continue;
         }else
         {
@@ -252,15 +255,18 @@ void RRTStart::visRRTProcessThread(){
 
                     while (!p_final_que.empty())
                     {
+                        std::cout << " pub final point " << std::endl;
                         final_line_.points.push_back(p_temp);
                         p_temp = p_final_que.front();
                         final_line_.points.push_back(p_temp);
                         p_final_que.pop();
 
-                        rrt_final_tree_pub_.publish(final_line_);
+                        // 
                         sleep(0.1);
-
                     }
+
+                    rrt_final_tree_pub_.publish(final_line_);
+                    
                     std::cout << "final line size add: " << final_line_.points.size() << std::endl;
                 }else{
                     continue;
@@ -271,7 +277,7 @@ void RRTStart::visRRTProcessThread(){
             
         }
 
-
+        ros::spinOnce();
         rate.sleep();
     }
     
@@ -281,25 +287,26 @@ void RRTStart::run(){
 
     // 获取起始点
     double last_command = ros::Time::now().toSec();
+    ros::Rate loop_rate(20);
     while (points_goal_.points.size()<3)
     {
         double now = ros::Time::now().toSec();
-        if (points_goal_.points.size()<1 && now - last_command > 2)
-        {
+        if(points_goal_.points.size() == 0){
             ROS_INFO("set {start point} in rviz");
-            last_command = ros::Time::now().toSec();
-        }else if (points_goal_.points.size()<2 && now - last_command > 2)
-        {
-            ROS_INFO("set {goal point} in rviz");
-            last_command = ros::Time::now().toSec();
-        }else if (points_goal_.points.size()<3 && now - last_command > 2)
-        {
-            ROS_INFO("clicked point to start!!!");
-            last_command = ros::Time::now().toSec();
         }
-        
-        rrt_node_pub_.publish(points_goal_);
+
+        if(points_goal_.points.size() == 1){
+            ROS_INFO("set {goal point} in rviz");
+            rrt_node_pub_.publish(points_goal_);
+        }
+
+        if(points_goal_.points.size() == 2){
+            ROS_INFO("clicked point to start!!!");
+            rrt_node_pub_.publish(points_goal_);
+        }
+
         ros::spinOnce();
+        loop_rate.sleep();
     }
 
     //加载地图
@@ -324,6 +331,7 @@ void RRTStart::mapCallBack(const nav_msgs::OccupancyGrid::ConstPtr& msg){
 
 void RRTStart::goalCallBack(const geometry_msgs::PointStamped::ConstPtr& msg){
     points_goal_.points.push_back(msg->point);
+
 }
 
 
@@ -334,7 +342,7 @@ int main(int argc, char** argv){
     ros::init(argc, argv, "rrt_group_search");
     ros::NodeHandle nh;
     ros::NodeHandle nh_("~");
-    ros::Rate rate(10);
+    ros::Rate rate(20);
     
     RRTStart rrt_start(nh, nh_);
 

@@ -59,21 +59,24 @@ public:
 
     virtual void updateMap(nav_msgs::OccupancyGrid map_data){
         std::cout << " this is updateMap function in base " << std::endl;
+        return;
     }
 
     virtual void search(geometry_msgs::Point p_start, geometry_msgs::Point p_end){
         std::cout << " this is search function in base " << std::endl;
+        return;
     }
 
     virtual bool getSearchState(){
-        ;
+        return false;
     }
 
     virtual void getVisInfo(std::map<int, std::queue<geometry_msgs::Point> >& iter_vis_info,
                                   std::queue<geometry_msgs::Point> &p_final_q,
                                   int &iter){
         std::cout << " this is getVisInfo function in base " << std::endl;
-        }
+        return;
+    }
 
     ~RRTGroupSearch();
 

@@ -312,4 +312,8 @@ pip install -U rosdep rosinstall_generator wstool rosinstall six vcstools
 
 * 为 tp_project 功能包添加了医院地图环境
 
+20220615 zb
+
+* 更新[navi_algorithm](./packages/UGV/navi_algorithm)包, 增加了JPS 和 Dijkstra 的实现
+
 </details>
